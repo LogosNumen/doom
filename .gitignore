@@ -17,3 +17,6 @@ img/.404-burst*.gif
 # os
 Thumbs.db
 .DS_Store
+
+# local preview config
+.claude/
