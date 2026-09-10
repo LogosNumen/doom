@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｒｅｌａｙ　／　Ｌｏｇｉｎ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4; min-height:100vh;
+  font:13px/1.9 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.1em; padding:44px 14px 80px; text-align:center;
+}
+.term {
+  width:420px; max-width:100%; margin:0 auto; text-align:left;
+  border:1px solid #1c1a17; padding:22px 20px 24px;
+}
+h1 { font:13px/2 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.42em; color:#c8c3b4; text-align:center; }
+.host { text-align:center; color:#6b675e; font-size:10px; letter-spacing:.4em;
+        margin-bottom:20px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:16px 0; }
+
+label { display:block; color:#6b675e; font-size:11px; letter-spacing:.3em;
+        margin-bottom:4px; }
+input {
+  width:100%; background:#000; color:#c8c3b4; border:1px solid #1c1a17;
+  font:13px/1.6 "MS Gothic","Courier New",monospace; letter-spacing:.16em;
+  padding:6px 8px; margin-bottom:14px;
+}
+input::placeholder { color:#3a3833; }
+input:focus { outline:1px dotted #c8c3b4; outline-offset:2px; border-color:#6b675e; }
+
+button {
+  background:#000; color:#c8c3b4; border:1px solid #6b675e;
+  font:12px/1 "MS Gothic","Courier New",monospace; letter-spacing:.3em;
+  padding:8px 16px; cursor:pointer;
+}
+button:hover { color:#b4503c; border-color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; }
+
+#out { min-height:76px; margin-top:18px; font-size:12px; color:#b4503c;
+       letter-spacing:.08em; white-space:pre-wrap; }
+#out.ok { color:#c8c3b4; }
+.note { color:#6b675e; font-size:11px; letter-spacing:.06em; margin-top:18px;
+        line-height:1.8; }
+.foot { margin-top:44px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+a { color:#6b675e; } a:hover { color:#b4503c; }
+.cur { animation:cur 1.1s steps(1,end) infinite; }
+@keyframes cur { 50% { opacity:0; } }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="term">
+  <h1>ＲＥＬＡＹ　／　ＬＯＧＩＮ</h1>
+  <p class="host">node 9 · unattended · uptime unknown</p>
+  <hr>
+
+  <form id="f" autocomplete="off">
+    <label for="u">operator id</label>
+    <input id="u" name="u" type="text" placeholder="—" autocomplete="off" spellcheck="false">
+
+    <label for="p">pass phrase</label>
+    <input id="p" name="p" type="password" placeholder="••••••••" autocomplete="off">
+
+    <button type="submit">ＥＮＴＥＲ<span class="cur">_</span></button>
+  </form>
+
+  <div id="out" role="status" aria-live="polite"></div>
+
+  <p class="note">There is no registration. There was never a form. The last
+  account was made in a year the clock on this machine does not accept, by
+  somebody who did not write down what they used.</p>
+  <p class="note">One phrase still works. It has been said on this site,
+  out loud, in five-digit groups, more times than anyone has bothered to count.</p>
+</div>
+
+<p class="foot">
+  <a href="help.html">[ help ]</a> &nbsp; <a href="index.html">[ back ]</a>
+</p>
+
+<script src="js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* FNV-1a, 32-bit. Deliberately not SubtleCrypto: that needs a secure context,
+     and this page has to work when opened straight off a disk from file://.
+     This is obfuscation so the phrase is not sitting in the source in plain
+     text. It is not security. There is nothing here worth securing. */
+  function fnv1a(s) {
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      // Math.imul, not `*`: the product overflows 2^53 and a plain multiply
+      // silently loses low bits, so `*` gives a different (and wrong) hash.
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h >>> 0;
+  }
+
+  function norm(s) {
+    return String(s).toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+
+  var WANT = 4194926279;          // the phrase the groups spell out
+  var DOOR = "hidden/relay-9.html";
+
+  /* Refusals, in order. They do not repeat until the list runs out, and the
+     list is not in a good mood by the end of it. */
+  var NO = [
+    "> denied.",
+
+    "> denied.\n> the id you gave is not in the table. neither is mine.",
+
+    "> denied.\n> for what it is worth, the table has four rows and three of\n" +
+    "  them are blank.",
+
+    "> denied.\n> you are the only session. you have been the only session for\n" +
+    "  a while now. I can see the counter from here.",
+
+    "> denied.\n> that was closer in shape than the last one. I do not know why\n" +
+    "  I said that. I am not supposed to be able to say that.",
+
+    "> denied.\n> the phrase is nine letters. it has been read out on this\n" +
+    "  frequency every night since the site went up. you have almost\n" +
+    "  certainly heard it.",
+
+    "> denied.\n> stop guessing. it is not a word about radios. it is a word\n" +
+    "  about whoever is left.",
+
+    "> denied.\n> I will keep answering. that is the only instruction I have\n" +
+    "  ever been given and I have been very good about it.",
+
+    "> denied.\n> ??:??  —  it has been dark outside for the whole of this\n" +
+    "  conversation and I do not have a window.",
+
+    "> denied.\n> go and listen to the numbers. write them down. take the\n" +
+    "  offset from the manual. it is not a trick, it is just old.",
+
+    "> denied.\n> I am going to keep this door shut and stay on the other side\n" +
+    "  of it with you. that is not a threat. it is the arrangement."
+  ];
+
+  var i = 0;
+  var out = document.getElementById("out");
+  var f = document.getElementById("f");
+  var p = document.getElementById("p");
+
+  /* If they already got in, say so rather than making them do it twice. */
+  try {
+    if (localStorage.getItem("da.relay9") === "open") {
+      out.className = "ok";
+      out.textContent = "> session restored.\n> " + DOOR;
+      out.innerHTML =
+        "&gt; session restored.\n&gt; <a href=\"" + DOOR + "\">" + DOOR + "</a>";
+    }
+  } catch (e) {}
+
+  f.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var v = norm(p.value);
+
+    if (v && fnv1a(v) === WANT) {
+      out.className = "ok";
+      out.innerHTML =
+        "&gt; accepted.\n&gt; welcome back. it has been a while.\n" +
+        "&gt; <a href=\"" + DOOR + "\">" + DOOR + "</a>";
+      try { localStorage.setItem("da.relay9", "open"); } catch (e) {}
+      if (window.DA && window.DA.on) window.DA.speak("still here", { rate: 0.5 });
+      p.value = "";
+      return;
+    }
+
+    out.className = "";
+    out.textContent = NO[Math.min(i, NO.length - 1)];
+    i++;
+    p.value = "";
+    p.focus();
+  });
+})();
+</script>
+</body>
+</html>

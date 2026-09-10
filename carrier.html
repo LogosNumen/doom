@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｃａｒｒｉｅｒ　Ｏｎｌｙ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+html, body { height:100%; }
+body {
+  background:#000; color:#c8c3b4; overflow:hidden;
+  font:10px/1.5 "MS Gothic","Osaka-Mono","Courier New",monospace;
+}
+
+/* ---- the field --------------------------------------------------- *
+ * One sentence, repeated until it stops being a sentence. It is real
+ * text in the markup, so it is there with JS switched off; JS only
+ * makes it drift and lets it change its mind.                         */
+
+#field {
+  position:fixed;
+  top:-20px; left:-20px; right:-20px; bottom:-20px;
+  color:#4a4740;
+  letter-spacing:.02em;
+  word-spacing:.1em;
+  overflow:hidden;
+  user-select:none;
+  will-change:transform;
+  padding:4px;
+}
+#field i { font-style:normal; }
+/* the ones that have changed their mind */
+#field i.turned { color:#8c877c; }
+
+/* ---- the centre --------------------------------------------------- */
+
+#centre {
+  position:fixed; inset:0;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:20px; padding:20px;
+  pointer-events:none;
+}
+#centre img {
+  /* scaled by a whole multiple, which is the only honest way to enlarge
+     something that was dithered at 288 across */
+  width:576px; max-width:92vw; height:auto;
+  pointer-events:auto;
+}
+/* Sat on solid black rather than haloed: the field behind these is dense
+   enough that a text-shadow does not cut it. The reference does the same
+   thing to its footer, and for the same reason. */
+#cap {
+  font-size:10px; letter-spacing:.5em; color:#6b675e; text-align:center;
+  background:#000; padding:5px 10px;
+}
+#back {
+  pointer-events:auto;
+  font-size:10px; letter-spacing:.5em; color:#c8c3b4; text-decoration:none;
+  background:#000; padding:6px 12px;
+}
+#back:hover, #back:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:4px; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.26) 2px, rgba(0,0,0,.26) 3px);
+}
+
+@media (max-width:700px) {
+  #field { font-size:9px; }
+  #centre { gap:14px; }
+}
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+</style>
+</head>
+<body>
+
+<div id="field" aria-hidden="true">
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+<i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>
+</div>
+
+<div id="centre">
+  <picture>
+    <source srcset="img/carrier_still.gif" media="(prefers-reduced-motion: reduce)">
+    <img src="img/carrier.gif" width="288" height="216" alt="A lattice mast at night, pushing ring after ring of signal out into an empty sky. The lamp on top keeps blinking.">
+  </picture>
+  <p id="cap">carrier present · no modulation</p>
+  <a id="back" href="index.html">[ back ]</a>
+</div>
+
+<script src="js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var field = document.getElementById("field");
+  var reduced =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var MAIN = "nobody is modulating this carrier";
+
+  /* What a tile turns into when it changes its mind. Read the wall long
+     enough and it stops saying the same thing. */
+  var TURNS = [
+    "somebody was here in march",
+    "the hut is still warm",
+    "i have not switched anything off",
+    "forty a minute is not possible",
+    "you are the only session tonight",
+    "still here",
+    "it has been dark the whole time",
+    "the meter reads the same in both photographs",
+    "i am not going to explain the name",
+    "still here",
+    "there is no procedure for shutting it down"
+  ];
+
+  /* ---- fill the field --------------------------------------------- */
+
+  function fill() {
+    var probe = document.createElement("i");
+    probe.textContent = MAIN + " · ";
+    field.textContent = "";
+    field.appendChild(probe);
+    var one = probe.getBoundingClientRect();
+    var w = field.clientWidth, h = field.clientHeight;
+    if (!one.width || !one.height) return;
+
+    /* Rows are line boxes, not glyph boxes. Measuring the <i> gives the glyph
+       height and overshoots the count by the line-height factor. */
+    var lh = parseFloat(getComputedStyle(field).lineHeight) || one.height || 14;
+    var perRow = Math.ceil(w / one.width) + 1;
+    var rows = Math.ceil(h / lh) + 1;
+    var want = Math.min(4000, perRow * rows);
+
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < want; i++) {
+      var s = document.createElement("i");
+      s.textContent = MAIN + " · ";
+      frag.appendChild(s);
+    }
+    field.textContent = "";
+    field.appendChild(frag);
+  }
+
+  fill();
+
+  var resizeTimer = null;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(fill, 250);
+  });
+
+  /* ---- drift ------------------------------------------------------ *
+   * A fraction of a pixel per frame, so it never quite sits still and
+   * you are never quite sure it is moving.                            */
+
+  if (!reduced) {
+    var t = 0;
+    (function drift() {
+      t += 1;
+      var x = Math.sin(t * 0.0021) * 9;
+      var y = Math.cos(t * 0.0013) * 7 + t * 0.006 % 14;
+      field.style.transform = "translate3d(" + x.toFixed(2) + "px," + y.toFixed(2) + "px,0)";
+      requestAnimationFrame(drift);
+    })();
+  }
+
+  /* ---- one tile at a time changes its mind, and stays changed ------ */
+
+  function turn() {
+    var kids = field.children;
+    if (!kids.length) return;
+    var el = kids[Math.floor(Math.random() * kids.length)];
+    if (el.classList.contains("turned")) return;
+    el.classList.add("turned");
+    el.textContent = TURNS[Math.floor(Math.random() * TURNS.length)] + " · ";
+  }
+
+  // the first one comes early enough that you catch it, the rest do not
+  setTimeout(turn, 9000);
+  setInterval(turn, 40000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｔｒａｃｋｌｉｓｔ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4; text-align:center;
+  font:12px/1.9 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.1em; padding:36px 12px 90px;
+}
+.page { max-width:640px; margin:0 auto; }
+h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.5em; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:8px; }
+.warn { color:#6b675e; font-size:11px; letter-spacing:.06em; max-width:46ch;
+        margin:0 auto 26px; line-height:1.9; }
+hr { border:0; border-top:1px solid #1c1a17; margin:20px 0; }
+
+table { width:100%; border-collapse:collapse; text-align:left; }
+th { color:#6b675e; font-weight:normal; font-size:10px; letter-spacing:.3em;
+     padding:0 0 8px; border-bottom:1px solid #1c1a17; }
+td { padding:11px 6px 11px 0; border-bottom:1px solid #100e0c; vertical-align:top; }
+td.n { color:#6b675e; width:28px; font-size:11px; }
+td.t { }
+td.t small { display:block; color:#6b675e; font-size:10px; letter-spacing:.04em;
+             line-height:1.7; margin-top:2px; }
+td.len { color:#6b675e; font-size:10px; width:52px; white-space:nowrap; }
+td.m { width:88px; }
+td.b { width:64px; text-align:right; }
+
+.meter { color:#3a3833; letter-spacing:0; font-size:13px; line-height:1;
+         display:inline-block; }
+tr.live .meter { color:#b4503c; }
+tr.live td.t { color:#c8c3b4; }
+
+button {
+  background:#000; color:#c8c3b4; border:1px solid #1c1a17;
+  font:11px/1 "MS Gothic","Courier New",monospace; letter-spacing:.2em;
+  padding:6px 9px; cursor:pointer; min-width:56px;
+}
+button:hover { color:#b4503c; border-color:#6b675e; }
+tr.live button { color:#b4503c; border-color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; }
+
+a { color:#6b675e; text-decoration:none; }
+a:hover, a:focus { color:#b4503c; }
+.foot { margin-top:44px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+@media (max-width:520px) {
+  td.len, th.len { display:none; }
+  td.m, th.m { width:56px; }
+  td.b, th.b { width:56px; }
+  button { min-width:48px; padding:6px 6px; letter-spacing:.1em; }
+}
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Ｔｒａｃｋｌｉｓｔ</h1>
+<p class="sub">seven patches · no files</p>
+<p class="warn">None of these are recordings. There is no audio on this server.
+Each one is a handful of oscillators and a noise buffer, built when you press
+play and thrown away when you press stop. They are never twice the same and
+nobody can send you a copy.</p>
+
+<hr>
+
+<table>
+  <thead>
+    <tr>
+      <th class="n">#</th>
+      <th>ｔｉｔｌｅ</th>
+      <th class="len">ｌｅｎ</th>
+      <th class="m">ｌｅｖｅｌ</th>
+      <th class="b"></th>
+    </tr>
+  </thead>
+  <tbody id="rows"></tbody>
+</table>
+
+<p class="foot">
+  <a href="etc/numbers.html">[ numbers ]</a> &nbsp;
+  <a href="carrier.html">[ carrier ]</a> &nbsp;
+  <a href="index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* Each patch gets (ctx, out) and returns its own teardown. DA.play() makes
+     sure only one of them — or one experiment, anywhere on the site — is
+     running at any moment. */
+
+  function osc(c, type, f, g, to) {
+    var o = c.createOscillator(), v = c.createGain();
+    o.type = type; o.frequency.value = f; v.gain.value = g;
+    o.connect(v); v.connect(to); o.start();
+    return o;
+  }
+
+  function killer(nodes, bus) {
+    return function () {
+      nodes.forEach(function (n) { try { n.stop(); } catch (e) {} });
+      try { bus.disconnect(); } catch (e) {}
+    };
+  }
+
+  var TRACKS = [
+    {
+      t: "Ｃａｒｒｉｅｒ　ｏｎｌｙ",
+      d: "the empty channel, unmodulated. what the station actually sounds like.",
+      len: "∞",
+      build: function (c, out) { return window.DA.drone(c, out); }
+    },
+    {
+      t: "Ｍａｉｎｓ",
+      d: "fifty cycles and everything it drags in behind it.",
+      len: "∞",
+      build: function (c, out) {
+        var bus = c.createGain(); bus.gain.value = 0.34; bus.connect(out);
+        var n = [];
+        [50, 100, 150, 250, 350].forEach(function (f, i) {
+          n.push(osc(c, i ? "sine" : "triangle", f, 0.20 / (i + 1), bus));
+        });
+        return killer(n, bus);
+      }
+    },
+    {
+      t: "Ｓｎｏｗ",
+      d: "the dead channel, high-passed. brighter than you remember it.",
+      len: "∞",
+      build: function (c, out) {
+        var bus = c.createGain(); bus.gain.value = 0.22; bus.connect(out);
+        var n = window.DA.noise();
+        var hp = c.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 1900;
+        n.connect(hp); hp.connect(bus); n.start();
+        return killer([n], bus);
+      }
+    },
+    {
+      t: "Ｍａｒｋｅｒ，　４６２５",
+      d: "the buzzer. one pulse a second, forever, for no stated reason.",
+      len: "∞",
+      build: function (c, out) {
+        var bus = c.createGain(); bus.gain.value = 0.0; bus.connect(out);
+        var o = osc(c, "square", 830, 0.12, bus);
+        // one pulse a second, gated on the bus rather than by restarting the osc
+        function pulse() {
+          var now = c.currentTime;
+          bus.gain.cancelScheduledValues(now);
+          bus.gain.setValueAtTime(0.0, now);
+          bus.gain.linearRampToValueAtTime(0.5, now + 0.02);
+          bus.gain.linearRampToValueAtTime(0.0, now + 0.32);
+        }
+        pulse();
+        var iv = setInterval(pulse, 1000);
+        return function () { clearInterval(iv); killer([o], bus)(); };
+      }
+    },
+    {
+      t: "Ｓｌｏｗ　ｓｗｅｅｐ",
+      d: "a bandpass walking up and down the noise floor at one pass a minute.",
+      len: "∞",
+      build: function (c, out) {
+        var bus = c.createGain(); bus.gain.value = 0.42; bus.connect(out);
+        var n = window.DA.noise();
+        var bp = c.createBiquadFilter();
+        bp.type = "bandpass"; bp.frequency.value = 700; bp.Q.value = 5.5;
+        n.connect(bp); bp.connect(bus); n.start();
+        var lfo = c.createOscillator(); lfo.frequency.value = 0.017;
+        var lg = c.createGain(); lg.gain.value = 900;
+        lfo.connect(lg); lg.connect(bp.frequency); lfo.start();
+        return killer([n, lfo], bus);
+      }
+    },
+    {
+      t: "Ｔｗｏ　ｔｏｎｅｓ",
+      d: "220 and 220.6. the beat is the whole track. count it if you like.",
+      len: "∞",
+      build: function (c, out) {
+        var bus = c.createGain(); bus.gain.value = 0.3; bus.connect(out);
+        var a = osc(c, "sine", 220, 0.3, bus);
+        var b = osc(c, "sine", 220.6, 0.3, bus);
+        return killer([a, b], bus);
+      }
+    },
+    {
+      t: "Ｒａｉｎ　ｏｎ　ｔｈｅ　ｈｕｔ",
+      d: "recorded nowhere. corrugated iron, approximately, from arithmetic.",
+      len: "∞",
+      build: function (c, out) {
+        var bus = c.createGain(); bus.gain.value = 0.5; bus.connect(out);
+        var n = window.DA.noise();
+        var lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 5200;
+        var pk = c.createBiquadFilter();
+        pk.type = "peaking"; pk.frequency.value = 2400; pk.gain.value = 9; pk.Q.value = 1.2;
+        var g = c.createGain(); g.gain.value = 0.16;
+        n.connect(lp); lp.connect(pk); pk.connect(g); g.connect(bus); n.start();
+        var lfo = c.createOscillator(); lfo.frequency.value = 0.09;
+        var lg = c.createGain(); lg.gain.value = 0.05;
+        lfo.connect(lg); lg.connect(g.gain); lfo.start();
+        return killer([n, lfo], bus);
+      }
+    }
+  ];
+
+  /* ---- table ------------------------------------------------------ */
+
+  var rows = document.getElementById("rows");
+  var live = null;
+  var analyser = null;
+  var buf = null;
+
+  var BARS = " ▁▂▃▅▇";
+
+  TRACKS.forEach(function (tr, i) {
+    var el = document.createElement("tr");
+    el.innerHTML =
+      '<td class="n">' + String(i + 1).padStart(2, "0") + "</td>" +
+      '<td class="t">' + tr.t + "<small>" + tr.d + "</small></td>" +
+      '<td class="len">' + tr.len + "</td>" +
+      '<td class="m"><span class="meter">' + "▁".repeat(9) + "</span></td>" +
+      '<td class="b"><button type="button">ＰＬＡＹ</button></td>';
+    rows.appendChild(el);
+
+    var btn = el.querySelector("button");
+    btn.addEventListener("click", function () {
+      if (live === el) { window.DA.stop(); return; }
+      var ok = window.DA.play("track-" + i, function (c, out) {
+        var tap = c.createGain(); tap.gain.value = 1.0; tap.connect(out);
+        var stop = tr.build(c, tap);
+        analyser = c.createAnalyser();
+        analyser.fftSize = 512;
+        buf = new Uint8Array(analyser.fftSize);
+        tap.connect(analyser);
+        return function () { stop(); try { analyser.disconnect(); } catch (e) {} analyser = null; };
+      });
+      if (!ok) {
+        el.querySelector(".meter").textContent = "no audio";
+      }
+    });
+  });
+
+  /* the bus tells everyone who is playing; the table just listens */
+  document.addEventListener("da:source", function (e) {
+    var id = e.detail.id;
+    [].forEach.call(rows.children, function (el, i) {
+      var on = id === "track-" + i;
+      el.classList.toggle("live", on);
+      el.querySelector("button").textContent = on ? "ＳＴＯＰ" : "ＰＬＡＹ";
+      if (on) live = el;
+      if (!on) el.querySelector(".meter").textContent = "▁".repeat(9);
+    });
+    if (!id) { live = null; analyser = null; }
+  });
+
+  /* ---- the level meter -------------------------------------------- */
+
+  var reduced =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function tick() {
+    if (live && analyser && buf) {
+      analyser.getByteTimeDomainData(buf);
+      var sum = 0;
+      for (var i = 0; i < buf.length; i++) {
+        var v = (buf[i] - 128) / 128;
+        sum += v * v;
+      }
+      var rms = Math.sqrt(sum / buf.length);
+      var lvl = Math.min(1, rms * 5.5);
+      var s = "";
+      for (var b = 0; b < 9; b++) {
+        var need = (b + 1) / 9;
+        var step = lvl >= need ? 5 : Math.max(1, Math.round(lvl / need * 5) || 1);
+        s += BARS.charAt(Math.min(5, step));
+      }
+      live.querySelector(".meter").textContent = s;
+    }
+    setTimeout(tick, reduced ? 900 : 90);
+  }
+  tick();
+})();
+</script>
+</body>
+</html>

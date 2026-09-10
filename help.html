@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｈｅｌｐ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4; text-align:center;
+  font:12px/2.0 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.1em; padding:34px 14px 90px;
+}
+.page { max-width:600px; margin:0 auto; }
+h1 { font:14px/2.6 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.5em; }
+h2 { font:12px/3.2 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.42em; color:#c8c3b4; }
+.rule { color:#6b675e; font-size:10px; letter-spacing:.2em; margin:10px 0 26px;
+        overflow:hidden; white-space:nowrap; }
+.toc { font-size:11px; letter-spacing:.24em; line-height:2.3; margin:22px 0 10px; }
+.toc s { color:#3a3833; }
+p { margin:0 auto 14px; max-width:52ch; text-align:left; }
+.spec { text-align:left; max-width:52ch; margin:0 auto 16px; color:#6b675e;
+        font-size:11px; letter-spacing:.06em; line-height:1.95; }
+.spec b { color:#c8c3b4; font-weight:normal; }
+.q { color:#6b675e; }
+a { color:#c8c3b4; text-decoration:none; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
+.sec { margin-bottom:52px; }
+.foot { margin-top:50px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+.foot a { color:#6b675e; }
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+@media (max-width:520px){ .rule{ font-size:8px; } h2{ letter-spacing:.24em; } }
+@media (prefers-reduced-motion:reduce){ *{ animation:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Ｈｅｌｐ</h1>
+<p class="rule">●　●　──────────────────────────────────────────　●　●</p>
+
+<picture>
+  <source srcset="img/icon_still.gif" media="(prefers-reduced-motion: reduce)">
+  <img src="img/icon.gif" width="64" height="56" alt="The station mast, throwing arcs at nothing in particular.">
+</picture>
+
+<p class="toc">
+  <a href="#begin">Ｂｅｆｏｒｅ　ｙｏｕ　ｂｅｇｉｎ</a><br>
+  <a href="#panel">Ｔｈｅ　ｆｒｏｎｔ　ｐａｎｅｌ</a><br>
+  <a href="#reg">Ｒｅｇｉｓｔｅｒｓ</a><br>
+  <a href="#lamp">Ｉｆ　ｔｈｅ　ｌａｍｐ　ｉｓ　ｌｉｔ</a><br>
+  <a href="#faults">Ｆａｕｌｔｓ</a><br>
+  <s>Ｌｏｇｇｉｎｇ　ｉｎ</s><br>
+  <a href="#maint">Ｍａｉｎｔｅｎａｎｃｅ</a>
+</p>
+
+<p class="rule">●　●　──────────────────────────────────────────　●　●</p>
+
+<div class="sec" id="begin">
+<h2>Ｂｅｆｏｒｅ　ｙｏｕ　ｂｅｇｉｎ</h2>
+<p>This manual describes a machine. Whether the machine described is the machine
+in front of you is a question this manual is not equipped to answer, and the
+question comes up more often than you would like.</p>
+<p>Read the whole thing before touching anything. Then read it again, because on
+the second pass you will notice that the sections do not agree with each other,
+and knowing which parts disagree is more useful than believing any of them.</p>
+<p class="q">If you were sent here from the login: this page will not tell you the
+phrase. It will tell you something you need in order to work it out, which is
+different, and worse.</p>
+</div>
+
+<p class="rule">●　●　──────────────────────────────────────────　●　●</p>
+
+<div class="sec" id="panel">
+<h2>Ｔｈｅ　ｆｒｏｎｔ　ｐａｎｅｌ</h2>
+<p>Left to right: the meter, the coarse control, the fine control, the lamp,
+and one unlabelled toggle.</p>
+<p>The meter reads out of a circuit that was cut before delivery. It moves.
+Nobody has established what moves it.</p>
+<p>The coarse and fine controls are geared together at a ratio that is printed
+nowhere. Turning the fine control past its stop turns the coarse control by one
+increment, which means the machine has no upper limit, which means the scale
+printed on the front is decorative.</p>
+<p>Do not use the unlabelled toggle. Not because of what it does — because
+after you have used it you will not be able to stop thinking about what it did.</p>
+</div>
+
+<p class="rule">●　●　──────────────────────────────────────────　●　●</p>
+
+<div class="sec" id="reg">
+<h2>Ｒｅｇｉｓｔｅｒｓ</h2>
+<p>Eight registers. Six are factory-set and sealed. Two are yours.</p>
+<div class="spec">
+  R0 &nbsp; CARRIER &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sealed &nbsp; — always 1. it has never been 0.<br>
+  R1 &nbsp; DWELL &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sealed &nbsp; — 40, in minutes<br>
+  R2 &nbsp; GROUP&nbsp;LENGTH &nbsp;sealed &nbsp; — 5<br>
+  R3 &nbsp; <b>OFFSET</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sealed &nbsp; — <b>07</b>. subtract it. do not add it.<br>
+  R4 &nbsp; REPEAT &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; sealed &nbsp; — 2<br>
+  R5 &nbsp; PREAMBLE &nbsp;&nbsp;&nbsp;&nbsp; sealed &nbsp; — 12 seconds of tone<br>
+  R6 &nbsp; — &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; yours &nbsp;&nbsp; — blank<br>
+  R7 &nbsp; — &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; yours &nbsp;&nbsp; — blank
+</div>
+<p>R3 is the register people write in about. It is an <i>offset</i>, in the
+ordinary sense: the amount by which the thing you are looking at differs from the
+thing you want. The transmitted value is always high by R3. Take R3 off it.</p>
+<p>The two blank registers were blank when the machine arrived and there is no
+documented way to write to them. I mention them because there is a scratch on the
+paint under R7, of the kind a fingernail makes.</p>
+</div>
+
+<p class="rule">●　●　──────────────────────────────────────────　●　●</p>
+
+<div class="sec" id="lamp">
+<h2>Ｉｆ　ｔｈｅ　ｌａｍｐ　ｉｓ　ｌｉｔ</h2>
+<p>Steady: normal.</p>
+<p>Blinking, thirty a minute: normal.</p>
+<p>Blinking, forty a minute: also normal. Nothing in the machine is capable of
+forty a minute.</p>
+<p>Out: the machine is running correctly and the lamp has failed. There is no
+condition in which the lamp being out means the machine has stopped. The machine
+does not have a way to stop.</p>
+</div>
+
+<p class="rule">●　●　──────────────────────────────────────────　●　●</p>
+
+<div class="sec" id="faults">
+<h2>Ｆａｕｌｔｓ</h2>
+<div class="spec">
+  <b>No output.</b> &nbsp;Not a fault. Check the meter, which is not connected.<br><br>
+  <b>Output when the machine is off.</b> &nbsp;Not a fault. See DWELL.<br><br>
+  <b>Wrong output.</b> &nbsp;There is no wrong output. There is output you were not
+  expecting, which is a different section of a different manual.<br><br>
+  <b>Voice on the channel.</b> &nbsp;Log the time. Do not answer. Answering has
+  never made it stop and on one occasion is understood to have made it worse.<br><br>
+  <b>Two lamps.</b> &nbsp;There is one lamp.
+</div>
+</div>
+
+<p class="rule">●　●　──────────────────────────────────────────　●　●</p>
+
+<div class="sec" id="maint">
+<h2>Ｍａｉｎｔｅｎａｎｃｅ</h2>
+<p>Annually: check the guy wires, replace the lamp, sweep the floor of the hut.</p>
+<p>The lamp does not need replacing. Replace it anyway. It is the only task on
+this list that anybody has ever actually completed and there is a value in that
+which the schedule does not capture.</p>
+<p>There is no procedure for shutting the station down. There was one. It is not
+in this copy, and the page numbers run continuously, so it was never in this copy.</p>
+</div>
+
+<p class="rule">●　●　──────────────────────────────────────────　●　●</p>
+
+<p class="foot">
+  <a href="login.html">[ login ]</a> &nbsp;
+  <a href="dir.html">[ dir ]</a> &nbsp;
+  <a href="index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="js/sound.js"></script>
+</body>
+</html>
