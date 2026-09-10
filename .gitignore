@@ -1,0 +1,19 @@
+# python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# node, if it ever turns up
+node_modules/
+
+# screenshots from the critique pass
+screenshots/
+*.png.tmp
+
+# scratch files from the asset pipeline
+img/.404-burst*.gif
+
+# os
+Thumbs.db
+.DS_Store

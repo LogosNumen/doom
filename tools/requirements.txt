@@ -1,0 +1,3 @@
+# tools/ only — the site itself has no dependencies at all.
+Pillow>=10.0
+numpy>=1.24
