@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｒｅｌａｙ　Ｎｉｎｅ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4; text-align:center;
+  font:13px/2.05 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.08em; padding:46px 14px 90px;
+}
+.page { max-width:540px; margin:0 auto; }
+
+h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.6em; color:#b4503c; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.45em; margin-bottom:26px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:26px 0; }
+
+p { max-width:44ch; margin:0 auto 18px; text-align:left; }
+p.mid { text-align:center; }
+p.quiet { color:#6b675e; }
+
+.stamp {
+  border:1px solid #b4503c; color:#b4503c; display:inline-block;
+  padding:8px 16px; letter-spacing:.5em; font-size:11px; margin-bottom:24px;
+}
+
+.roll { color:#6b675e; font-size:11px; letter-spacing:.04em; text-align:left;
+        max-width:44ch; margin:0 auto 20px; line-height:2.0; }
+.roll b { color:#c8c3b4; font-weight:normal; }
+
+a { color:#c8c3b4; text-decoration:none; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
+.foot { margin-top:44px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+.foot a { color:#6b675e; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<p class="mid"><span class="stamp">ＳＥＳＳＩＯＮ　ＯＰＥＮ</span></p>
+
+<h1>Ｒｅｌａｙ　Ｎｉｎｅ</h1>
+<p class="sub">you took the offset off</p>
+
+<picture>
+  <source srcset="../img/mast_still.gif" media="(prefers-reduced-motion: reduce)">
+  <img src="../img/mast.gif" width="168" height="160" alt="The mast at night with its lamp lit, seen from the road at the bottom of the site.">
+</picture>
+
+<hr>
+
+<p>So: nine groups, two digits each that mean anything, one number taken off
+them, and it spells the least mysterious thing it could possibly have spelled.</p>
+
+<p class="quiet">I did think about making it a better word. Something with more
+in it. I sat with a list for an evening and everything I liked was a word about
+radios, and the station is not about radios, and the two people who have got
+this far did not do it for a word about radios.</p>
+
+<p>It says what it says because that is the whole content of the transmission
+and always has been. A machine nobody is at, saying <b>still here</b>, on a
+frequency nobody is on, every night, correctly, for years.</p>
+
+<hr>
+
+<div class="roll">
+  ＷＨＡＴ　ＩＳ　ＡＣＴＵＡＬＬＹ　ＵＰ　ＴＨＥＲＥ<br>
+  ── one mast, guyed, <b>lamp working</b><br>
+  ── one hut, warm, reason unknown<br>
+  ── four racks, three of them off<br>
+  ── one <a href="hum.html">hum</a> with no source<br>
+  ── one recorder, one reel, one <a href="tape-b7.html">splice</a><br>
+  ── one duty log that stops on a <a href="0300z.html">Tuesday</a><br>
+  ── no procedure for shutting any of it down
+</div>
+
+<p class="quiet">That is the end of the site. There is nothing behind this page.
+I checked, in the way you check a pocket you know is empty, and this time it
+really was.</p>
+
+<p>Thanks for going through it properly. Put the sound on for the walk back.</p>
+
+<p class="foot">
+  <a href="../carrier.html">[ carrier ]</a> &nbsp;
+  <a href="../index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="../js/sound.js"></script>
+<script>
+  // the door stays open once it has been opened
+  try { localStorage.setItem("da.relay9", "open"); } catch (e) {}
+</script>
+</body>
+</html>

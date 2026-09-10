@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｈｕｍ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+html, body { height:100%; }
+body {
+  background:#000; color:#6b675e; overflow-x:hidden;
+  font:12px/2.1 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.06em; padding:0 14px 70px; text-align:center;
+}
+
+/* the whole page sits on a bar that never stops */
+#bar {
+  position:fixed; left:0; right:0; top:0; height:2px; background:#1c1a17;
+  overflow:hidden; z-index:20;
+}
+#bar i { position:absolute; top:0; height:2px; width:60px; background:#b4503c;
+         animation:crawl 9s linear infinite; }
+@keyframes crawl { from { left:-60px; } to { left:100%; } }
+
+.page { max-width:520px; margin:0 auto; padding-top:64px; }
+h1 { font:13px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.6em; color:#c8c3b4; }
+.sub { color:#3a3833; font-size:10px; letter-spacing:.4em; margin-bottom:28px; }
+p { max-width:44ch; margin:0 auto 18px; text-align:left; }
+p.pale { color:#c8c3b4; }
+hr { border:0; border-top:1px solid #1c1a17; margin:26px 0; }
+
+.spec { text-align:left; max-width:44ch; margin:0 auto 20px; font-size:11px;
+        letter-spacing:.05em; line-height:2.0; color:#6b675e; }
+.spec b { color:#c8c3b4; font-weight:normal; }
+
+button { background:#000; color:#c8c3b4; border:1px solid #6b675e;
+         font:11px/1 "MS Gothic","Courier New",monospace; letter-spacing:.3em;
+         padding:9px 15px; cursor:pointer; margin-top:6px; }
+button:hover { color:#b4503c; border-color:#b4503c; }
+button[aria-pressed="true"] { color:#b4503c; border-color:#b4503c; }
+a { color:#c8c3b4; text-decoration:none; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
+.foot { margin-top:44px; font-size:10px; letter-spacing:.5em; }
+.foot a { color:#6b675e; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+</style>
+</head>
+<body>
+
+<div id="bar"><i></i></div>
+
+<div class="page">
+
+<h1>Ｈｕｍ</h1>
+<p class="sub">behind the door nobody logged</p>
+
+<p class="pale">There are four racks in the hut. Three of them are switched off
+at the wall and have been since before I had keys.</p>
+
+<p>The fourth is not connected to anything. Both ends. I have traced the loom
+twice, once with a meter and once with my hands in the dark because the light in
+there is on the same circuit as the three that are off.</p>
+
+<p class="pale">It hums.</p>
+
+<p>Fifty cycles, and the harmonics you would expect, and one component at about
+eleven hertz that is not a harmonic of anything and that I have decided, in
+writing, on this page, not to identify.</p>
+
+<hr>
+
+<div class="spec">
+  ＷＨＡＴ　Ｉ　ＫＮＯＷ<br>
+  ── it is not the mains. the mains are off.<br>
+  ── it is not the mast. I have stood under the mast.<br>
+  ── it is louder in february<br>
+  ── it is the same note as the <a href="../tracklist.html">carrier</a><br>
+  ── <b>it has never once stopped</b><br>
+</div>
+
+<p>You can have it. It is only arithmetic — two oscillators and a filter, same
+as everything else on this site. But it is the right arithmetic, and if you put
+it on quietly and leave it on, after about twenty minutes you will start doing
+what I do, which is checking whether it is still there.</p>
+
+<p style="text-align:center"><button id="hum" type="button" aria-pressed="false">ＬＩＳＴＥＮ</button></p>
+
+<hr>
+
+<p>Since you are down here: the thing people write in about is the
+<a href="../etc/numbers.html">numbers</a>, and the thing they get stuck on is
+that they add the offset instead of taking it off. The register is R3. It is
+in the <a href="../help.html">manual</a>, under Registers, where a register
+would be.</p>
+
+<p class="foot">
+  <a href="../dir.html">[ dir ]</a> &nbsp;
+  <a href="../index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="../js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+  var b = document.getElementById("hum");
+
+  b.addEventListener("click", function () {
+    if (window.DA.playing("hum")) { window.DA.stop(); return; }
+    window.DA.play("hum", function (c, out) {
+      var bus = c.createGain(); bus.gain.value = 0.34; bus.connect(out);
+      var n = [];
+      function o(type, f, g) {
+        var x = c.createOscillator(), v = c.createGain();
+        x.type = type; x.frequency.value = f; v.gain.value = g;
+        x.connect(v); v.connect(bus); x.start(); n.push(x);
+      }
+      o("sine", 50, 0.30);
+      o("sine", 100, 0.12);
+      o("sine", 150, 0.07);
+      o("triangle", 250, 0.03);
+      o("sine", 11, 0.00);            // felt, not heard: it moves the bus instead
+      var slow = c.createOscillator(); slow.frequency.value = 11;
+      var sg = c.createGain(); sg.gain.value = 0.10;
+      slow.connect(sg); sg.connect(bus.gain); slow.start(); n.push(slow);
+      return function () {
+        n.forEach(function (x) { try { x.stop(); } catch (e) {} });
+        bus.disconnect();
+      };
+    });
+  });
+
+  document.addEventListener("da:source", function (e) {
+    var on = e.detail.id === "hum";
+    b.setAttribute("aria-pressed", on ? "true" : "false");
+    b.textContent = on ? "ＥＮＯＵＧＨ" : "ＬＩＳＴＥＮ";
+  });
+})();
+</script>
+</body>
+</html>

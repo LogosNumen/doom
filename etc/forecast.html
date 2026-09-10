@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｆｏｒｅｃａｓｔ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4;
+  font:13px/1.95 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.06em; padding:34px 14px 80px; text-align:center;
+}
+.page { max-width:620px; margin:0 auto; }
+h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.5em; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:18px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:20px 0; }
+
+.body { text-align:left; }
+.lead { color:#6b675e; font-size:11px; letter-spacing:.24em; margin:22px 0 8px; }
+.syn { margin-bottom:6px; max-width:56ch; }
+
+.area { margin:0 0 16px; padding-left:0; }
+.area .nm { color:#c8c3b4; letter-spacing:.3em; }
+.area .fc { color:#6b675e; letter-spacing:.04em; }
+.area.spoken .nm { color:#b4503c; }
+
+.gale { color:#b4503c; letter-spacing:.14em; margin:14px 0 18px; }
+
+.bar { margin-top:24px; display:flex; gap:14px; justify-content:center;
+       flex-wrap:wrap; align-items:center; }
+button { background:#000; color:#c8c3b4; border:1px solid #6b675e;
+         font:11px/1 "MS Gothic","Courier New",monospace; letter-spacing:.3em;
+         padding:9px 15px; cursor:pointer; }
+button:hover { color:#b4503c; border-color:#b4503c; }
+a { color:#6b675e; text-decoration:none; letter-spacing:.4em; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; }
+
+.foot { color:#3a3833; font-size:10px; letter-spacing:.2em; margin-top:30px; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+@media (max-width:520px) { body { font-size:12px; } .area .nm { letter-spacing:.2em; } }
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Ｆｏｒｅｃａｓｔ</h1>
+<p class="sub">nightside · 0048 · issued to nobody</p>
+
+<picture>
+  <source srcset="../img/horizon_still.gif" media="(prefers-reduced-motion: reduce)">
+  <img src="../img/horizon.gif" width="224" height="88" alt="A flat sea under stars with one light on the water, blinking.">
+</picture>
+
+<hr>
+
+<div class="body" id="out"></div>
+
+<p class="bar">
+  <button id="again" type="button">ＲＥＩＳＳＵＥ</button>
+  <button id="read" type="button">ＲＥＡＤ　ＩＴ</button>
+</p>
+
+<p class="foot">ｎｏｎｅ　ｏｆ　ｔｈｅｓｅ　ａｒｅ　ｏｎ　ａｎｙ　ｃｈａｒｔ</p>
+
+<p class="bar">
+  <a href="../dir.html">[ dir ]</a>
+  <a href="../index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="../js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* Sea areas I have written down over the years and never found. The list is
+     invented; the shape of the bulletin is the standard one, because the shape
+     is the comforting part and the names are the wrong part. */
+  var AREAS = [
+    "Corvid", "Lint", "Haar", "Slattern Deep", "Bight of Nine",
+    "Marrow", "Cess Bank", "Anvil Shoal", "Thole", "Verge",
+    "Cold Sisters", "Rook", "Fastness", "Lammer", "Quiet Ground",
+    "Scarp", "Needle Bank", "Tallow", "Winder", "Nine Mile Flat",
+    "Long Sunday", "Ember", "Tarn Hole", "Widow's Reach"
+  ];
+
+  var DIR = ["north", "northeast", "east", "southeast",
+             "south", "southwest", "west", "northwest"];
+  var VEER = ["veering", "backing", "becoming cyclonic", "later veering",
+              "occasionally", "then"];
+  var SEA = ["smooth", "slight", "moderate", "rough", "very rough",
+             "high", "moderate or rough", "slight or moderate"];
+  var WX = ["fair", "showers", "rain then fair", "drizzle", "thundery showers",
+            "fog patches", "occasional rain", "squally showers", "dry",
+            "sleet in the north"];
+  var VIS = ["good", "moderate", "poor", "good occasionally poor",
+             "moderate or poor", "very poor", "poor becoming good",
+             "moderate, occasionally very poor"];
+  var SYSTEM = ["low", "complex low", "trough", "high", "ridge",
+                "slow-moving low", "occluded front"];
+  var MOVE = ["losing its identity", "filling slowly", "moving steadily east",
+              "stationary", "declining", "moving northeast and deepening",
+              "expected to be slow to clear", "unchanged since the last issue"];
+  var PLACE = ["west of Corvid", "over Quiet Ground", "north of Thole",
+               "in the approaches to Lammer", "somewhere off Rook",
+               "east of Nine Mile Flat", "over the Cold Sisters"];
+
+  function pick(a) { return a[Math.floor(Math.random() * a.length)]; }
+  function chance(p) { return Math.random() < p; }
+
+  function force() {
+    var a = 2 + Math.floor(Math.random() * 8);
+    if (chance(0.55)) {
+      var b = a + 1 + Math.floor(Math.random() * 2);
+      return a + " to " + Math.min(11, b);
+    }
+    return String(a);
+  }
+
+  function wind() {
+    var s = pick(DIR) + " " + force();
+    if (chance(0.5)) s += ", " + pick(VEER) + " " + pick(DIR) + " " + force();
+    if (chance(0.18)) s += ", occasionally " + (9 + Math.floor(Math.random() * 3)) + " later";
+    return s;
+  }
+
+  function line() {
+    return wind() + ". " + pick(SEA) + ". " + pick(WX) + ". " + pick(VIS) + ".";
+  }
+
+  /* ---- build a bulletin ------------------------------------------- */
+
+  var out = document.getElementById("out");
+  var current = [];
+
+  function issue() {
+    var n = 5 + Math.floor(Math.random() * 4);
+    var pool = AREAS.slice();
+    var chosen = [];
+    for (var i = 0; i < n && pool.length; i++) {
+      chosen.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    }
+
+    var mb = 960 + Math.floor(Math.random() * 60);
+    var syn =
+      pick(SYSTEM) + " " + mb + " " + pick(PLACE) + ", " + pick(MOVE) + ".";
+
+    var gales = chosen.filter(function () { return chance(0.3); });
+
+    var html = "";
+    html += '<p class="lead">ＴＨＥ　ＧＥＮＥＲＡＬ　ＳＹＮＯＰＳＩＳ</p>';
+    html += '<p class="syn">' + syn + "</p>";
+
+    if (gales.length) {
+      html += '<p class="gale">Gale warnings are in force in ' +
+        gales.join(", ") + ".</p>";
+    } else {
+      html += '<p class="gale">There are no warnings.</p>';
+    }
+
+    html += '<p class="lead">ＴＨＥ　ＡＲＥＡ　ＦＯＲＥＣＡＳＴＳ</p>';
+
+    current = [];
+    chosen.forEach(function (a, i) {
+      var f = line();
+      current.push({ name: a, text: f });
+      html += '<p class="area" data-i="' + i + '">' +
+              '<span class="nm">' + a + "</span><br>" +
+              '<span class="fc">' + f + "</span></p>";
+    });
+
+    html += '<p class="lead">ＥＮＤ　ＯＦ　ＴＨＥ　ＢＵＬＬＥＴＩＮ</p>';
+    html += '<p class="syn" style="color:#3a3833">This bulletin was generated ' +
+            'when you opened the page and is not stored. Reissue it and this ' +
+            'one is gone.</p>';
+
+    out.innerHTML = html;
+  }
+
+  issue();
+  document.getElementById("again").addEventListener("click", function () {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    issue();
+  });
+
+  /* ---- read it aloud ---------------------------------------------- */
+
+  var readBtn = document.getElementById("read");
+  var reading = false;
+
+  readBtn.addEventListener("click", function () {
+    if (reading) {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      reading = false;
+      readBtn.textContent = "ＲＥＡＤ　ＩＴ";
+      [].forEach.call(out.querySelectorAll(".area"), function (el) {
+        el.classList.remove("spoken");
+      });
+      return;
+    }
+    if (!window.speechSynthesis) {
+      readBtn.textContent = "ＮＯ　ＶＯＩＣＥ";
+      return;
+    }
+    // pressing read is consent for sound
+    if (!window.DA.on) window.DA.set(true, true);
+
+    reading = true;
+    readBtn.textContent = "ＳＴＯＰ";
+
+    var els = out.querySelectorAll(".area");
+    var i = 0;
+
+    function next() {
+      if (!reading || i >= current.length) {
+        reading = false;
+        readBtn.textContent = "ＲＥＡＤ　ＩＴ";
+        [].forEach.call(els, function (el) { el.classList.remove("spoken"); });
+        return;
+      }
+      [].forEach.call(els, function (el) { el.classList.remove("spoken"); });
+      if (els[i]) els[i].classList.add("spoken");
+      var u = window.DA.speak(current[i].name + ". " + current[i].text, {
+        rate: 0.72, pitch: 0.4, volume: 0.8
+      });
+      i++;
+      if (u) {
+        u.onend = next;
+        u.onerror = next;
+      } else {
+        setTimeout(next, 2500);
+      }
+    }
+    next();
+  });
+
+  window.addEventListener("pagehide", function () {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  });
+})();
+</script>
+</body>
+</html>

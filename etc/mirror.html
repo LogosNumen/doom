@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｍｉｒｒｏｒ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4; text-align:center;
+  font:12px/1.9 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.1em; padding:34px 14px 70px;
+}
+.page { max-width:560px; margin:0 auto; }
+h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.5em; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:20px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:20px 0; }
+
+#stage { position:relative; display:inline-block; min-height:60px; }
+#c { display:block; width:100%; max-width:480px; height:auto;
+     border:1px solid #1c1a17; background:#000; }
+#c.off { display:none; }
+
+.note { color:#6b675e; font-size:11px; letter-spacing:.05em; max-width:46ch;
+        margin:0 auto 14px; text-align:left; line-height:1.95; }
+.note b { color:#c8c3b4; font-weight:normal; }
+
+.bar { margin-top:18px; display:flex; gap:14px; justify-content:center;
+       flex-wrap:wrap; align-items:center; }
+button { background:#000; color:#c8c3b4; border:1px solid #6b675e;
+         font:11px/1 "MS Gothic","Courier New",monospace; letter-spacing:.3em;
+         padding:9px 15px; cursor:pointer; }
+button:hover { color:#b4503c; border-color:#b4503c; }
+button[disabled] { color:#3a3833; border-color:#1c1a17; cursor:default; }
+a { color:#6b675e; text-decoration:none; letter-spacing:.4em; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; }
+
+#msg { color:#b4503c; font-size:11px; letter-spacing:.06em; min-height:38px;
+       max-width:46ch; margin:16px auto 0; line-height:1.9; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Ｍｉｒｒｏｒ</h1>
+<p class="sub">one bit · local only</p>
+
+<p class="note">This page can show you what the camera on this machine sees,
+rendered at one bit per pixel through an ordered dither, which is roughly what
+you would look like if you were being transmitted by something built in 1971.</p>
+
+<p class="note"><b>It does not ask for the camera until you press the button.</b>
+Nothing is uploaded, recorded, or sent anywhere. There is no server behind this
+page — the frames go from the camera into a canvas and are thrown away sixty
+times a second. Close the tab and it is gone. You can check: the whole of it is
+in the source of this file.</p>
+
+<p class="note">The browser will only allow a camera over <b>https</b> or on
+<b>localhost</b>. Opened from a disk, this page will refuse, and that refusal is
+the browser being sensible.</p>
+
+<hr>
+
+<div id="stage">
+  <canvas id="c" class="off" width="320" height="240"
+          aria-label="Live camera view, rendered as one-bit ordered dither."></canvas>
+</div>
+
+<p id="msg" role="status" aria-live="polite"></p>
+
+<p class="bar">
+  <button id="go" type="button">ＯＰＥＮ　ＣＡＭＥＲＡ</button>
+  <button id="off" type="button" disabled>ＳＴＯＰ</button>
+</p>
+
+<p class="bar">
+  <a href="../dir.html">[ dir ]</a>
+  <a href="../index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="../js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var c = document.getElementById("c");
+  var ctx = c.getContext("2d", { alpha: false, willReadFrequently: true });
+  var msg = document.getElementById("msg");
+  var go = document.getElementById("go");
+  var off = document.getElementById("off");
+
+  var video = document.createElement("video");
+  video.playsInline = true;
+  video.muted = true;
+
+  var stream = null, raf = null;
+
+  var BAYER = (function () {
+    var m = [[0]], size = 1;
+    while (size < 8) {
+      var n = [], s2 = size * 2;
+      for (var y = 0; y < s2; y++) {
+        n[y] = [];
+        for (var x = 0; x < s2; x++) {
+          var q = m[y % size][x % size] * 4;
+          n[y][x] = q + (y < size ? (x < size ? 0 : 2) : (x < size ? 3 : 1));
+        }
+      }
+      m = n; size = s2;
+    }
+    for (var a = 0; a < 8; a++) for (var b = 0; b < 8; b++) m[a][b] /= 64;
+    return m;
+  })();
+
+  function draw() {
+    raf = requestAnimationFrame(draw);
+    if (!video.videoWidth) return;
+
+    var W = c.width, H = c.height;
+    // mirrored, because that is what a mirror does
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, -W, 0, W, H);
+    ctx.restore();
+
+    var im = ctx.getImageData(0, 0, W, H);
+    var d = im.data;
+    for (var y = 0, p = 0; y < H; y++) {
+      for (var x = 0; x < W; x++, p += 4) {
+        var lum = (0.2126 * d[p] + 0.7152 * d[p + 1] + 0.0722 * d[p + 2]) / 255;
+        lum = (lum - 0.5) * 1.25 + 0.5;                 // a little contrast
+        var on = lum + (BAYER[y & 7][x & 7] - 0.5) > 0.5;
+        d[p]     = on ? 0xc8 : 0x00;
+        d[p + 1] = on ? 0xc3 : 0x00;
+        d[p + 2] = on ? 0xb4 : 0x00;
+      }
+    }
+    ctx.putImageData(im, 0, 0);
+  }
+
+  function stop() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = null;
+    if (stream) stream.getTracks().forEach(function (t) { t.stop(); });
+    stream = null;
+    video.srcObject = null;
+    c.classList.add("off");
+    go.disabled = false;
+    off.disabled = true;
+    msg.textContent = "camera released.";
+  }
+
+  go.addEventListener("click", function () {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      msg.textContent =
+        "this browser will not hand over a camera here. it is almost certainly " +
+        "because the page is not on https or localhost. nothing is broken.";
+      return;
+    }
+    msg.textContent = "asking…";
+    go.disabled = true;
+    navigator.mediaDevices
+      .getUserMedia({ video: { width: 320, height: 240 }, audio: false })
+      .then(function (s) {
+        stream = s;
+        video.srcObject = s;
+        return video.play();
+      })
+      .then(function () {
+        c.classList.remove("off");
+        off.disabled = false;
+        msg.textContent = "";
+        draw();
+      })
+      .catch(function (err) {
+        go.disabled = false;
+        msg.textContent =
+          "refused — " + (err && err.name ? err.name : "unknown") +
+          ". that is a perfectly good answer and the page will not ask again " +
+          "unless you press the button.";
+      });
+  });
+
+  off.addEventListener("click", stop);
+  window.addEventListener("pagehide", stop);
+})();
+</script>
+</body>
+</html>

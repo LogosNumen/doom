@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｓｐｏｏｌ　Ｂ７⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4;
+  font:12px/2.0 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.06em; padding:40px 14px 80px; text-align:center;
+}
+.page { max-width:600px; margin:0 auto; }
+h1 { font:13px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.6em; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:26px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:24px 0; }
+
+/* a tape index card: counter on the left, contents on the right */
+.card { border:1px solid #1c1a17; padding:20px 18px; text-align:left;
+        max-width:520px; margin:0 auto; }
+.row { display:flex; gap:16px; padding:9px 0; border-bottom:1px solid #100e0c; }
+.row:last-child { border-bottom:0; }
+.ct { color:#6b675e; font-size:11px; width:72px; flex:0 0 72px;
+      letter-spacing:.04em; }
+.wh { flex:1; }
+.wh small { display:block; color:#6b675e; font-size:10px; letter-spacing:.02em;
+            line-height:1.8; }
+.row.mark .wh { color:#b4503c; }
+
+.label { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:14px; }
+p.body { max-width:46ch; margin:0 auto 16px; text-align:left; }
+p.quiet { color:#6b675e; }
+
+a { color:#c8c3b4; text-decoration:none; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
+.foot { margin-top:40px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+.foot a { color:#6b675e; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+@media (max-width:520px) {
+  .row { flex-direction:column; gap:2px; }
+  .ct { width:auto; flex:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Ｓｐｏｏｌ　Ｂ７</h1>
+<p class="sub">second rack · 7½ ips · one side only</p>
+
+<picture>
+  <source srcset="../img/wave_still.gif" media="(prefers-reduced-motion: reduce)">
+  <img src="../img/wave.gif" width="240" height="64" alt="A waveform scrolling past, mostly floor, with three places where it is not.">
+</picture>
+
+<hr>
+
+<div class="card">
+  <p class="label">ＩＮＤＥＸ　ＣＡＲＤ　—　Ｂ７</p>
+
+  <div class="row"><span class="ct">000 – 118</span>
+    <span class="wh">carrier<small>nothing. this is the useful part, it is what everything else is measured against</small></span></div>
+
+  <div class="row"><span class="ct">118 – 240</span>
+    <span class="wh">carrier<small>nothing</small></span></div>
+
+  <div class="row mark"><span class="ct">241 – 243</span>
+    <span class="wh">— four seconds —<small>the 0300 one. the level drops and does not step. I have spliced a leader in either side so I stop hunting for it.</small></span></div>
+
+  <div class="row"><span class="ct">243 – 388</span>
+    <span class="wh">carrier<small>nothing</small></span></div>
+
+  <div class="row"><span class="ct">388 – 402</span>
+    <span class="wh">marker<small>the buzzer, running normally, for fourteen counter units</small></span></div>
+
+  <div class="row mark"><span class="ct">402 – 411</span>
+    <span class="wh">groups<small>nine of them, five digits each, read twice. this is the recording the numbers page was built from — same nine, same order</small></span></div>
+
+  <div class="row"><span class="ct">411 – 600</span>
+    <span class="wh">carrier<small>nothing, to the end of the reel</small></span></div>
+
+  <div class="row"><span class="ct">600 –</span>
+    <span class="wh">leader<small>and then the machine kept turning, because nobody was in the room to stop it</small></span></div>
+</div>
+
+<hr>
+
+<p class="body">This is the reel I go back to. Not for the four seconds — for
+the two hundred counter units either side of them, which are nothing, and which
+somebody sat through.</p>
+
+<p class="body quiet">The nine groups at 402 are the whole message the station
+has. Not a message it received: a message it <i>sends</i>, every night, and has
+sent since before the log starts. Nine groups is not much. You can hold nine
+groups in your head if you are careful.</p>
+
+<p class="body quiet">Take the offset off. Do not add it. Everybody adds it.</p>
+
+<p class="foot">
+  <a href="../etc/numbers.html">[ numbers ]</a> &nbsp;
+  <a href="../help.html">[ manual ]</a> &nbsp;
+  <a href="../index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="../js/sound.js"></script>
+</body>
+</html>

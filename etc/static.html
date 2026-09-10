@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｓｎｏｗ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+html, body { height:100%; }
+body { background:#000; color:#c8c3b4; overflow:hidden;
+       font:10px/1.7 "MS Gothic","Osaka-Mono","Courier New",monospace; }
+canvas { position:fixed; inset:0; width:100%; height:100%; display:block; }
+.hud {
+  position:fixed; left:0; right:0; bottom:14px; text-align:center;
+  letter-spacing:.5em; color:#6b675e; z-index:10;
+  text-shadow:0 0 5px #000, 0 0 5px #000, 0 0 5px #000;
+}
+.hud a { color:#c8c3b4; text-decoration:none; }
+.hud a:hover, .hud a:focus { color:#b4503c; }
+.tip { position:fixed; left:0; right:0; top:16px; text-align:center;
+       letter-spacing:.4em; color:#4a4740; z-index:10;
+       text-shadow:0 0 5px #000, 0 0 5px #000, 0 0 5px #000; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:4px; }
+</style>
+</head>
+<body>
+
+<canvas id="c" aria-label="A full-window field of television snow. Hold still and something surfaces in it."></canvas>
+
+<p class="tip">ｓｔｏｐ　ｍｏｖｉｎｇ</p>
+<p class="hud"><a href="../dir.html">[ dir ]</a> &nbsp; <a href="../index.html">[ back ]</a></p>
+
+<script src="../js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var c = document.getElementById("c");
+  var ctx = c.getContext("2d", { alpha: false });
+  var reduced =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* The snow is rendered at a quarter of the window and blown up with
+     image-rendering:pixelated, which is both faster and more correct: real
+     snow on a real set is not one grain per device pixel. */
+  var SCALE = 4;
+  var W = 0, H = 0, img = null, mask = null;
+
+  var WORD = "ARE YOU STILL THERE";
+
+  function buildMask() {
+    /* Draw the phrase once into an offscreen buffer and keep only whether
+       each low-res pixel is inside a letter. */
+    var m = document.createElement("canvas");
+    m.width = W; m.height = H;
+    var g = m.getContext("2d");
+    g.fillStyle = "#000";
+    g.fillRect(0, 0, W, H);
+    var size = Math.max(9, Math.min(Math.floor(W / (WORD.length * 0.62)), Math.floor(H / 4)));
+    g.font = size + "px 'MS Gothic', 'Courier New', monospace";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillStyle = "#fff";
+    g.fillText(WORD, W / 2, H / 2);
+    var d = g.getImageData(0, 0, W, H).data;
+    mask = new Uint8Array(W * H);
+    for (var i = 0, p = 0; i < mask.length; i++, p += 4) {
+      mask[i] = d[p] > 110 ? 1 : 0;
+    }
+  }
+
+  function resize() {
+    W = Math.max(1, Math.ceil(window.innerWidth / SCALE));
+    H = Math.max(1, Math.ceil(window.innerHeight / SCALE));
+    c.width = W; c.height = H;
+    img = ctx.createImageData(W, H);
+    buildMask();
+  }
+
+  window.addEventListener("resize", resize);
+  resize();
+
+  /* ---- how long since anything moved ------------------------------- */
+
+  var lastMove = 0;
+  function moved() { lastMove = performance.now(); }
+  ["pointermove", "touchmove", "wheel", "keydown"].forEach(function (e) {
+    window.addEventListener(e, moved, { passive: true });
+  });
+  moved();
+
+  /* ---- the snow ---------------------------------------------------- */
+
+  var LEVELS = [0x00, 0x1c, 0x6b, 0xc8];   // the site ramp, as greys
+  var LEVELS_G = [0x00, 0x1a, 0x67, 0xc3];
+  var LEVELS_B = [0x00, 0x17, 0x5e, 0xb4];
+
+  function draw(now) {
+    var idle = (now - lastMove) / 1000;
+    // 0 while you are moving, 1 when you have been still for four seconds
+    var reveal = Math.max(0, Math.min(1, (idle - 1.6) / 4.0));
+    var d = img.data;
+
+    for (var y = 0, i = 0, p = 0; y < H; y++) {
+      var scan = (y & 1) ? 0.62 : 1.0;
+      for (var x = 0; x < W; x++, i++, p += 4) {
+        var v = Math.random();
+        if (mask[i]) {
+          // inside a letter: push the noise up towards white as it surfaces
+          v = v * (1 - reveal * 0.75) + reveal * 0.82;
+        } else {
+          v = v * (1 - reveal * 0.32);
+        }
+        v *= scan;
+        var lv = v > 0.72 ? 3 : v > 0.42 ? 2 : v > 0.16 ? 1 : 0;
+        d[p]     = LEVELS[lv];
+        d[p + 1] = LEVELS_G[lv];
+        d[p + 2] = LEVELS_B[lv];
+        d[p + 3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  if (reduced) {
+    // one frame, fully surfaced, and then nothing moves again
+    lastMove = -1e9;
+    draw(0);
+  } else {
+    (function loop(t) { draw(t); requestAnimationFrame(loop); })(performance.now());
+  }
+})();
+</script>
+</body>
+</html>
