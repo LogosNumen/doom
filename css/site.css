@@ -1,0 +1,352 @@
+@charset "UTF-8";
+
+/* ------------------------------------------------------------------ *
+ *  Dead Air for Night Listeners
+ *  One stylesheet. No build step, no preprocessor, no framework.
+ *  Tokens are documented in DESIGN_NOTES.md section 2.
+ * ------------------------------------------------------------------ */
+
+:root {
+  --bg:  #000000;  /* pure black, not near-black                        */
+  --fg:  #c8c3b4;  /* pale warm grey: prose, titles, links at rest      */
+  --dim: #6b675e;  /* mid grey: meta, rules, chrome. never body text.   */
+  --sig: #b4503c;  /* the one accent. sound-on, hover, action links.    */
+  --ink: #1c1a17;  /* near-black: focus fill, image ramp                */
+
+  --serif: Times, "Times New Roman", "Liberation Serif", serif;
+  --mono: "MS Gothic", "Osaka-Mono", "Courier New", monospace;
+
+  --col: 720px;
+}
+
+/* The reference sets tracking and kills antialiasing on the universal
+   selector. Both are load-bearing: without them the page reads as a modern
+   dark theme in a serif face. Tracking is pulled back from the measured
+   0.6em to 0.18em on prose so it survives a 360px screen -- see notes. */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  letter-spacing: 0.18em;
+  image-rendering: pixelated;
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font: 13px/1.85 var(--serif);
+  text-align: center;
+  overflow-x: hidden;
+  padding: 0 14px 60px;
+}
+
+/* ---- links -------------------------------------------------------- */
+
+a {
+  color: var(--fg);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+a:hover,
+a:focus {
+  color: var(--sig);
+}
+a:visited {
+  color: var(--fg);
+}
+a:visited:hover {
+  color: var(--sig);
+}
+
+:focus-visible {
+  outline: 1px dotted var(--fg);
+  outline-offset: 3px;
+  background: var(--ink);
+}
+
+/* ---- the column --------------------------------------------------- */
+
+.col {
+  width: var(--col);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--dim);
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border: 0;
+}
+
+picture {
+  display: inline-block;
+  line-height: 0;
+}
+
+/* ---- corner brackets ---------------------------------------------- *
+ * Two halves, one bracket in each, pushed to the outer edges. The
+ * reference floats 400px halves inside its 800px block; same idea.     */
+
+.frame {
+  width: var(--col);
+  max-width: 100%;
+  margin: 0 auto;
+  font: 20px/1 var(--mono);
+  color: var(--dim);
+  letter-spacing: 0;
+  animation: blink 4s steps(1, end) infinite;
+}
+.frame span {
+  display: inline-block;
+  width: 50%;
+}
+.frame span:first-child { text-align: left; }
+.frame span:last-child  { text-align: right; }
+.frame-top { padding-top: 34px; }
+.frame-bot { padding-bottom: 8px; }
+
+@keyframes blink {
+  0%, 82%  { color: var(--dim); }
+  83%, 100% { color: #100e0c; }
+}
+
+/* ---- header ------------------------------------------------------- */
+
+#head {
+  padding: 6px 0 0;
+}
+
+.title {
+  font: 22px/1.55 var(--serif);
+  font-weight: normal;
+  letter-spacing: 0.30em;
+  margin: 8px 0 22px;
+}
+/* Stacked, not run together. The reference breaks its title across short
+   centred lines and the tight block is most of why the header reads as a
+   masthead rather than a sentence. */
+.title span {
+  display: block;
+  animation: surface 6s ease-in-out infinite;
+}
+.title span:nth-child(2) { animation-delay: 0.5s; }
+.title span:nth-child(3) { animation-delay: 1.0s; }
+
+/* No glow. Against pure black a text-shadow reads as a blur, not a pulse.
+   Just a slow surfacing, which is what a weak signal actually does. */
+@keyframes surface {
+  0%, 100% { opacity: 1;    }
+  46%      { opacity: 0.55; }
+}
+
+/* the glyph run. tracking off -- these are blocks, not letters. */
+#note {
+  font: 15px/1.6 var(--mono);
+  letter-spacing: 0;
+  color: var(--dim);
+  margin-bottom: 26px;
+}
+#note b {
+  font-weight: normal;
+  color: var(--dim);
+  animation: fade 2s linear infinite;
+}
+#note b:nth-of-type(2) { animation-delay: 0.4s; }
+#note b:nth-of-type(3) { animation-delay: 0.8s; }
+#note b:nth-of-type(4) { animation-delay: 1.2s; }
+#note b:nth-of-type(5) { animation-delay: 1.6s; }
+#note b:nth-of-type(6) { animation-delay: 2.0s; }
+
+@keyframes fade {
+  50% { color: #1a1815; }
+}
+
+/* the sound toggle lives inside the glyph run, as the note */
+#snd {
+  background: none;
+  border: 0;
+  font: inherit;
+  color: var(--dim);
+  cursor: pointer;
+  padding: 0 6px;
+  letter-spacing: 0;
+}
+#snd:hover { color: var(--fg); }
+#snd[aria-pressed="true"] { color: var(--sig); }
+
+#phrase {
+  font: 9px/1.6 var(--serif);
+  font-weight: normal;
+  letter-spacing: 0.5em;
+  min-height: 16px;
+}
+#phrase a { color: var(--dim); }
+#phrase a:hover { color: var(--sig); }
+
+.copy {
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--dim);
+  margin-top: 22px;
+}
+.who {
+  font-size: 9px;
+  letter-spacing: 0.5em;
+  color: var(--dim);
+}
+
+.logo { margin: 24px 0 4px; }
+
+#navline {
+  font-size: 13px;
+  letter-spacing: 0.42em;
+  line-height: 2.4;
+  margin: 6px 0 26px;
+}
+#navline .bar {
+  color: var(--dim);
+  letter-spacing: 0;
+}
+/* separator travels with the link after it, so a wrap never leaves one hanging */
+#navline .nb { white-space: nowrap; }
+
+.status {
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  color: var(--fg);
+  margin: 26px 0 6px;
+}
+.action {
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  margin-bottom: 6px;
+}
+.action a { color: var(--sig); }
+.action a:hover { color: var(--fg); }
+
+/* ---- posts -------------------------------------------------------- */
+
+.stream {
+  width: var(--col);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.post {
+  margin-top: 74px;
+}
+.post .mark {
+  width: 16px;
+  height: 16px;
+  margin: 0 auto 14px;
+  background: url("../img/favicon.gif") no-repeat center;
+}
+.post h1 {
+  font: 22px/1.5 var(--serif);
+  font-weight: normal;
+  letter-spacing: 0.30em;
+  margin-bottom: 10px;
+}
+.post .by {
+  font: 9px/2.6 var(--serif);
+  font-weight: normal;
+  letter-spacing: 0.5em;
+  color: var(--fg);
+}
+.post .date {
+  font: 9px/1 var(--serif);
+  font-weight: normal;
+  letter-spacing: 0.5em;
+  color: var(--dim);
+  margin-bottom: 26px;
+}
+.post hr { margin-bottom: 34px; }
+.post p {
+  margin: 20px auto;
+  max-width: 62ch;
+}
+.post .shot { margin: 8px 0 18px; }
+.post .cap {
+  font-size: 9px;
+  letter-spacing: 0.5em;
+  color: var(--dim);
+}
+.post .jp {
+  /* unsmoothed CJK is unreadable; the reference makes the same exception */
+  -webkit-font-smoothing: antialiased;
+  font-smooth: auto;
+  letter-spacing: 0.1em;
+}
+
+/* ---- footer ------------------------------------------------------- */
+
+#footer {
+  margin-top: 96px;
+  font-size: 9px;
+  letter-spacing: 0.5em;
+  color: var(--dim);
+}
+#footer .btn { display: inline-block; margin-bottom: 20px; }
+#footer a { color: var(--dim); text-decoration: underline; }
+#footer a:hover { color: var(--sig); }
+
+/* ---- the one runtime effect: a faint scanline field ---------------- *
+ * Hard stops, 1px in 3. This is a CRT artefact, not a decorative
+ * gradient -- it is the only overlay on the site.                      */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9000;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.22) 2px, rgba(0, 0, 0, 0.22) 3px
+  );
+}
+
+/* ---- responsive --------------------------------------------------- */
+
+@media (max-width: 800px) {
+  .frame { display: none; }   /* the same call the reference makes */
+  body { padding-top: 26px; }
+  .stream .post { margin-top: 58px; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 13px; padding-left: 10px; padding-right: 10px; }
+  .title { font-size: 19px; letter-spacing: 0.18em; }
+  .post h1 { font-size: 18px; letter-spacing: 0.18em; }
+  #navline { letter-spacing: 0.3em; line-height: 2.6; }
+  #note { font-size: 13px; }
+  #note .outer { display: none; }   /* shorten the run rather than overflow */
+  .copy, .status, .action { letter-spacing: 0.3em; }
+  .post p { text-align: left; }
+}
+
+/* ---- reduced motion ----------------------------------------------- *
+ * Kills every keyframe. Animated GIFs are swapped for their static
+ * first frame by <picture> + a prefers-reduced-motion <source>.        */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
