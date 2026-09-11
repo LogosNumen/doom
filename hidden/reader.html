@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｔｈｅ　Ｒｅａｄｉｎｇ　Ｒｏｏｍ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<!-- =================================================================
+     A reader for EPUB files you open from your own disk.
+
+     NOTHING IS STORED ON THE SERVER. This page ships no book text.
+     Files you pick are parsed in the browser and cached in IndexedDB
+     on this machine only. They are never uploaded anywhere, and there
+     is no server behind this site to upload them to.
+
+     Reading position lives in localStorage under da.reader.*.
+     ================================================================= -->
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body {
+  background:#000; color:#c8c3b4;
+  font:12px/1.9 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.08em;
+  -webkit-font-smoothing:none; font-smooth:never;
+  display:flex; flex-direction:column;
+}
+
+/* ---- chrome ------------------------------------------------------- */
+
+.bar {
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:10px 14px; border-bottom:1px solid #1c1a17;
+  font-size:11px; letter-spacing:.2em; flex:0 0 auto;
+}
+.bar .sp { flex:1 1 auto; }
+.bar .where { color:#6b675e; letter-spacing:.04em; font-size:10px;
+              overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+              max-width:46ch; }
+
+button, .btn {
+  background:#000; color:#c8c3b4; border:1px solid #1c1a17;
+  font:11px/1 "MS Gothic","Courier New",monospace; letter-spacing:.2em;
+  padding:7px 11px; cursor:pointer; white-space:nowrap;
+}
+button:hover, .btn:hover { color:#b4503c; border-color:#6b675e; }
+button[disabled] { color:#3a3833; border-color:#100e0c; cursor:default; }
+button[disabled]:hover { color:#3a3833; border-color:#100e0c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; }
+
+a { color:#c8c3b4; text-decoration:none; }
+a:hover, a:focus { color:#b4503c; }
+
+/* ---- panes -------------------------------------------------------- */
+
+#main { flex:1 1 auto; min-height:0; display:flex; }
+
+#toc {
+  width:330px; flex:0 0 330px; border-right:1px solid #1c1a17;
+  display:flex; flex-direction:column; min-height:0;
+}
+#toc.hide { display:none; }
+#toc .find { padding:10px; border-bottom:1px solid #1c1a17; }
+#toc input {
+  width:100%; background:#000; color:#c8c3b4; border:1px solid #1c1a17;
+  font:11px/1.5 "MS Gothic","Courier New",monospace; letter-spacing:.08em;
+  padding:6px 8px;
+}
+#toc input::placeholder { color:#3a3833; }
+#toc input:focus { border-color:#6b675e; outline:1px dotted #c8c3b4; outline-offset:2px; }
+#list { overflow-y:auto; flex:1 1 auto; min-height:0; }
+#list button {
+  display:block; width:100%; text-align:left; border:0;
+  border-bottom:1px solid #100e0c; padding:9px 12px;
+  letter-spacing:.04em; font-size:11px; line-height:1.6; color:#6b675e;
+}
+#list button:hover { color:#c8c3b4; border-color:#100e0c; background:#0b0a09; }
+#list button .n { color:#3a3833; margin-right:8px; }
+#list button.on { color:#b4503c; }
+#list button.done .n { color:#6b675e; }
+
+#pane { flex:1 1 auto; overflow-y:auto; min-height:0; position:relative; }
+#wrap { max-width:70ch; margin:0 auto; padding:42px 22px 120px; }
+
+/* The prose is the one place on this site that is NOT tracked out and
+   antialiasing stays on. Ornament tracking is unreadable over 90 000 words. */
+#text {
+  font-family:Georgia, "Times New Roman", Times, serif;
+  font-size:17px; line-height:1.75; letter-spacing:.005em;
+  -webkit-font-smoothing:antialiased; font-smooth:auto;
+  color:#c8c3b4;
+}
+#text p { margin:0 0 1.15em; }
+#text h1, #text h2, #text h3 { display:none; }  /* we render our own heading */
+#text img { max-width:100%; height:auto; display:block; margin:1.4em auto; }
+#text hr { border:0; border-top:1px solid #1c1a17; margin:2em 0; }
+#text em, #text i { font-style:italic; }
+#text strong, #text b { font-weight:bold; color:#e6e2d6; }
+
+#head { margin-bottom:34px; }
+#head .k { font-size:10px; letter-spacing:.5em; color:#6b675e; }
+#head h1 {
+  font:22px/1.45 Georgia, "Times New Roman", serif; font-weight:normal;
+  letter-spacing:.02em; color:#e6e2d6; margin-top:8px;
+  -webkit-font-smoothing:antialiased;
+}
+#head hr { border:0; border-top:1px solid #1c1a17; margin-top:22px; }
+
+#nav {
+  display:flex; gap:12px; align-items:center; justify-content:center;
+  margin-top:60px; padding-top:26px; border-top:1px solid #1c1a17;
+}
+
+/* ---- library ------------------------------------------------------ */
+
+#lib { padding:50px 22px 90px; max-width:720px; margin:0 auto; width:100%; }
+#lib h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+          letter-spacing:.5em; text-align:center; }
+#lib .sub { text-align:center; color:#6b675e; font-size:10px;
+            letter-spacing:.4em; margin-bottom:26px; }
+#lib p.note { color:#6b675e; font-size:11px; letter-spacing:.04em;
+              line-height:1.95; max-width:52ch; margin:0 auto 14px; }
+#lib p.note b { color:#c8c3b4; font-weight:normal; }
+
+#drop {
+  border:1px dashed #1c1a17; padding:34px 20px; text-align:center;
+  margin:26px 0; color:#6b675e; font-size:11px; letter-spacing:.2em;
+}
+#drop.over { border-color:#b4503c; color:#c8c3b4; }
+#shelf { margin-top:26px; }
+#shelf .row {
+  display:flex; align-items:center; gap:12px; padding:11px 0;
+  border-bottom:1px solid #100e0c; font-size:11px; letter-spacing:.04em;
+}
+#shelf .row .t { flex:1 1 auto; min-width:0; }
+#shelf .row .t b { color:#c8c3b4; font-weight:normal; display:block;
+                   overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#shelf .row .t small { color:#6b675e; font-size:10px; }
+#shelf .row .x { color:#3a3833; border-color:#100e0c; padding:5px 8px; }
+
+#msg { color:#b4503c; font-size:11px; letter-spacing:.04em; text-align:center;
+       min-height:20px; margin-top:14px; line-height:1.8; }
+
+/* ---- gate --------------------------------------------------------- */
+
+#gate { padding:80px 22px; text-align:center; max-width:46ch; margin:0 auto; }
+#gate p { color:#6b675e; font-size:12px; letter-spacing:.06em;
+          line-height:2.0; margin-bottom:18px; }
+
+.hide { display:none !important; }
+
+@media (max-width:760px) {
+  #toc { position:absolute; inset:0; width:100%; flex:1 1 auto; z-index:20;
+         background:#000; border-right:0; }
+  #toc.hide { display:none; }
+  #main { position:relative; }
+  #wrap { padding:28px 16px 110px; }
+  #text { font-size:16px; }
+  .bar .where { max-width:24ch; }
+}
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+</style>
+</head>
+<body>
+
+<!-- the door -------------------------------------------------------- -->
+<div id="gate" class="hide">
+  <p>This room is behind the login.</p>
+  <p>The phrase is nine letters and the station says it every night.</p>
+  <p><a href="../login.html">[ login ]</a> &nbsp; <a href="../index.html">[ back ]</a></p>
+</div>
+
+<!-- chrome ---------------------------------------------------------- -->
+<div class="bar hide" id="chrome">
+  <button id="toggleToc" type="button">ＣＨＡＰＴＥＲＳ</button>
+  <span class="where" id="where"></span>
+  <span class="sp"></span>
+  <button id="smaller" type="button" title="Smaller text">Ａ−</button>
+  <button id="bigger" type="button" title="Larger text">Ａ＋</button>
+  <button id="shelfBtn" type="button">ＳＨＥＬＦ</button>
+  <a class="btn" href="relay-9.html">[ back ]</a>
+</div>
+
+<div id="main" class="hide">
+  <div id="toc" class="hide">
+    <div class="find">
+      <input id="find" type="search" placeholder="filter chapters…" autocomplete="off" spellcheck="false">
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <div id="pane">
+    <!-- library ---------------------------------------------------- -->
+    <div id="lib">
+      <h1>Ｔｈｅ　Ｒｅａｄｉｎｇ　Ｒｏｏｍ</h1>
+      <p class="sub">bring your own book</p>
+
+      <p class="note">This page holds no books. It reads <b>.epub</b> files you
+      open from your own machine, in your own browser.</p>
+
+      <p class="note">Nothing is uploaded. There is no server behind this site
+      to upload anything to — it is flat files on a static host. What you open
+      is parsed here and kept in this browser's own storage so you do not have
+      to pick the file again next time. <b>Clearing site data removes it.</b></p>
+
+      <div id="drop">
+        ｄｒｏｐ　．ｅｐｕｂ　ｆｉｌｅｓ　ｈｅｒｅ<br><br>
+        <button id="pick" type="button">ＣＨＯＯＳＥ　ＦＩＬＥＳ</button>
+        <input id="file" type="file" accept=".epub,application/epub+zip" multiple hidden>
+      </div>
+
+      <div id="msg" role="status" aria-live="polite"></div>
+      <div id="shelf"></div>
+    </div>
+
+    <!-- reader ----------------------------------------------------- -->
+    <div id="wrap" class="hide">
+      <div id="head">
+        <div class="k" id="kicker"></div>
+        <h1 id="ctitle"></h1>
+        <hr>
+      </div>
+      <div id="text"></div>
+      <div id="nav">
+        <button id="prev" type="button">←　ＰＲＥＶ</button>
+        <button id="next" type="button">ＮＥＸＴ　→</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ================================================================
+     0. the door
+     ================================================================ */
+
+  var open = false;
+  try { open = localStorage.getItem("da.relay9") === "open"; } catch (e) {}
+  if (!open) {
+    document.getElementById("gate").classList.remove("hide");
+    return;
+  }
+  document.getElementById("chrome").classList.remove("hide");
+  document.getElementById("main").classList.remove("hide");
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  /* ================================================================
+     1. a ZIP reader, in vanilla JS
+
+     An EPUB is a ZIP. Rather than ship a library, this walks the
+     central directory by hand and uses the browser's own
+     DecompressionStream for the deflated entries.
+     ================================================================ */
+
+  function u16(d, o) { return d.getUint16(o, true); }
+  function u32(d, o) { return d.getUint32(o, true); }
+
+  function openZip(buf) {
+    var d = new DataView(buf);
+    var bytes = new Uint8Array(buf);
+
+    // End of Central Directory: scan back from the end for 0x06054b50
+    var eocd = -1;
+    var max = Math.min(buf.byteLength, 66000);
+    for (var i = buf.byteLength - 22; i >= buf.byteLength - max && i >= 0; i--) {
+      if (u32(d, i) === 0x06054b50) { eocd = i; break; }
+    }
+    if (eocd < 0) throw new Error("not a zip file");
+
+    var count = u16(d, eocd + 10);
+    var cdOff = u32(d, eocd + 16);
+
+    var entries = {};
+    var p = cdOff;
+    for (var n = 0; n < count; n++) {
+      if (u32(d, p) !== 0x02014b50) break;
+      var method = u16(d, p + 10);
+      var compSize = u32(d, p + 20);
+      var rawSize = u32(d, p + 24);
+      var nameLen = u16(d, p + 28);
+      var extraLen = u16(d, p + 30);
+      var cmtLen = u16(d, p + 32);
+      var local = u32(d, p + 42);
+      var name = new TextDecoder("utf-8").decode(bytes.subarray(p + 46, p + 46 + nameLen));
+      entries[name] = { method: method, compSize: compSize, rawSize: rawSize, local: local };
+      p += 46 + nameLen + extraLen + cmtLen;
+    }
+
+    async function raw(name) {
+      var e = entries[name];
+      if (!e) throw new Error("missing from archive: " + name);
+      // the local header repeats the name/extra lengths, and they can differ
+      if (u32(d, e.local) !== 0x04034b50) throw new Error("bad local header: " + name);
+      var nLen = u16(d, e.local + 26);
+      var xLen = u16(d, e.local + 28);
+      var start = e.local + 30 + nLen + xLen;
+      var slice = bytes.subarray(start, start + e.compSize);
+
+      if (e.method === 0) return slice;                 // stored
+      if (e.method !== 8) throw new Error("unsupported compression: " + e.method);
+
+      var ds = new DecompressionStream("deflate-raw");
+      var stream = new Blob([slice]).stream().pipeThrough(ds);
+      return new Uint8Array(await new Response(stream).arrayBuffer());
+    }
+
+    return {
+      names: Object.keys(entries),
+      has: function (n) { return !!entries[n]; },
+      bytes: raw,
+      text: async function (n) { return new TextDecoder("utf-8").decode(await raw(n)); }
+    };
+  }
+
+  /* ================================================================
+     2. EPUB -> { title, chapters[] }
+
+     Only three small files are read up front: container.xml, the OPF,
+     and the NCX. Chapter bodies are decompressed on demand, which is
+     what keeps a 460-chapter volume opening instantly.
+     ================================================================ */
+
+  function dir(path) {
+    var i = path.lastIndexOf("/");
+    return i < 0 ? "" : path.slice(0, i + 1);
+  }
+
+  function resolve(base, href) {
+    href = String(href || "").split("#")[0];
+    if (!href) return "";
+    if (/^[a-z]+:/i.test(href)) return href;
+    if (href.charAt(0) === "/") return href.slice(1);
+    var parts = (base + href).split("/");
+    var out = [];
+    for (var i = 0; i < parts.length; i++) {
+      if (parts[i] === "." || parts[i] === "") { if (i === parts.length - 1) out.push(""); continue; }
+      if (parts[i] === "..") { out.pop(); continue; }
+      out.push(parts[i]);
+    }
+    return out.join("/");
+  }
+
+  var XML = new DOMParser();
+
+  async function readEpub(buf) {
+    var zip = openZip(buf);
+
+    var container = XML.parseFromString(await zip.text("META-INF/container.xml"), "application/xml");
+    var rootEl = container.querySelector("rootfile");
+    var opfPath = rootEl ? rootEl.getAttribute("full-path") : "content.opf";
+    var base = dir(opfPath);
+
+    var opf = XML.parseFromString(await zip.text(opfPath), "application/xml");
+
+    var titleEl = opf.getElementsByTagNameNS("*", "title")[0];
+    var title = titleEl ? titleEl.textContent.trim() : "Untitled";
+    var authorEl = opf.getElementsByTagNameNS("*", "creator")[0];
+    var author = authorEl ? authorEl.textContent.trim() : "";
+
+    // manifest: id -> { href, type }
+    var manifest = {};
+    Array.prototype.forEach.call(opf.querySelectorAll("manifest > item"), function (it) {
+      manifest[it.getAttribute("id")] = {
+        href: resolve(base, it.getAttribute("href")),
+        type: it.getAttribute("media-type") || ""
+      };
+    });
+
+    // spine order
+    var spine = [];
+    Array.prototype.forEach.call(opf.querySelectorAll("spine > itemref"), function (r) {
+      var m = manifest[r.getAttribute("idref")];
+      if (m && /html/.test(m.type)) spine.push(m.href);
+    });
+
+    // The NCX gives every chapter its name in a single file, so the whole
+    // table of contents costs one decompression instead of several hundred.
+    var labels = {};
+    var spineEl = opf.querySelector("spine");
+    var ncxId = spineEl && spineEl.getAttribute("toc");
+    var ncxHref = ncxId && manifest[ncxId] ? manifest[ncxId].href : null;
+    if (!ncxHref) {
+      for (var k in manifest) {
+        if (/ncx/.test(manifest[k].type)) { ncxHref = manifest[k].href; break; }
+      }
+    }
+    if (ncxHref && zip.has(ncxHref)) {
+      var ncx = XML.parseFromString(await zip.text(ncxHref), "application/xml");
+      var nbase = dir(ncxHref);
+      Array.prototype.forEach.call(ncx.getElementsByTagNameNS("*", "navPoint"), function (np) {
+        var t = np.getElementsByTagNameNS("*", "text")[0];
+        var c = np.getElementsByTagNameNS("*", "content")[0];
+        if (!t || !c) return;
+        var src = resolve(nbase, c.getAttribute("src"));
+        if (src && !labels[src]) labels[src] = t.textContent.trim();
+      });
+    }
+
+    var chapters = spine.map(function (href, i) {
+      return { href: href, label: labels[href] || ("Section " + (i + 1)) };
+    });
+
+    return { zip: zip, title: title, author: author, chapters: chapters };
+  }
+
+  /* Where to land when a book is opened for the first time. The spine starts
+     with a cover, a title page and a table of contents, none of which anyone
+     wants to be dropped on — skip to the first entry that names itself a
+     chapter, and fall back to the top if none does. */
+  function firstRealChapter(b) {
+    for (var i = 0; i < b.chapters.length; i++) {
+      if (/(^|\s)(chapter|prologue|part)\b/i.test(b.chapters[i].label)) return i;
+    }
+    return 0;
+  }
+
+  /* a stable id for a book, so progress survives re-picking the file */
+  function bookId(b) {
+    var seed = b.title + "|" + b.chapters.length + "|" +
+               (b.chapters[0] ? b.chapters[0].label : "") + "|" +
+               (b.chapters[b.chapters.length - 1] || {}).label;
+    var h = 2166136261;
+    for (var i = 0; i < seed.length; i++) {
+      h ^= seed.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;   // imul: `*` loses bits past 2^53
+    }
+    return "b" + (h >>> 0).toString(36);
+  }
+
+  /* ================================================================
+     3. where you got to
+     ================================================================ */
+
+  var POS = "da.reader.pos";
+
+  function allPos() {
+    try { return JSON.parse(localStorage.getItem(POS) || "{}"); } catch (e) { return {}; }
+  }
+  function getPos(id) { return allPos()[id] || null; }
+  function setPos(id, patch) {
+    var all = allPos();
+    all[id] = Object.assign({}, all[id] || {}, patch, { at: Date.now() });
+    try { localStorage.setItem(POS, JSON.stringify(all)); } catch (e) {}
+  }
+
+  /* ================================================================
+     4. the shelf — IndexedDB, so you pick the file once
+     ================================================================ */
+
+  var DB = null;
+  function db() {
+    if (DB) return DB;
+    DB = new Promise(function (res, rej) {
+      var r = indexedDB.open("da-reader", 1);
+      r.onupgradeneeded = function () {
+        if (!r.result.objectStoreNames.contains("books")) {
+          r.result.createObjectStore("books", { keyPath: "id" });
+        }
+      };
+      r.onsuccess = function () { res(r.result); };
+      r.onerror = function () { rej(r.error); };
+    });
+    return DB;
+  }
+
+  function tx(mode, fn) {
+    return db().then(function (d) {
+      return new Promise(function (res, rej) {
+        var t = d.transaction("books", mode);
+        var out = fn(t.objectStore("books"));
+        t.oncomplete = function () { res(out && out.result !== undefined ? out.result : out); };
+        t.onerror = function () { rej(t.error); };
+      });
+    });
+  }
+
+  var putBook = function (rec) { return tx("readwrite", function (s) { return s.put(rec); }); };
+  var getBook = function (id) { return tx("readonly", function (s) { return s.get(id); }); };
+  var allBooks = function () { return tx("readonly", function (s) { return s.getAll(); }); };
+  var delBook = function (id) { return tx("readwrite", function (s) { return s.delete(id); }); };
+
+  /* ================================================================
+     5. state + rendering
+     ================================================================ */
+
+  var book = null, id = null, idx = 0, blobs = [];
+  var textEl = $("text"), paneEl = $("pane");
+  var restoring = false;   // true while putting you back where you were
+
+  var SIZE = "da.reader.size";
+  var size = 17;
+  try { size = parseInt(localStorage.getItem(SIZE), 10) || 17; } catch (e) {}
+  textEl.style.fontSize = size + "px";
+
+  function msg(s) { $("msg").textContent = s || ""; }
+
+  function showLib(on) {
+    $("lib").classList.toggle("hide", !on);
+    $("wrap").classList.toggle("hide", on);
+    if (on) $("toc").classList.add("hide");
+  }
+
+  /* --- the chapter list ------------------------------------------- */
+
+  function paintList(filter) {
+    var list = $("list");
+    list.textContent = "";
+    if (!book) return;
+    var f = (filter || "").toLowerCase().trim();
+    var pos = getPos(id) || {};
+    var frag = document.createDocumentFragment();
+
+    book.chapters.forEach(function (c, i) {
+      if (f && c.label.toLowerCase().indexOf(f) < 0) return;
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = (i === idx ? "on " : "") + (i < (pos.chapter || 0) ? "done" : "");
+      b.innerHTML = '<span class="n">' + String(i + 1).padStart(4, "0") + "</span>";
+      b.appendChild(document.createTextNode(c.label));
+      b.addEventListener("click", function () {
+        go(i);
+        if (window.innerWidth <= 760) $("toc").classList.add("hide");
+      });
+      frag.appendChild(b);
+    });
+    list.appendChild(frag);
+  }
+
+  function scrollListToCurrent() {
+    var on = $("list").querySelector("button.on");
+    if (on) on.scrollIntoView({ block: "center" });
+  }
+
+  /* --- sanitising foreign HTML ------------------------------------ *
+   * The markup comes from a file on your disk, not from me, so it is
+   * rebuilt rather than trusted: scripts, styles, frames, event
+   * handlers and javascript: URLs are all dropped.                    */
+
+  var ALLOW = /^(P|BR|EM|I|STRONG|B|U|SPAN|DIV|BLOCKQUOTE|HR|H1|H2|H3|H4|H5|H6|UL|OL|LI|IMG|A|SUP|SUB|SMALL|CENTER|FIGURE|FIGCAPTION|TABLE|TBODY|TR|TD|TH)$/;
+
+  async function clean(node, out, baseDir) {
+    for (var i = 0; i < node.childNodes.length; i++) {
+      var n = node.childNodes[i];
+      if (n.nodeType === 3) { out.appendChild(document.createTextNode(n.nodeValue)); continue; }
+      if (n.nodeType !== 1) continue;
+      var tag = n.tagName.toUpperCase();
+      if (tag === "SCRIPT" || tag === "STYLE" || tag === "LINK" ||
+          tag === "IFRAME" || tag === "OBJECT" || tag === "EMBED") continue;
+      if (!ALLOW.test(tag)) { await clean(n, out, baseDir); continue; }
+
+      var el = document.createElement(tag === "CENTER" ? "DIV" : tag);
+      if (tag === "A") {
+        var href = n.getAttribute("href") || "";
+        if (/^https?:/i.test(href)) { el.href = href; el.target = "_blank"; el.rel = "noopener noreferrer"; }
+      }
+      if (tag === "IMG") {
+        var src = resolve(baseDir, n.getAttribute("src"));
+        el.alt = n.getAttribute("alt") || "";
+        if (src && book.zip.has(src)) {
+          try {
+            var b = await book.zip.bytes(src);
+            var url = URL.createObjectURL(new Blob([b]));
+            blobs.push(url);
+            el.src = url;
+          } catch (e) { continue; }
+        } else { continue; }
+      }
+      await clean(n, el, baseDir);
+      out.appendChild(el);
+    }
+  }
+
+  /* --- open a chapter --------------------------------------------- */
+
+  var loading = false;
+
+  async function go(i, restoreScroll) {
+    if (!book || loading) return;
+    i = Math.max(0, Math.min(book.chapters.length - 1, i));
+    loading = true;
+    var c = book.chapters[i];
+
+    try {
+      var html = await book.zip.text(c.href);
+      var doc = XML.parseFromString(html, "text/html");
+      blobs.forEach(URL.revokeObjectURL);
+      blobs = [];
+      var frag = document.createElement("div");
+      await clean(doc.body || doc.documentElement, frag, dir(c.href));
+
+      idx = i;
+      textEl.textContent = "";
+      textEl.appendChild(frag);
+
+      var docTitle = doc.querySelector("title");
+      $("ctitle").textContent = c.label || (docTitle ? docTitle.textContent.trim() : "—");
+      $("kicker").textContent = (i + 1) + " ／ " + book.chapters.length;
+      $("where").textContent = book.title + " — " + (c.label || "");
+      document.title = "⌈" + (c.label || book.title) + "⌋";
+
+      $("prev").disabled = i === 0;
+      $("next").disabled = i === book.chapters.length - 1;
+
+      showLib(false);
+      paintList($("find").value);
+
+      if (restoreScroll) {
+        applyScroll(restoreScroll);
+      } else {
+        paneEl.scrollTop = 0;
+      }
+
+      setPos(id, { chapter: i, scroll: restoreScroll || 0, title: book.title,
+                   label: c.label, total: book.chapters.length });
+    } catch (e) {
+      msg("could not open that chapter — " + e.message);
+    } finally {
+      loading = false;
+    }
+  }
+
+  /* --- remember the scroll position -------------------------------- */
+
+  /* How far through the chapter we are: 0 at the top, 1 at the bottom.
+     The denominator is the scrollable distance, not the full height, so
+     "finished the chapter" actually reaches 1. */
+  function fraction() {
+    var span = paneEl.scrollHeight - paneEl.clientHeight;
+    return span > 0 ? Math.min(1, Math.max(0, paneEl.scrollTop / span)) : 0;
+  }
+
+  /* Put the reader back at a proportional offset. Retried across a few frames
+     because the chapter's height is not final the instant it is inserted --
+     images and fonts can still settle -- and a single rAF lands at the top. */
+  function applyScroll(frac) {
+    restoring = true;
+    var tries = 0;
+    (function attempt() {
+      var span = paneEl.scrollHeight - paneEl.clientHeight;
+      if (span > 40) {
+        paneEl.scrollTop = frac * span;
+        var got = paneEl.scrollTop / span;
+        if (Math.abs(got - frac) < 0.02) {
+          lastTop = paneEl.scrollTop;
+          restoring = false;
+          return;
+        }
+      }
+      if (++tries > 30) { lastTop = paneEl.scrollTop; restoring = false; return; }
+      requestAnimationFrame(attempt);
+    })();
+  }
+
+  function save() {
+    // never let the poll write a 0 over a good position mid-restore
+    if (restoring) return;
+    if (!book || !id || $("wrap").classList.contains("hide")) return;
+    setPos(id, { chapter: idx, scroll: fraction(), title: book.title,
+                 label: book.chapters[idx] && book.chapters[idx].label,
+                 total: book.chapters.length });
+  }
+
+  var saveTimer = null;
+  paneEl.addEventListener("scroll", function () {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(save, 400);
+  }, { passive: true });
+
+  /* A poll as well as the event. Losing someone's place is the one failure
+     this page must not have, and scroll events are not guaranteed everywhere
+     (programmatic scrolls, restored sessions, embedded viewers). Comparing a
+     cached scrollTop makes this nearly free when nothing is moving. */
+  var lastTop = -1;
+  setInterval(function () {
+    if (!book || $("wrap").classList.contains("hide")) return;
+    if (paneEl.scrollTop === lastTop) return;
+    lastTop = paneEl.scrollTop;
+    save();
+  }, 2000);
+
+  window.addEventListener("pagehide", save);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") save();
+  });
+
+  /* ================================================================
+     6. loading books
+     ================================================================ */
+
+  async function load(buf, name, jumpToSaved) {
+    msg("reading…");
+    var b = await readEpub(buf);
+    book = b;
+    id = bookId(b);
+    await putBook({ id: id, name: name, title: b.title, author: b.author,
+                    bytes: buf, chapters: b.chapters.length, added: Date.now() });
+    var pos = getPos(id);
+    msg("");
+    paintList("");
+    var resume = jumpToSaved && pos && typeof pos.chapter === "number";
+    await go(resume ? pos.chapter : firstRealChapter(b), resume ? pos.scroll : 0);
+    scrollListToCurrent();
+  }
+
+  async function handleFiles(files) {
+    var list = Array.prototype.slice.call(files).filter(function (f) {
+      return /\.epub$/i.test(f.name);
+    });
+    if (!list.length) { msg("those are not .epub files."); return; }
+
+    // import them all, open the first
+    var first = null;
+    for (var i = 0; i < list.length; i++) {
+      try {
+        msg("reading " + (i + 1) + " of " + list.length + " — " + list[i].name);
+        var buf = await list[i].arrayBuffer();
+        var b = await readEpub(buf);
+        var bid = bookId(b);
+        await putBook({ id: bid, name: list[i].name, title: b.title, author: b.author,
+                        bytes: buf, chapters: b.chapters.length, added: Date.now() });
+        if (!first) first = { buf: buf, name: list[i].name };
+      } catch (e) {
+        msg("could not read " + list[i].name + " — " + e.message);
+        return;
+      }
+    }
+    await paintShelf();
+    if (first) await load(first.buf, first.name, true);
+  }
+
+  /* --- the shelf -------------------------------------------------- */
+
+  async function paintShelf() {
+    var shelf = $("shelf");
+    shelf.textContent = "";
+    var books;
+    try { books = await allBooks(); } catch (e) { return; }
+    if (!books || !books.length) return;
+
+    books.sort(function (a, b) { return (b.added || 0) - (a.added || 0); });
+
+    var h = document.createElement("p");
+    h.className = "note";
+    h.innerHTML = "<b>On this machine</b> — kept in this browser only.";
+    shelf.appendChild(h);
+
+    books.forEach(function (rec) {
+      var pos = getPos(rec.id);
+      var row = document.createElement("div");
+      row.className = "row";
+
+      var t = document.createElement("div");
+      t.className = "t";
+      var pct = pos && rec.chapters ? Math.round(((pos.chapter || 0) + 1) / rec.chapters * 100) : 0;
+      t.innerHTML = "<b></b><small></small>";
+      t.querySelector("b").textContent = rec.name || rec.title;
+      t.querySelector("small").textContent =
+        rec.chapters + " chapters" +
+        (pos ? " · at " + ((pos.chapter || 0) + 1) + " (" + pct + "%)" +
+               (pos.label ? " · " + pos.label : "") : " · not started");
+      row.appendChild(t);
+
+      var openBtn = document.createElement("button");
+      openBtn.type = "button";
+      openBtn.textContent = pos ? "ＲＥＳＵＭＥ" : "ＲＥＡＤ";
+      openBtn.addEventListener("click", async function () {
+        msg("opening…");
+        var full = await getBook(rec.id);
+        await load(full.bytes, full.name, true);
+      });
+      row.appendChild(openBtn);
+
+      var x = document.createElement("button");
+      x.type = "button"; x.className = "x"; x.textContent = "✕";
+      x.title = "Remove from this browser";
+      x.addEventListener("click", async function () {
+        await delBook(rec.id);
+        await paintShelf();
+      });
+      row.appendChild(x);
+
+      shelf.appendChild(row);
+    });
+  }
+
+  /* ================================================================
+     7. wiring
+     ================================================================ */
+
+  if (!window.DecompressionStream) {
+    msg("this browser has no DecompressionStream, so it cannot unpack an " +
+        "epub without a library. Firefox 113+, Chrome 80+ or Safari 16.4+ will.");
+  }
+
+  $("pick").addEventListener("click", function () { $("file").click(); });
+  $("file").addEventListener("change", function (e) { handleFiles(e.target.files); });
+
+  var drop = $("drop");
+  ["dragenter", "dragover"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); });
+  });
+  drop.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) handleFiles(e.dataTransfer.files);
+  });
+  // don't let a stray drop navigate the page away
+  window.addEventListener("dragover", function (e) { e.preventDefault(); });
+  window.addEventListener("drop", function (e) { e.preventDefault(); });
+
+  $("prev").addEventListener("click", function () { go(idx - 1); });
+  $("next").addEventListener("click", function () { go(idx + 1); });
+
+  $("toggleToc").addEventListener("click", function () {
+    var t = $("toc");
+    t.classList.toggle("hide");
+    if (!t.classList.contains("hide")) { paintList($("find").value); scrollListToCurrent(); }
+  });
+
+  $("shelfBtn").addEventListener("click", async function () {
+    await paintShelf();
+    showLib(true);
+    document.title = "⌈Ｔｈｅ　Ｒｅａｄｉｎｇ　Ｒｏｏｍ⌋";
+  });
+
+  $("find").addEventListener("input", function () { paintList(this.value); });
+
+  function bump(d) {
+    size = Math.max(13, Math.min(26, size + d));
+    textEl.style.fontSize = size + "px";
+    try { localStorage.setItem(SIZE, String(size)); } catch (e) {}
+  }
+  $("bigger").addEventListener("click", function () { bump(1); });
+  $("smaller").addEventListener("click", function () { bump(-1); });
+
+  document.addEventListener("keydown", function (e) {
+    if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    if ($("wrap").classList.contains("hide")) return;
+    if (e.key === "ArrowLeft") { go(idx - 1); }
+    else if (e.key === "ArrowRight") { go(idx + 1); }
+    else if (e.key === "t") { $("toggleToc").click(); }
+  });
+
+  /* start on the shelf, and offer the most recent book */
+  paintShelf();
+})();
+</script>
+</body>
+</html>

@@ -20,3 +20,8 @@ Thumbs.db
 
 # local preview config
 .claude/
+
+# books stay out of the repo — the reader loads them from disk at runtime
+*.epub
+*.mobi
+*.azw3
