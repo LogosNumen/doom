@@ -37,6 +37,17 @@ td.b { width:64px; text-align:right; }
 
 .meter { color:#3a3833; letter-spacing:0; font-size:13px; line-height:1;
          display:inline-block; }
+
+/* ---- the second section: whatever you brought ---- */
+h2.sec { font:12px/2.6 "MS Gothic","Courier New",monospace; font-weight:normal;
+         letter-spacing:.5em; color:#c8c3b4; margin-top:46px; }
+#drop2 { border:1px dashed #1c1a17; padding:22px 16px; text-align:center;
+         margin:16px 0 10px; color:#6b675e; font-size:10px; letter-spacing:.24em; }
+#drop2.over { border-color:#b4503c; color:#c8c3b4; }
+#msg2 { color:#b4503c; font-size:10px; letter-spacing:.04em; min-height:18px;
+        margin-bottom:8px; line-height:1.8; }
+td.x button { color:#3a3833; border-color:#100e0c; padding:5px 7px; min-width:0; }
+td.t i { font-style:normal; color:#6b675e; }
 tr.live .meter { color:#b4503c; }
 tr.live td.t { color:#c8c3b4; }
 
@@ -91,6 +102,24 @@ nobody can send you a copy.</p>
     </tr>
   </thead>
   <tbody id="rows"></tbody>
+</table>
+
+<h2 class="sec">Ｙｏｕｒ　ｏｗｎ</h2>
+<p class="warn">Records brought in from outside. Nothing is uploaded and nothing
+is stored on the server — the station still has no audio on it. Files you add
+here are kept in this browser, on this machine, and go out through the same
+single output as everything above, so putting one on stops whatever was
+already running.</p>
+
+<div id="drop2">
+  ｄｒｏｐ　ａｕｄｉｏ　ｆｉｌｅｓ　ｈｅｒｅ<br><br>
+  <button id="pick2" type="button">ＣＨＯＯＳＥ　ＦＩＬＥＳ</button>
+  <input id="file2" type="file" accept="audio/*" multiple hidden>
+</div>
+<div id="msg2" role="status" aria-live="polite"></div>
+
+<table>
+  <tbody id="ownRows"></tbody>
 </table>
 
 <p class="foot">
@@ -272,6 +301,216 @@ nobody can send you a copy.</p>
     });
     if (!id) { live = null; analyser = null; }
   });
+
+  /* ================================================================
+     Your own — records brought in from outside.
+
+     Kept in this browser via IndexedDB. Nothing is uploaded; there is no
+     server behind this site to upload to. They play through the same
+     single-source bus as the patches above, so one output at a time still
+     holds across the whole station.
+     ================================================================ */
+
+  var TDB = null;
+  function tdb() {
+    if (TDB) return TDB;
+    TDB = new Promise(function (res, rej) {
+      var r = indexedDB.open("da-tracks", 1);
+      r.onupgradeneeded = function () {
+        if (!r.result.objectStoreNames.contains("tracks")) {
+          r.result.createObjectStore("tracks", { keyPath: "id" });
+        }
+      };
+      r.onsuccess = function () { res(r.result); };
+      r.onerror = function () { rej(r.error); };
+    });
+    return TDB;
+  }
+
+  function ttx(mode, fn) {
+    return tdb().then(function (d) {
+      return new Promise(function (res, rej) {
+        var t = d.transaction("tracks", mode);
+        var out = fn(t.objectStore("tracks"));
+        t.oncomplete = function () { res(out && out.result !== undefined ? out.result : out); };
+        t.onerror = function () { rej(t.error); };
+      });
+    });
+  }
+
+  function trackId(name, size) {
+    var s = name + "|" + size, h = 2166136261;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;   // imul: `*` loses bits past 2^53
+    }
+    return "t" + (h >>> 0).toString(36);
+  }
+
+  function clock(sec) {
+    if (!sec || !isFinite(sec)) return "—";
+    var m = Math.floor(sec / 60), s = Math.round(sec % 60);
+    if (s === 60) { m++; s = 0; }
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  function duration(bytes, type) {
+    return new Promise(function (res) {
+      var url = URL.createObjectURL(new Blob([bytes], { type: type || "audio/mpeg" }));
+      var a = new Audio();
+      var done = function (v) { URL.revokeObjectURL(url); res(v); };
+      a.addEventListener("loadedmetadata", function () { done(a.duration); });
+      a.addEventListener("error", function () { done(null); });
+      setTimeout(function () { done(a.duration || null); }, 6000);
+      a.preload = "metadata";
+      a.src = url;
+    });
+  }
+
+  var msg2 = document.getElementById("msg2");
+  var ownRows = document.getElementById("ownRows");
+
+  async function addFiles(files) {
+    var list = Array.prototype.slice.call(files).filter(function (f) {
+      return /^audio\//.test(f.type) || /\.(mp3|m4a|aac|ogg|oga|opus|wav|flac|webm)$/i.test(f.name);
+    });
+    if (!list.length) { msg2.textContent = "those are not audio files."; return; }
+
+    for (var i = 0; i < list.length; i++) {
+      try {
+        msg2.textContent = "reading " + (i + 1) + " of " + list.length + "…";
+        var f = list[i];
+        var bytes = await f.arrayBuffer();
+        var len = await duration(bytes, f.type);
+        await ttx("readwrite", function (s) {
+          return s.put({
+            id: trackId(f.name, f.size), name: f.name, type: f.type || "audio/mpeg",
+            bytes: bytes, len: len, added: Date.now()
+          });
+        });
+      } catch (e) {
+        msg2.textContent = "could not read " + list[i].name + " — " + e.message;
+        return;
+      }
+    }
+    msg2.textContent = "";
+    await paintOwn();
+  }
+
+  function playOwn(rec) {
+    window.DA.play("own-" + rec.id, function (c, out) {
+      var url = URL.createObjectURL(new Blob([rec.bytes], { type: rec.type || "audio/mpeg" }));
+      var el = new Audio();
+      el.src = url;
+      var src = c.createMediaElementSource(el);
+      var g = c.createGain();
+      // the station's master gain sits low because everything else is a drone;
+      // a record needs that headroom handed back
+      g.gain.value = 3.0;
+      src.connect(g);
+      g.connect(out);
+
+      analyser = c.createAnalyser();
+      analyser.fftSize = 512;
+      buf = new Uint8Array(analyser.fftSize);
+      g.connect(analyser);
+
+      el.addEventListener("ended", function () { window.DA.stop(); });
+      el.play().catch(function () {
+        msg2.textContent = "the browser would not start playback.";
+      });
+
+      return function () {
+        try { el.pause(); } catch (e) {}
+        el.removeAttribute("src");
+        try { src.disconnect(); } catch (e) {}
+        try { g.disconnect(); } catch (e) {}
+        try { analyser.disconnect(); } catch (e) {}
+        analyser = null;
+        URL.revokeObjectURL(url);
+      };
+    });
+  }
+
+  async function paintOwn() {
+    ownRows.textContent = "";
+    var recs;
+    try { recs = await ttx("readonly", function (s) { return s.getAll(); }); } catch (e) { return; }
+    if (!recs || !recs.length) return;
+    recs.sort(function (a, b) { return (a.added || 0) - (b.added || 0); });
+
+    recs.forEach(function (rec, i) {
+      var tr = document.createElement("tr");
+      tr.dataset.own = rec.id;
+
+      var title = rec.name.replace(/\.[a-z0-9]+$/i, "");
+      tr.innerHTML =
+        '<td class="n">' + String(i + 1).padStart(2, "0") + "</td>" +
+        '<td class="t"></td>' +
+        '<td class="len"></td>' +
+        '<td class="m"><span class="meter">' + "▁".repeat(9) + "</span></td>" +
+        '<td class="b"></td>';
+      tr.querySelector(".t").textContent = title;
+      tr.querySelector(".len").textContent = clock(rec.len);
+
+      var b = tr.querySelector(".b");
+      var play = document.createElement("button");
+      play.type = "button";
+      play.textContent = "ＰＬＡＹ";
+      play.addEventListener("click", function () {
+        if (window.DA.playing("own-" + rec.id)) { window.DA.stop(); return; }
+        playOwn(rec);
+      });
+      b.appendChild(play);
+
+      var x = document.createElement("button");
+      x.type = "button";
+      x.textContent = "✕";
+      x.title = "Remove from this browser";
+      x.style.cssText = "margin-left:6px;color:#3a3833;border-color:#100e0c;min-width:0;padding:6px 7px";
+      x.addEventListener("click", async function () {
+        if (window.DA.playing("own-" + rec.id)) window.DA.stop();
+        await ttx("readwrite", function (s) { return s.delete(rec.id); });
+        await paintOwn();
+      });
+      b.appendChild(x);
+
+      ownRows.appendChild(tr);
+    });
+  }
+
+  document.addEventListener("da:source", function (e) {
+    var sid = e.detail.id;
+    [].forEach.call(ownRows.children, function (tr) {
+      var on = sid === "own-" + tr.dataset.own;
+      tr.classList.toggle("live", on);
+      tr.querySelector(".b button").textContent = on ? "ＳＴＯＰ" : "ＰＬＡＹ";
+      if (on) live = tr;
+      else tr.querySelector(".meter").textContent = "▁".repeat(9);
+    });
+  });
+
+  document.getElementById("pick2").addEventListener("click", function () {
+    document.getElementById("file2").click();
+  });
+  document.getElementById("file2").addEventListener("change", function (e) {
+    addFiles(e.target.files);
+  });
+
+  var d2 = document.getElementById("drop2");
+  ["dragenter", "dragover"].forEach(function (ev) {
+    d2.addEventListener(ev, function (e) { e.preventDefault(); d2.classList.add("over"); });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    d2.addEventListener(ev, function (e) { e.preventDefault(); d2.classList.remove("over"); });
+  });
+  d2.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files) addFiles(e.dataTransfer.files);
+  });
+  window.addEventListener("dragover", function (e) { e.preventDefault(); });
+  window.addEventListener("drop", function (e) { e.preventDefault(); });
+
+  paintOwn();
 
   /* ---- the level meter -------------------------------------------- */
 

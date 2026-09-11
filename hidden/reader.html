@@ -141,6 +141,17 @@ a:hover, a:focus { color:#b4503c; }
 #shelf .row .t small { color:#6b675e; font-size:10px; }
 #shelf .row .x { color:#3a3833; border-color:#100e0c; padding:5px 8px; }
 
+/* a work, with its volumes gathered under it */
+#shelf .grp { margin:26px 0 4px; padding-bottom:8px; border-bottom:1px solid #1c1a17; }
+#shelf .grp b { display:block; color:#c8c3b4; font-weight:normal;
+                font-size:12px; letter-spacing:.24em; }
+#shelf .grp small { display:block; color:#6b675e; font-size:10px;
+                    letter-spacing:.06em; margin-top:4px; }
+#shelf .cont { margin:12px 0 6px; border-color:#b4503c; color:#b4503c; }
+#shelf .cont:hover { color:#c8c3b4; border-color:#c8c3b4; }
+#shelf .row .t b { color:#6b675e; }
+#shelf .row .t b, #shelf .grp b { font-variant-numeric:tabular-nums; }
+
 #msg { color:#b4503c; font-size:11px; letter-spacing:.04em; text-align:center;
        min-height:20px; margin-top:14px; line-height:1.8; }
 
@@ -405,10 +416,27 @@ a:hover, a:focus { color:#b4503c; }
     }
 
     var chapters = spine.map(function (href, i) {
-      return { href: href, label: labels[href] || ("Section " + (i + 1)) };
+      var label = labels[href] || ("Section " + (i + 1));
+      return { href: href, label: label, num: chapterNumber(label) };
     });
 
-    return { zip: zip, title: title, author: author, chapters: chapters };
+    var nums = chapters.map(function (c) { return c.num; })
+                       .filter(function (n) { return n !== null; });
+
+    return {
+      zip: zip, title: title, author: author, chapters: chapters,
+      first: nums.length ? Math.min.apply(null, nums) : null,
+      last: nums.length ? Math.max.apply(null, nums) : null
+    };
+  }
+
+  /* The chapter's own number, out of its own title. This is what lets eleven
+     separate files behave like one book: volumes sort by it, the running count
+     is expressed in it, and crossing from the end of one file into the start of
+     the next is just picking the volume whose range comes after this one. */
+  function chapterNumber(label) {
+    var m = /(?:^|\s)(?:chapter|ch\.?)\s*0*(\d+)/i.exec(label || "");
+    return m ? parseInt(m[1], 10) : null;
   }
 
   /* Where to land when a book is opened for the first time. The spine starts
@@ -433,6 +461,16 @@ a:hover, a:focus { color:#b4503c; }
       h = Math.imul(h, 16777619) >>> 0;   // imul: `*` loses bits past 2^53
     }
     return "b" + (h >>> 0).toString(36);
+  }
+
+  /* What gets kept on the shelf. `series` is the book's own dc:title, which is
+     identical across every volume of a series, so it groups them for free. */
+  function record(bid, name, b, buf) {
+    return {
+      id: bid, name: name, title: b.title, author: b.author, bytes: buf,
+      chapters: b.chapters.length, series: b.title,
+      first: b.first, last: b.last, added: Date.now()
+    };
   }
 
   /* ================================================================
@@ -494,6 +532,64 @@ a:hover, a:focus { color:#b4503c; }
   var book = null, id = null, idx = 0, blobs = [];
   var textEl = $("text"), paneEl = $("pane");
   var restoring = false;   // true while putting you back where you were
+
+  /* ---- the series this volume belongs to -------------------------- *
+   * Volumes of one work share a dc:title, so they group themselves, and
+   * the chapter numbers in their own headings put them in order. Once
+   * that is known, running off the end of one file is just a matter of
+   * opening the one whose range starts where this one stopped.         */
+
+  var series = [];       // sibling records, in reading order
+  var seriesPos = -1;    // where the open volume sits among them
+  var seriesTotal = 0;   // highest chapter number in the whole series
+  var SER = "da.reader.series";
+
+  async function loadSeries() {
+    series = []; seriesPos = -1; seriesTotal = 0;
+    if (!book) return;
+    var all;
+    try { all = await allBooks(); } catch (e) { return; }
+    var key = book.title;
+    series = (all || [])
+      .filter(function (r) { return (r.series || r.title) === key; })
+      .sort(function (a, b) { return (a.first || 0) - (b.first || 0); });
+    for (var i = 0; i < series.length; i++) {
+      if (series[i].id === id) seriesPos = i;
+      seriesTotal = Math.max(seriesTotal, series[i].last || 0);
+    }
+  }
+
+  /* remember which volume of a series you were last in */
+  function markSeries() {
+    if (!book || !id) return;
+    try {
+      var m = JSON.parse(localStorage.getItem(SER) || "{}");
+      m[book.title] = id;
+      localStorage.setItem(SER, JSON.stringify(m));
+    } catch (e) {}
+  }
+
+  async function crossVolume(dir) {
+    if (seriesPos < 0) return false;
+    var t = seriesPos + dir;
+    if (t < 0 || t >= series.length) return false;
+
+    msg("");
+    var rec;
+    try { rec = await getBook(series[t].id); } catch (e) { return false; }
+    if (!rec) return false;
+
+    var b = await readEpub(rec.bytes);
+    book = b;
+    id = rec.id;
+    await loadSeries();
+    paintList($("find").value);
+
+    // forwards lands on the first real chapter, backwards on the last one
+    await go(dir > 0 ? firstRealChapter(b) : b.chapters.length - 1, 0);
+    scrollListToCurrent();
+    return true;
+  }
 
   var SIZE = "da.reader.size";
   var size = 17;
@@ -602,12 +698,27 @@ a:hover, a:focus { color:#b4503c; }
 
       var docTitle = doc.querySelector("title");
       $("ctitle").textContent = c.label || (docTitle ? docTitle.textContent.trim() : "—");
-      $("kicker").textContent = (i + 1) + " ／ " + book.chapters.length;
-      $("where").textContent = book.title + " — " + (c.label || "");
+      // count in the series' own chapter numbers when we have them, so the
+      // running total is "2261 of 2882", not "1 of 460" eleven times over
+      $("kicker").textContent = (c.num && seriesTotal)
+        ? "ｃｈａｐｔｅｒ　" + c.num + " ／ " + seriesTotal
+        : (i + 1) + " ／ " + book.chapters.length;
+      $("where").textContent = book.title +
+        (series.length > 1 ? " — vol " + (seriesPos + 1) + "/" + series.length : "") +
+        " — " + (c.label || "");
       document.title = "⌈" + (c.label || book.title) + "⌋";
 
-      $("prev").disabled = i === 0;
-      $("next").disabled = i === book.chapters.length - 1;
+      var atStart = i === 0;
+      var atEnd = i === book.chapters.length - 1;
+      var morePrev = seriesPos > 0;
+      var moreNext = seriesPos >= 0 && seriesPos < series.length - 1;
+
+      $("prev").disabled = atStart && !morePrev;
+      $("next").disabled = atEnd && !moreNext;
+      $("prev").textContent = (atStart && morePrev) ? "←　ＰＲＥＶ　ＶＯＬ" : "←　ＰＲＥＶ";
+      $("next").textContent = (atEnd && moreNext) ? "ＮＥＸＴ　ＶＯＬ　→" : "ＮＥＸＴ　→";
+
+      markSeries();
 
       showLib(false);
       paintList($("find").value);
@@ -700,8 +811,8 @@ a:hover, a:focus { color:#b4503c; }
     var b = await readEpub(buf);
     book = b;
     id = bookId(b);
-    await putBook({ id: id, name: name, title: b.title, author: b.author,
-                    bytes: buf, chapters: b.chapters.length, added: Date.now() });
+    await putBook(record(id, name, b, buf));
+    await loadSeries();
     var pos = getPos(id);
     msg("");
     paintList("");
@@ -724,8 +835,7 @@ a:hover, a:focus { color:#b4503c; }
         var buf = await list[i].arrayBuffer();
         var b = await readEpub(buf);
         var bid = bookId(b);
-        await putBook({ id: bid, name: list[i].name, title: b.title, author: b.author,
-                        bytes: buf, chapters: b.chapters.length, added: Date.now() });
+        await putBook(record(bid, list[i].name, b, buf));
         if (!first) first = { buf: buf, name: list[i].name };
       } catch (e) {
         msg("could not read " + list[i].name + " — " + e.message);
@@ -745,49 +855,107 @@ a:hover, a:focus { color:#b4503c; }
     try { books = await allBooks(); } catch (e) { return; }
     if (!books || !books.length) return;
 
-    books.sort(function (a, b) { return (b.added || 0) - (a.added || 0); });
-
     var h = document.createElement("p");
     h.className = "note";
     h.innerHTML = "<b>On this machine</b> — kept in this browser only.";
     shelf.appendChild(h);
 
+    /* group volumes of the same work together and put them in reading order */
+    var groups = {};
     books.forEach(function (rec) {
-      var pos = getPos(rec.id);
-      var row = document.createElement("div");
-      row.className = "row";
+      var key = rec.series || rec.title || rec.name;
+      (groups[key] = groups[key] || []).push(rec);
+    });
 
-      var t = document.createElement("div");
-      t.className = "t";
-      var pct = pos && rec.chapters ? Math.round(((pos.chapter || 0) + 1) / rec.chapters * 100) : 0;
-      t.innerHTML = "<b></b><small></small>";
-      t.querySelector("b").textContent = rec.name || rec.title;
-      t.querySelector("small").textContent =
-        rec.chapters + " chapters" +
-        (pos ? " · at " + ((pos.chapter || 0) + 1) + " (" + pct + "%)" +
-               (pos.label ? " · " + pos.label : "") : " · not started");
-      row.appendChild(t);
+    var pointer = {};
+    try { pointer = JSON.parse(localStorage.getItem(SER) || "{}"); } catch (e) {}
 
-      var openBtn = document.createElement("button");
-      openBtn.type = "button";
-      openBtn.textContent = pos ? "ＲＥＳＵＭＥ" : "ＲＥＡＤ";
-      openBtn.addEventListener("click", async function () {
-        msg("opening…");
-        var full = await getBook(rec.id);
-        await load(full.bytes, full.name, true);
+    Object.keys(groups).sort().forEach(function (key) {
+      var vols = groups[key].sort(function (a, b) {
+        return (a.first || 0) - (b.first || 0) || (a.added || 0) - (b.added || 0);
       });
-      row.appendChild(openBtn);
 
-      var x = document.createElement("button");
-      x.type = "button"; x.className = "x"; x.textContent = "✕";
-      x.title = "Remove from this browser";
-      x.addEventListener("click", async function () {
-        await delBook(rec.id);
-        await paintShelf();
+      // how far through the whole work are we?
+      var total = vols.reduce(function (m, r) { return Math.max(m, r.last || 0); }, 0);
+      var reached = 0, newest = null;
+      vols.forEach(function (r) {
+        var p = getPos(r.id);
+        if (!p) return;
+        // front matter and end notes carry no chapter number of their own, so
+        // fall back to where this volume starts — having a position in it at
+        // all means you are at least that far in
+        var n = chapterNumber(p.label) || r.first || 0;
+        if (n) reached = Math.max(reached, n);
+        if (!newest || (p.at || 0) > (getPos(newest.id) || {}).at) newest = r;
       });
-      row.appendChild(x);
 
-      shelf.appendChild(row);
+      var head = document.createElement("div");
+      head.className = "grp";
+      var pct = total && reached ? Math.round(reached / total * 100) : 0;
+      head.innerHTML = "<b></b><small></small>";
+      head.querySelector("b").textContent = key;
+      head.querySelector("small").textContent =
+        vols.length + (vols.length === 1 ? " volume" : " volumes") +
+        (total ? " · " + total + " chapters" : "") +
+        (reached ? " · reached chapter " + reached + " (" + pct + "%)" : " · not started");
+      shelf.appendChild(head);
+
+      // one button that picks up the whole work wherever it was left
+      var resumeFrom = (pointer[key] && vols.filter(function (r) {
+        return r.id === pointer[key];
+      })[0]) || newest;
+
+      if (resumeFrom) {
+        var cont = document.createElement("button");
+        cont.type = "button";
+        cont.className = "cont";
+        cont.textContent = "ＣＯＮＴＩＮＵＥ";
+        cont.addEventListener("click", async function () {
+          msg("opening…");
+          var full = await getBook(resumeFrom.id);
+          await load(full.bytes, full.name, true);
+        });
+        shelf.appendChild(cont);
+      }
+
+      vols.forEach(function (rec, vi) {
+        var pos = getPos(rec.id);
+        var row = document.createElement("div");
+        row.className = "row";
+
+        var t = document.createElement("div");
+        t.className = "t";
+        t.innerHTML = "<b></b><small></small>";
+        t.querySelector("b").textContent =
+          (rec.first && rec.last)
+            ? "vol " + (vi + 1) + " — chapters " + rec.first + "–" + rec.last
+            : (rec.name || rec.title);
+        t.querySelector("small").textContent =
+          rec.chapters + " sections" +
+          (pos ? " · at " + (pos.label || ((pos.chapter || 0) + 1)) : " · not started");
+        row.appendChild(t);
+
+        var openBtn = document.createElement("button");
+        openBtn.type = "button";
+        openBtn.textContent = pos ? "ＲＥＳＵＭＥ" : "ＲＥＡＤ";
+        openBtn.addEventListener("click", async function () {
+          msg("opening…");
+          var full = await getBook(rec.id);
+          await load(full.bytes, full.name, true);
+        });
+        row.appendChild(openBtn);
+
+        var x = document.createElement("button");
+        x.type = "button"; x.className = "x"; x.textContent = "✕";
+        x.title = "Remove from this browser";
+        x.addEventListener("click", async function () {
+          await delBook(rec.id);
+          await paintShelf();
+        });
+        row.appendChild(x);
+
+        shelf.appendChild(row);
+      });
     });
   }
 
@@ -817,8 +985,18 @@ a:hover, a:focus { color:#b4503c; }
   window.addEventListener("dragover", function (e) { e.preventDefault(); });
   window.addEventListener("drop", function (e) { e.preventDefault(); });
 
-  $("prev").addEventListener("click", function () { go(idx - 1); });
-  $("next").addEventListener("click", function () { go(idx + 1); });
+  /* Past either end of a volume, keep going into the neighbouring one. */
+  function stepBack() {
+    if (!book) return;
+    if (idx > 0) { go(idx - 1); } else { crossVolume(-1); }
+  }
+  function stepOn() {
+    if (!book) return;
+    if (idx < book.chapters.length - 1) { go(idx + 1); } else { crossVolume(1); }
+  }
+
+  $("prev").addEventListener("click", stepBack);
+  $("next").addEventListener("click", stepOn);
 
   $("toggleToc").addEventListener("click", function () {
     var t = $("toc");
@@ -845,8 +1023,8 @@ a:hover, a:focus { color:#b4503c; }
   document.addEventListener("keydown", function (e) {
     if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
     if ($("wrap").classList.contains("hide")) return;
-    if (e.key === "ArrowLeft") { go(idx - 1); }
-    else if (e.key === "ArrowRight") { go(idx + 1); }
+    if (e.key === "ArrowLeft") { stepBack(); }
+    else if (e.key === "ArrowRight") { stepOn(); }
     else if (e.key === "t") { $("toggleToc").click(); }
   });
 

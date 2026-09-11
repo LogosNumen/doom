@@ -227,8 +227,24 @@ filtered noise, slow LFOs, and `speechSynthesis`.
   tones, the numbers station and the hum all go through the same bus; starting
   one stops whatever else was running.
 
-`localStorage` is used for two things and nothing else: the sound setting
-(`da.sound`) and whether the hidden door has been opened (`da.relay9`).
+### Your own records
+
+The tracklist has a second section that plays audio files from your own
+machine. **No audio is stored in this repository and none is uploaded** — the
+files are read in the browser, kept in IndexedDB (`da-tracks`) on that device
+only, and removed when you clear site data. `*.mp3`, `*.m4a`, `*.flac`, `*.ogg`,
+`*.opus` and `*.wav` are gitignored so a copy cannot be committed by accident.
+
+Imported tracks go out through the same single-source bus as the patches, so
+starting a record stops whatever drone was running, and vice versa. They get
+the same text level meter, driven off an `AnalyserNode` reading the real
+signal. The station's master gain sits low because everything else is a drone,
+so records are given that headroom back on the way through.
+
+`localStorage` keys, and nothing else: the sound setting (`da.sound`), whether
+the hidden door has been opened (`da.relay9`), reading position
+(`da.reader.pos`), which volume of a series you were last in
+(`da.reader.series`), and reader text size (`da.reader.size`).
 
 ---
 
@@ -262,6 +278,34 @@ secrets again in two years.
 | `hidden/hum.html` | A `console.log` printed by `js/site.js` on the homepage. Open devtools. `0300z.html` also nudges you towards the console. |
 | `hidden/tape-b7.html` | In `about.html`, the word **"spool"** is a link the same colour as the prose around it. Select the text, or tab to it — it turns accent-coloured on keyboard focus. |
 | `hidden/relay-9.html` | The reward. Unlocked by the passphrase on `login.html`. Also self-links once opened, and remembers via `localStorage`. |
+| `hidden/reader.html` | Linked from `relay-9.html`, so it needs the passphrase first. An EPUB reader for books on your own disk — see below. |
+
+### The reading room
+
+`hidden/reader.html` reads `.epub` files you open yourself. **No book text is
+in this repository**, nothing is uploaded, and `*.epub`/`*.mobi`/`*.azw3` are
+gitignored. Files are parsed in the browser and cached in IndexedDB
+(`da-reader`) on that device.
+
+It treats a multi-volume series as one book. Volumes group by their shared
+`dc:title` and order themselves by the chapter numbers in their own headings,
+so:
+
+- the shelf lists them as `vol 1 — chapters 1–95`, `vol 2 — chapters 96–350`…
+- the running count is series-wide (`chapter 2261 / 2882`), not per file
+- **Next** at the end of a volume rolls into the start of the next one, and
+  **Prev** at the start rolls back into the end of the previous one
+- one **CONTINUE** button picks the whole work up wherever you left it
+
+Reading position (chapter *and* how far into it) is saved against a hash of the
+book's own metadata, so it survives re-picking or renaming the file. It is
+written by a 2-second poll as well as the scroll event, because scroll events
+are not guaranteed for programmatic or restored scrolls and losing someone's
+place is the one failure that page must not have.
+
+Chapter markup from the file is rebuilt through an allow-list — scripts,
+styles, frames, event handlers and `javascript:` URLs are dropped — because it
+is foreign content.
 
 ### The numbers puzzle
 

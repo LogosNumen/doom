@@ -25,3 +25,11 @@ Thumbs.db
 *.epub
 *.mobi
 *.azw3
+
+# music stays out of the repo too — the tracklist plays it from disk
+*.mp3
+*.m4a
+*.flac
+*.ogg
+*.opus
+*.wav
