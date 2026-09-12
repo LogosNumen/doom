@@ -85,6 +85,64 @@
     el.addEventListener("blur", settle);
   });
 
+  /* ---- post images open at double size ---------------------------- *
+   * Keyboard reachable, escapable, and it puts focus back where it was
+   * when it closes. No blur, no card, no animation beyond the swap.    */
+
+  var lamp = null;
+  var lastFocus = null;
+
+  function shut() {
+    if (!lamp) return;
+    lamp.hidden = true;
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    lastFocus = null;
+  }
+
+  function open(src, alt, w) {
+    if (!lamp) {
+      lamp = document.createElement("div");
+      lamp.id = "lamp";
+      lamp.hidden = true;
+      lamp.setAttribute("role", "dialog");
+      lamp.setAttribute("aria-modal", "true");
+      lamp.innerHTML =
+        '<img alt=""><p class="cap"></p><p class="shut">［ ｃｌｉｃｋ　ｔｏ　ｃｌｏｓｅ ］</p>';
+      lamp.addEventListener("click", shut);
+      document.body.appendChild(lamp);
+    }
+    var im = lamp.querySelector("img");
+    im.src = src;
+    im.alt = alt || "";
+    if (w) im.width = w * 2;              // whole multiple, as ever
+    lamp.querySelector(".cap").textContent = alt || "";
+    lamp.hidden = false;
+    lamp.querySelector(".shut").setAttribute("tabindex", "-1");
+    lamp.querySelector(".shut").focus();
+  }
+
+  document.querySelectorAll(".post .shot").forEach(function (p) {
+    var im = p.querySelector("img");
+    if (!im) return;
+    p.setAttribute("tabindex", "0");
+    p.setAttribute("role", "button");
+    p.setAttribute("aria-label", "Open larger: " + (im.alt || "image"));
+
+    function go(e) {
+      e.preventDefault();
+      lastFocus = p;
+      open(im.currentSrc || im.src, im.alt, im.width);
+    }
+    p.addEventListener("click", go);
+    p.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" || e.key === " ") go(e);
+    });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") shut();
+  });
+
   /* ---- a message for whoever opens the console -------------------- */
 
   var log = [

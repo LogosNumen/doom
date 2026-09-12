@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｗａｌｋ　Ｉｔ　Ｂａｃｋ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+html, body { height:100%; }
+body {
+  background:#000; color:#c8c3b4; overflow:hidden;
+  font:11px/1.9 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.2em; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:20px; padding:28px 18px 64px; text-align:center;
+}
+
+#shot { position:relative; line-height:0; }
+#shot img {
+  display:block;
+  /* whole-number scale, which is the only honest way to enlarge a dither */
+  width:calc(var(--w) * 2px); max-width:88vw; height:auto;
+  transition:opacity .32s linear;
+}
+#shot img.out { opacity:0; }
+
+#cap {
+  max-width:42ch; min-height:3.8em; color:#c8c3b4;
+  transition:opacity .32s linear;
+}
+#cap.out { opacity:0; }
+#cap b { display:block; color:#6b675e; font-size:9px; letter-spacing:.5em;
+         margin-bottom:10px; font-weight:normal; }
+
+#dots { display:flex; gap:9px; align-items:center; }
+#dots span {
+  width:5px; height:5px; background:#1c1a17; display:block;
+  transition:background .25s linear;
+}
+#dots span.on { background:#b4503c; }
+#dots span.seen { background:#6b675e; }
+
+#foot {
+  position:fixed; left:0; right:0; bottom:16px; text-align:center;
+  font-size:9px; letter-spacing:.5em; color:#3a3833;
+}
+#foot a { color:#6b675e; text-decoration:none; }
+#foot a:hover, #foot a:focus { color:#b4503c; }
+#hint { color:#3a3833; font-size:9px; letter-spacing:.5em; }
+
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:4px; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.24) 2px, rgba(0,0,0,.24) 3px);
+}
+@media (max-width:620px) { #shot img { width:calc(var(--w) * 1px); max-width:92vw; } }
+@media (prefers-reduced-motion:reduce) {
+  #shot img, #cap, #dots span { transition:none !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="shot">
+  <picture>
+    <source id="src-still" media="(prefers-reduced-motion: reduce)">
+    <img id="img" src="img/seq-door.gif" width="192" height="160" alt="">
+  </picture>
+</div>
+
+<p id="cap"></p>
+<div id="dots" aria-hidden="true"></div>
+<p id="hint">ｃｌｉｃｋ　ｔｏ　ｇｏ　ｏｎ</p>
+
+<p id="foot"><a id="out" href="index.html">[ stop here ]</a></p>
+
+<script src="js/backdrop.js"></script>
+<script src="js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* Eight frames off a camera that was left running in an empty building.
+     Click anywhere to go on. The hash carries your place, so the back button
+     walks you back out the way you came in. */
+
+  var SEQ = [
+    { img: "seq-door",   w: 192, h: 160, k: "0041Z",
+      t: "The door was not locked. It has never been locked, in the whole time I have had keys, and I have stopped bringing them.",
+      alt: "A doorway standing open in the dark, light coming through the gap and spilling across the floor." },
+
+    { img: "seq-rack",   w: 160, h: 200, k: "0043Z",
+      t: "Four racks. Three are off at the wall. The fourth is not connected at either end.",
+      alt: "A tall equipment rack of blank panels and vents, with a few small lamps lit on it." },
+
+    { img: "seq-spool",  w: 176, h: 176, k: "0051Z",
+      t: "It was turning when I came in. I did not put a reel on it and there is nobody else with a key.",
+      alt: "A tape spool turning, hub and three spokes, tape still wound on it." },
+
+    { img: "seq-window", w: 200, h: 150, k: "0108Z",
+      t: "Weather. The glass is single-pane and it runs on the inside as much as the outside.",
+      alt: "A four-pane window, bright and grainy with rain, seen from a dark room." },
+
+    { img: "seq-road",   w: 224, h: 140, k: "0210Z",
+      t: "Nine miles of this to the main road. I have never once met anything coming the other way.",
+      alt: "A road at night in headlights, verges converging, centre line marching toward the viewer." },
+
+    { img: "seq-under",  w: 176, h: 200, k: "0300Z",
+      t: "From directly underneath it is four lines meeting, and the lamp, doing forty a minute.",
+      alt: "A lattice mast seen from directly below: four legs converging on a lit lamp." },
+
+    { img: "seq-rings",  w: 192, h: 192, k: "0300Z",
+      t: "Four seconds. Something came back the other way. I have it on tape and I have stopped playing it to people.",
+      alt: "Concentric rings collapsing inward toward a small cross at the centre." },
+
+    { img: "seq-field",  w: 208, h: 150, k: "0412Z",
+      t: "And then it is only weather again, and the card comes up, and I go home.",
+      alt: "A field of grain with a ring shape sinking into it until it is no longer there." }
+  ];
+
+  var img = document.getElementById("img");
+  var still = document.getElementById("src-still");
+  var cap = document.getElementById("cap");
+  var dots = document.getElementById("dots");
+  var shot = document.getElementById("shot");
+  var out = document.getElementById("out");
+  var hint = document.getElementById("hint");
+
+  var reduced =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var at = 0;
+
+  SEQ.forEach(function () {
+    dots.appendChild(document.createElement("span"));
+  });
+
+  /* Pull the next frame down while you are reading this one, so the step
+     never shows a gap. */
+  function preload(i) {
+    if (i < 0 || i >= SEQ.length) return;
+    var p = new Image();
+    p.src = "img/" + SEQ[i].img + ".gif";
+  }
+
+  function paint(i, animate) {
+    var f = SEQ[i];
+    shot.style.setProperty("--w", f.w);
+
+    function swap() {
+      img.width = f.w;
+      img.height = f.h;
+      img.src = "img/" + f.img + ".gif";
+      img.alt = f.alt;
+      still.srcset = "img/" + f.img + "_still.gif";
+      cap.innerHTML = "<b></b>";
+      cap.querySelector("b").textContent = f.k;
+      cap.appendChild(document.createTextNode(f.t));
+      img.classList.remove("out");
+      cap.classList.remove("out");
+    }
+
+    if (animate && !reduced) {
+      img.classList.add("out");
+      cap.classList.add("out");
+      setTimeout(swap, 320);
+    } else {
+      swap();
+    }
+
+    [].forEach.call(dots.children, function (d, n) {
+      d.className = n === i ? "on" : (n < i ? "seen" : "");
+    });
+
+    document.title = "⌈" + f.k + "⌋";
+    hint.textContent = i === SEQ.length - 1
+      ? "ｔｈａｔ　ｉｓ　ａｌｌ　ｏｆ　ｉｔ"
+      : "ｃｌｉｃｋ　ｔｏ　ｇｏ　ｏｎ";
+    out.textContent = i === SEQ.length - 1 ? "[ back to the station ]" : "[ stop here ]";
+    preload(i + 1);
+  }
+
+  function goTo(i, push) {
+    i = Math.max(0, Math.min(SEQ.length - 1, i));
+    if (i === at && push !== "force") return;
+    at = i;
+    paint(i, true);
+    if (push) {
+      try { history.pushState({ at: i }, "", "#" + (i + 1)); } catch (e) {}
+    }
+  }
+
+  function fromHash() {
+    var n = parseInt((location.hash || "").replace("#", ""), 10);
+    return isNaN(n) ? 0 : Math.max(0, Math.min(SEQ.length - 1, n - 1));
+  }
+
+  at = fromHash();
+  paint(at, false);
+
+  /* click anywhere that is not a link */
+  document.addEventListener("click", function (e) {
+    if (e.target.closest && e.target.closest("a, button")) return;
+    if (at >= SEQ.length - 1) { location.href = "index.html"; return; }
+    goTo(at + 1, true);
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
+      e.preventDefault();
+      if (at < SEQ.length - 1) goTo(at + 1, true);
+    } else if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      if (at > 0) { history.back(); }
+    } else if (e.key === "Escape") {
+      location.href = "index.html";
+    }
+  });
+
+  window.addEventListener("popstate", function () {
+    at = fromHash();
+    paint(at, true);
+  });
+
+  preload(1);
+})();
+</script>
+</body>
+</html>

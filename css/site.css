@@ -52,11 +52,19 @@ a {
   color: var(--fg);
   text-decoration: none;
   border-bottom: 1px solid transparent;
+  /* colour only, and quickly — a link should answer, not perform */
+  transition: color .15s linear, border-color .15s linear;
 }
 a:hover,
 a:focus {
   color: var(--sig);
 }
+/* a dotted rule on hover: period-correct, and it says "this is a link"
+   without needing a second colour in the palette */
+#navline a:hover,
+.post p a:hover,
+#navline a:focus,
+.post p a:focus { border-bottom-color: var(--sig); }
 a:visited {
   color: var(--fg);
 }
@@ -236,6 +244,42 @@ picture {
 .action a { color: var(--sig); }
 .action a:hover { color: var(--fg); }
 
+/* ---- the way in --------------------------------------------------- *
+ * The one large clickable image on the homepage. Click it and it keeps
+ * going. The reference puts its equivalent in the same place, directly
+ * under the header block, and says nothing about it either.            */
+
+.enter {
+  display: block;
+  width: var(--col);
+  max-width: 100%;
+  margin: 30px auto 0;
+  padding: 18px 0 20px;
+  border: 1px solid transparent;
+  line-height: 0;
+}
+.enter img {
+  /* whole multiples only — this was dithered at 192 across */
+  width: 384px;
+  max-width: 88%;
+  height: auto;
+  filter: brightness(0.86);
+  transition: filter .28s linear;
+}
+.enter:hover img,
+.enter:focus-visible img { filter: brightness(1.12); }
+.enter .enter-cap {
+  display: block;
+  margin-top: 16px;
+  font: 9px/2 var(--mono);
+  letter-spacing: .4em;
+  color: var(--dim);
+  line-height: 2;
+  transition: color .28s linear;
+}
+.enter:hover .enter-cap,
+.enter:focus-visible .enter-cap { color: var(--sig); }
+
 /* ---- posts -------------------------------------------------------- */
 
 .stream {
@@ -289,6 +333,45 @@ picture {
   font-smooth: auto;
   letter-spacing: 0.1em;
 }
+
+/* ---- post images are clickable ------------------------------------ *
+ * Every image in the stream opens at double size. Whole multiples only,
+ * and it is a plain overlay with no blur and no card behind it.        */
+
+.post .shot { cursor: pointer; display: inline-block; }
+.post .shot img { transition: filter .2s linear; }
+.post .shot:hover img,
+.post .shot:focus-visible img { filter: brightness(1.18); }
+
+#lamp {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  background: rgba(0, 0, 0, 0.93);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 24px;
+  cursor: pointer;
+}
+#lamp[hidden] { display: none; }
+#lamp img {
+  image-rendering: pixelated;
+  max-width: 92vw;
+  max-height: 72vh;
+  height: auto;
+}
+#lamp .cap {
+  font-size: 9px;
+  letter-spacing: .4em;
+  color: var(--dim);
+  max-width: 56ch;
+  text-align: center;
+  line-height: 2;
+}
+#lamp .shut { font-size: 9px; letter-spacing: .5em; color: var(--fg); }
 
 /* ---- footer ------------------------------------------------------- */
 

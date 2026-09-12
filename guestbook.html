@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｔｈｅ　Ｂｏｏｋ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4; text-align:center;
+  font:12px/1.95 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.08em; padding:34px 14px 90px;
+}
+.page { max-width:620px; margin:0 auto; }
+h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.5em; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:22px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:24px 0; }
+
+p.note { color:#6b675e; font-size:11px; letter-spacing:.04em; line-height:1.95;
+         max-width:50ch; margin:0 auto 14px; text-align:left; }
+p.note b { color:#c8c3b4; font-weight:normal; }
+
+/* ---- entries ---- */
+#book { text-align:left; margin-top:10px; }
+.sig { border-left:1px solid #1c1a17; padding:2px 0 2px 16px; margin-bottom:26px; }
+.sig .who { color:#c8c3b4; letter-spacing:.24em; }
+.sig .who i { font-style:normal; color:#6b675e; letter-spacing:.06em; font-size:10px; }
+.sig .msg { color:#c8c3b4; letter-spacing:.03em; margin-top:6px;
+            white-space:pre-wrap; word-wrap:break-word; }
+.sig.held { border-left-color:#b4503c; }
+.sig.held .who i { color:#b4503c; }
+
+/* ---- the form ---- */
+form { text-align:left; max-width:50ch; margin:0 auto; }
+label { display:block; color:#6b675e; font-size:10px; letter-spacing:.3em;
+        margin:14px 0 4px; }
+input, textarea {
+  width:100%; background:#000; color:#c8c3b4; border:1px solid #1c1a17;
+  font:12px/1.7 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.06em; padding:7px 9px; resize:vertical;
+}
+input::placeholder, textarea::placeholder { color:#3a3833; }
+input:focus, textarea:focus { border-color:#6b675e; outline:1px dotted #c8c3b4;
+                              outline-offset:2px; }
+textarea { min-height:104px; }
+.count { color:#3a3833; font-size:10px; letter-spacing:.2em; text-align:right;
+         margin-top:4px; }
+.count.over { color:#b4503c; }
+
+button {
+  background:#000; color:#c8c3b4; border:1px solid #6b675e;
+  font:11px/1 "MS Gothic","Courier New",monospace; letter-spacing:.3em;
+  padding:10px 16px; cursor:pointer; margin-top:16px;
+  transition:color .15s linear, border-color .15s linear;
+}
+button:hover { color:#b4503c; border-color:#b4503c; }
+button[disabled] { color:#3a3833; border-color:#100e0c; cursor:default; }
+button[disabled]:hover { color:#3a3833; border-color:#100e0c; }
+
+#out { color:#b4503c; font-size:11px; letter-spacing:.04em; min-height:40px;
+       margin-top:14px; line-height:1.9; text-align:left; max-width:50ch;
+       margin-left:auto; margin-right:auto; }
+#out a { color:#c8c3b4; }
+
+a { color:#c8c3b4; text-decoration:none;
+    transition:color .15s linear; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
+.foot { margin-top:44px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+.foot a { color:#6b675e; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+@media (prefers-reduced-motion:reduce) { *{ animation:none!important; transition:none!important; } }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Ｔｈｅ　Ｂｏｏｋ</h1>
+<p class="sub">signatures · unattended · collected by hand</p>
+
+<picture>
+  <source srcset="img/wave_still.gif" media="(prefers-reduced-motion: reduce)">
+  <img src="img/wave.gif" width="240" height="64" alt="A waveform scrolling past, with three places in it where something happened.">
+</picture>
+
+<hr>
+
+<p class="note">There is no server behind this site. Nothing here can take a
+message and hold it — it is flat files on a static host, which is why the
+station has no contact form and no address on the footer.</p>
+
+<p class="note">So the book works the way a book in a hut works. You write in
+it, and it goes in the post, and the operator copies it in when he next comes
+up the hill. <b>Signing opens a pre-filled message you send yourself</b>; it
+lands in the site's issue tracker, which is the only inbox this thing has.</p>
+
+<hr>
+
+<div id="book">
+  <p class="note" id="loading">reading the book…</p>
+</div>
+
+<hr>
+
+<form id="f" autocomplete="off">
+  <label for="handle">who</label>
+  <input id="handle" name="handle" type="text" maxlength="32" placeholder="a handle, not a name" spellcheck="false">
+
+  <label for="where">where (optional)</label>
+  <input id="where" name="where" type="text" maxlength="40" placeholder="a frequency, a town, nothing">
+
+  <label for="msg">what</label>
+  <textarea id="msg" name="msg" maxlength="600" placeholder="keep it short. the operator reads all of them."></textarea>
+  <p class="count" id="count">0 / 600</p>
+
+  <button type="submit" id="send">ＳＩＧＮ　ＴＨＥ　ＢＯＯＫ</button>
+</form>
+
+<div id="out" role="status" aria-live="polite"></div>
+
+<p class="foot">
+  <a href="about.html">[ about ]</a> &nbsp;
+  <a href="dir.html">[ dir ]</a> &nbsp;
+  <a href="index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="js/backdrop.js"></script>
+<script src="js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------------
+     WHERE SIGNATURES GO
+
+     A static host cannot accept a POST, so the book uses the one inbox
+     this project already has: the repository's issue tracker. Signing
+     composes the entry and hands it to you, pre-filled, to send.
+
+     To use a hosted guestbook service instead (atabook, smartgb,
+     123guestbook and so on), set RELAY.kind to "link" and RELAY.url to
+     the book's address. Everything below keeps working; the button just
+     sends people there rather than to the tracker.
+     ------------------------------------------------------------------ */
+
+  var RELAY = {
+    kind: "issue",                                  // "issue" | "link"
+    repo: "LogosNumen/doom",
+    url: ""                                         // used when kind is "link"
+  };
+
+  var HELD = "da.guestbook.held";
+
+  var book = document.getElementById("book");
+  var out = document.getElementById("out");
+  var form = document.getElementById("f");
+  var handle = document.getElementById("handle");
+  var where = document.getElementById("where");
+  var msg = document.getElementById("msg");
+  var count = document.getElementById("count");
+  var send = document.getElementById("send");
+
+  /* ---- render ----------------------------------------------------- */
+
+  function entry(e, held) {
+    var d = document.createElement("div");
+    d.className = "sig" + (held ? " held" : "");
+
+    var who = document.createElement("div");
+    who.className = "who";
+    who.textContent = "-" + (e.handle || "anonymous");
+
+    var meta = document.createElement("i");
+    meta.textContent = "  " + [e.where, e.at].filter(Boolean).join(" · ") +
+                       (held ? "  · held, not yet relayed" : "");
+    who.appendChild(meta);
+
+    var m = document.createElement("div");
+    m.className = "msg";
+    m.textContent = e.text || "";      // text, never markup
+
+    d.appendChild(who);
+    d.appendChild(m);
+    return d;
+  }
+
+  function heldEntries() {
+    try { return JSON.parse(localStorage.getItem(HELD) || "[]"); } catch (e) { return []; }
+  }
+
+  function hold(e) {
+    var all = heldEntries();
+    all.unshift(e);
+    try { localStorage.setItem(HELD, JSON.stringify(all.slice(0, 12))); } catch (err) {}
+  }
+
+  function paint(entries) {
+    book.textContent = "";
+    var mine = heldEntries();
+
+    if (!entries.length && !mine.length) {
+      var p = document.createElement("p");
+      p.className = "note";
+      p.textContent = "Nothing in it yet.";
+      book.appendChild(p);
+      return;
+    }
+    mine.forEach(function (e) { book.appendChild(entry(e, true)); });
+    entries.forEach(function (e) { book.appendChild(entry(e, false)); });
+  }
+
+  fetch("guestbook.json", { cache: "no-cache" })
+    .then(function (r) { return r.ok ? r.json() : { entries: [] }; })
+    .then(function (j) { paint((j && j.entries) || []); })
+    .catch(function () { paint([]); });
+
+  /* ---- the form --------------------------------------------------- */
+
+  msg.addEventListener("input", function () {
+    var n = msg.value.length;
+    count.textContent = n + " / 600";
+    count.className = "count" + (n > 600 ? " over" : "");
+  });
+
+  function stamp() {
+    var d = new Date();
+    var p = function (n) { return (n < 10 ? "0" : "") + n; };
+    return p(d.getDate()) + "." + p(d.getMonth() + 1) + "." + String(d.getFullYear()).slice(2);
+  }
+
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+
+    var h = handle.value.trim();
+    var w = where.value.trim();
+    var m = msg.value.trim();
+
+    if (!h) { out.textContent = "> put something in the who field. a handle is fine."; handle.focus(); return; }
+    if (!m) { out.textContent = "> the book is for writing in."; msg.focus(); return; }
+
+    var e = { handle: h, where: w, at: stamp(), text: m };
+    hold(e);
+
+    if (RELAY.kind === "link" && RELAY.url) {
+      out.innerHTML = "";
+      out.appendChild(document.createTextNode("> your entry is held on this machine. the book itself is "));
+      var a = document.createElement("a");
+      a.href = RELAY.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+      a.textContent = "over here";
+      out.appendChild(a);
+      out.appendChild(document.createTextNode("."));
+    } else {
+      var title = "guestbook: " + h;
+      var body =
+        "handle: " + h + "\n" +
+        "where: " + (w || "-") + "\n" +
+        "date: " + e.at + "\n\n" +
+        m + "\n\n" +
+        "---\nsent from the book at /guestbook.html";
+      var url = "https://github.com/" + RELAY.repo + "/issues/new" +
+        "?labels=guestbook" +
+        "&title=" + encodeURIComponent(title) +
+        "&body=" + encodeURIComponent(body);
+
+      out.innerHTML = "";
+      out.appendChild(document.createTextNode(
+        "> written down and held on this machine — you can see it at the top of the book. " +
+        "to actually send it, "));
+      var a2 = document.createElement("a");
+      a2.href = url; a2.target = "_blank"; a2.rel = "noopener noreferrer";
+      a2.textContent = "post it here";
+      out.appendChild(a2);
+      out.appendChild(document.createTextNode(
+        " — it opens pre-filled, and you send it. the operator copies it in by hand."));
+
+      // open it for them; if the browser blocks it, the link above still works
+      try { window.open(url, "_blank", "noopener"); } catch (err) {}
+    }
+
+    if (window.DA && window.DA.on) window.DA.speak("received", { rate: 0.5 });
+
+    form.reset();
+    count.textContent = "0 / 600";
+    count.className = "count";
+
+    fetch("guestbook.json", { cache: "no-cache" })
+      .then(function (r) { return r.ok ? r.json() : { entries: [] }; })
+      .then(function (j) { paint((j && j.entries) || []); })
+      .catch(function () { paint([]); });
+  });
+})();
+</script>
+</body>
+</html>

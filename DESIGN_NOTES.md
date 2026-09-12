@@ -14,7 +14,7 @@ with those measurements.
 | Built into `E:\china\dead-air\`, not `E:\china\` itself | `E:\china` is a parent folder holding several unrelated projects (`Git`, `LightSensor`, `OBSIDIAN`, `goofcalculator`, `LogosNumen.github.io`, a stray PNG). `git init` at that level would have swallowed all of them into one repo and scattered site files among them. A dedicated subfolder is the only sane reading of "this folder". |
 | Deployable root = the repo root | Everything except `tools/`, `.venv/`, `DESIGN_NOTES.md` and `README.md` is site payload. Neocities gets the site files; GitHub Pages deploys from main branch root. No build step, so no `docs/` or `dist/` split. |
 | No email in the footer | `EMAIL: none` in the settings. The footer carries the handle as plain text and no `mailto:`. |
-| Guestbook `href` left as a marked TODO | The brief says to. It is `href="#TODO-guestbook"` with a visible `[TODO]` marker and a comment in the source so it is impossible to miss. |
+| Guestbook `href` left as a marked TODO | The brief said to. **Superseded in the second pass** — the book now works; see section 10. |
 | A `.venv` in the repo, gitignored | Pillow and numpy were both missing from the system Python 3.12. `tools/requirements.txt` pins them. |
 | Handle `operator`; guest post signed `-vhf` | The brief asked for one post by a different handle, "as if a friend guest-posted". `vhf` reads as another night listener, not a persona. |
 | Copyright range 2019–2026 | The reference runs 2013–2025, i.e. "this has been here a long time". Twelve years would be a costume; seven is plausible for a site whose oldest post I actually wrote. |
@@ -399,3 +399,65 @@ reads as a *blur*, not a pulse, and at 0.30em tracking it smeared the letter
 edges into each other. Removed the `text-shadow` half of the keyframe and kept
 only the staggered opacity fade, which is quieter, does not fight the tracking,
 and is closer to what a weak signal actually does.
+
+---
+
+## 10. Second pass — clickability, the backdrop, the book
+
+### The backdrop, and why it got quieter
+
+First version rendered at 1/6 scale with `#1c1a17` (`--ink`) as its top step.
+On screen it read as **grey blocks**, not texture — distinct rectangles in the
+upper field that looked like rendering artefacts and competed with the prose.
+
+Three changes fixed it: finer cells (1/4 rather than 1/6), a darker ceiling
+(`#14120f`, under 2% luminance), and much steeper thresholds so most of the
+field stays pure black and only the top few percent of cells lift at all. Dust,
+not static. It also runs at 12fps rather than 60 and stops entirely when the
+tab is hidden — it is meant to be weather in the room, not something the page
+is *doing*.
+
+This is the one place the "pure black background" rule bends, and it bends by
+about two percent. Worth recording as a deliberate exception rather than
+letting it look like drift.
+
+### The guestbook problem
+
+A static host cannot accept a POST, so "make the guestbook work" has no
+straightforward answer. The options were: a third-party hosted book (needs an
+account I cannot create), an embedded comment widget (needs a CDN script and
+brings trackers — both forbidden here), or something that uses an inbox the
+project already has.
+
+Went with the last: signing composes a pre-filled issue on the repository's own
+tracker. It genuinely works today with zero setup, adds no third-party
+JavaScript, and the page is honest about the mechanism rather than pretending
+there is a server. The entry is also held in the visitor's own `localStorage`
+and shown marked *held, not yet relayed*, so signing gives feedback instead of
+appearing to do nothing.
+
+`RELAY` at the top of the script swaps it to a hosted book in two lines if that
+is ever preferred.
+
+### Clickability
+
+- The large image under the header enters `sequence.html` and says nothing
+  about where it goes. The reference puts its equivalent in exactly that slot.
+- Every image in the post stream opens at double size — keyboard reachable,
+  Escape to close, focus restored on close.
+- Links get a 150ms colour transition and a hairline rule on hover. Colour
+  only, and fast: a link should answer, not perform. No fade-and-slide, which
+  is still on the not-doing list.
+
+### The sequence
+
+Eight frames, one page, hash-routed. A page per frame would have been more
+faithful to 2013, but the brief here was "smoother" — hash routing gives
+linkable frames, a working back button and a crossfade, at the cost of nothing.
+Each frame preloads the next while you read it, so the step never shows a gap.
+
+The images are deliberately *almost* representational. A doorway, a rack, a
+spool, a window, a road, a mast from underneath, rings coming inward, and then
+grain. Procedural art is bad at literal illustration and good at shapes you
+recognise a beat late, which happens to be exactly the register this site
+wants.

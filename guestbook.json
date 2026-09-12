@@ -1,0 +1,17 @@
+{
+  "_README": "Entries shown on guestbook.html. Add new ones to the top of the list. Keep it plain: no HTML, it is rendered as text on purpose. The two entries below are seed content written by the site's author to open the book - replace or delete them once real ones arrive.",
+  "entries": [
+    {
+      "handle": "operator",
+      "where": "node 9",
+      "at": "??.??.21",
+      "text": "Opening the book. There is no counter on it and there will not be one. If you got this far you did it on purpose, which is worth more than a number."
+    },
+    {
+      "handle": "vhf",
+      "where": "4625 kHz",
+      "at": "06.03.24",
+      "text": "Signing it so it is not empty. Sat on the frequency with operator for one night and did not sleep right for a week. Good site. Fix the lamp."
+    }
+  ]
+}

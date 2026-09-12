@@ -571,8 +571,246 @@ def a_horizon():
 # registry + main
 # --------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------
+# the sequence — eight frames you click through, one at a time
+#
+# Deliberately not illustrations. They are the kind of thing a camera left
+# running in an empty building would have on it: shapes you recognise a beat
+# late. Each one is arithmetic, like everything else in here.
+# --------------------------------------------------------------------------
+
+
+def a_seq_door():
+    """A doorway with the light still on behind it. 192x160."""
+    W, H, N = 192, 160, 8
+    frames = []
+    for f in range(N):
+        im, d = frame(W, H)
+        w, h = W * SS, H * SS
+        # the gap widens and narrows as if the door is breathing
+        gap = (1.0 + 0.35 * math.sin(f / N * math.tau)) * 9 * SS
+        cx = w * 0.5
+        d.rectangle([cx - gap, h * 0.16, cx + gap, h * 0.93], fill=PALE)
+        # the frame around it
+        d.rectangle([w * 0.28, h * 0.12, w * 0.72, h * 0.95], outline=MID, width=SS)
+        d.rectangle([w * 0.24, h * 0.08, w * 0.76, h * 0.99], outline=DARK, width=SS)
+        # light spilling across the floor
+        for i in range(11):
+            t = i / 10.0
+            y = h * 0.93 + t * h * 0.06
+            sp = gap * (1 + t * 5)
+            v = int(MID * (1 - t))
+            if v > 8:
+                d.line([cx - sp, y, cx + sp, y], fill=v, width=SS)
+        small = im.resize((W, H), Image.LANCZOS)
+        arr = np.asarray(small, dtype=np.float64) + noise_layer(W, H, 3100 + f, 0.09)
+        arr[::2] *= 0.78
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+    return frames, None, dict(width=None, palette="greys", colors=4, mode="bayer8", fps=6)
+
+
+def a_seq_rack():
+    """The rack that is not connected to anything, and hums. 160x200."""
+    W, H, N = 160, 200, 8
+    frames, masks = [], []
+    rng0 = np.random.default_rng(77)
+    lamp_rows = rng0.integers(0, 9, 5)
+    for f in range(N):
+        im, d = frame(W, H)
+        w, h = W * SS, H * SS
+        d.rectangle([w * 0.14, h * 0.05, w * 0.86, h * 0.95], outline=MID, width=SS)
+        spots = []
+        for i in range(9):
+            y0 = h * 0.07 + i * h * 0.097
+            y1 = y0 + h * 0.075
+            d.rectangle([w * 0.17, y0, w * 0.83, y1], outline=DARK, width=SS)
+            # vents
+            for k in range(6):
+                vy = y0 + (k + 1) * (y1 - y0) / 8
+                d.line([w * 0.21, vy, w * 0.55, vy], fill=DARK, width=SS)
+            # a knob or two
+            d.ellipse([w * 0.70, y0 + (y1 - y0) * 0.3, w * 0.76, y0 + (y1 - y0) * 0.7],
+                      outline=PALE, width=SS)
+            if i in lamp_rows and (f + i) % 4 < 2:
+                spots.append((int(W * 0.63), int((y0 + (y1 - y0) * 0.5) / SS), 1))
+        small = im.resize((W, H), Image.LANCZOS)
+        arr = np.asarray(small, dtype=np.float64) + noise_layer(W, H, 3200 + f, 0.08)
+        arr[::2] *= 0.7
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+        masks.append(lamp_mask(W, H, spots))
+    return frames, masks, dict(width=None, signal=True, mode="bayer8", fps=6)
+
+
+def a_seq_spool():
+    """Still turning. 176x176."""
+    W, H, N = 176, 176, 12
+    frames = []
+    for f in range(N):
+        im, d = frame(W, H)
+        w, h = W * SS, H * SS
+        cx, cy = w / 2, h / 2
+        r = min(w, h) * 0.42
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=PALE, width=SS)
+        d.ellipse([cx - r * 0.94, cy - r * 0.94, cx + r * 0.94, cy + r * 0.94],
+                  outline=DARK, width=SS)
+        # the tape still on it
+        d.ellipse([cx - r * 0.78, cy - r * 0.78, cx + r * 0.78, cy + r * 0.78],
+                  outline=MID, width=SS * 3)
+        a0 = f / N * math.tau
+        for k in range(3):
+            a = a0 + k * math.tau / 3
+            d.line([cx + math.cos(a) * r * 0.18, cy + math.sin(a) * r * 0.18,
+                    cx + math.cos(a) * r * 0.70, cy + math.sin(a) * r * 0.70],
+                   fill=PALE, width=SS * 2)
+            # the cut-outs between the spokes
+            d.arc([cx - r * 0.62, cy - r * 0.62, cx + r * 0.62, cy + r * 0.62],
+                  start=math.degrees(a) + 18, end=math.degrees(a) + 102, fill=DARK, width=SS)
+        d.ellipse([cx - r * 0.16, cy - r * 0.16, cx + r * 0.16, cy + r * 0.16],
+                  fill=WHITE)
+        small = im.resize((W, H), Image.LANCZOS)
+        arr = np.asarray(small, dtype=np.float64) + noise_layer(W, H, 3300 + f, 0.07)
+        arr[::2] *= 0.75
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+    return frames, None, dict(width=None, palette="greys", colors=4, mode="bayer4", fps=10)
+
+
+def a_seq_window():
+    """Weather, from inside. 200x150."""
+    W, H, N = 200, 150, 8
+    frames = []
+    for f in range(N):
+        im, d = frame(W, H)
+        w, h = W * SS, H * SS
+        # what is outside: bright, grainy, moving
+        d.rectangle([w * 0.10, h * 0.10, w * 0.90, h * 0.90], fill=MID)
+        small = im.resize((W, H), Image.LANCZOS)
+        arr = np.asarray(small, dtype=np.float64)
+        rain = noise_layer(W, H, 3400 + f, 1.0, coarse=1)
+        mask = np.zeros((H, W))
+        mask[int(H * 0.10):int(H * 0.90), int(W * 0.10):int(W * 0.90)] = 1
+        # streaks
+        yy, xx = np.mgrid[0:H, 0:W]
+        streak = ((xx * 2 + yy + f * 9) % 23 < 2) * 60.0
+        arr = arr + (rain * 0.30 + streak) * mask
+        small = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")
+        # the frame goes on top, unlit
+        d2 = ImageDraw.Draw(small)
+        d2.rectangle([W * 0.10, H * 0.10, W * 0.90, H * 0.90], outline=0, width=3)
+        d2.line([W * 0.50, H * 0.10, W * 0.50, H * 0.90], fill=0, width=3)
+        d2.line([W * 0.10, H * 0.50, W * 0.90, H * 0.50], fill=0, width=3)
+        arr = np.asarray(small, dtype=np.float64)
+        arr[::2] *= 0.72
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+    return frames, None, dict(width=None, palette="greys", colors=4, mode="bayer8", fps=8)
+
+
+def a_seq_road():
+    """The way out, at four in the morning. 224x140."""
+    W, H, N = 224, 140, 10
+    frames = []
+    for f in range(N):
+        im, d = frame(W, H)
+        w, h = W * SS, H * SS
+        hz = h * 0.32
+        vx = w * 0.5
+        d.line([0, hz, w, hz], fill=DARK, width=SS)
+        # verges
+        d.line([vx, hz, -w * 0.55, h], fill=MID, width=SS)
+        d.line([vx, hz, w * 1.55, h], fill=MID, width=SS)
+        # centre dashes, marching toward you
+        for i in range(14):
+            t = ((i + f / N) / 14.0) ** 2.4          # perspective compression
+            y0 = hz + (h - hz) * t
+            y1 = hz + (h - hz) * min(1.0, t + 0.035)
+            if y1 <= hz:
+                continue
+            wid = max(SS, (y0 - hz) / (h - hz) * 5 * SS)
+            d.line([vx, y0, vx, y1], fill=PALE, width=int(wid))
+        small = im.resize((W, H), Image.LANCZOS)
+        arr = np.asarray(small, dtype=np.float64) + noise_layer(W, H, 3500 + f, 0.11)
+        arr[::2] *= 0.68
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+    return frames, None, dict(width=None, palette="greys", colors=4, mode="bayer8", fps=9)
+
+
+def a_seq_under():
+    """Standing at the foot of it, looking straight up. 176x200."""
+    W, H, N = 176, 200, 8
+    frames, masks = [], []
+    for f in range(N):
+        im, d = frame(W, H)
+        w, h = W * SS, H * SS
+        cx, cy = w / 2, h * 0.30
+        # four legs converging on the lamp
+        for k in range(4):
+            a = math.radians(45 + k * 90)
+            d.line([cx, cy, cx + math.cos(a) * w, cy + math.sin(a) * h * 1.4],
+                   fill=PALE, width=SS * 2)
+        # the cross-bracing, as rings in perspective
+        for i in range(1, 10):
+            t = (i / 9.0) ** 1.7
+            rr = t * w * 0.78
+            d.ellipse([cx - rr, cy - rr * 0.62, cx + rr, cy + rr * 0.62],
+                      outline=int(MID * (1 - t * 0.6)), width=SS)
+        d.ellipse([cx - 4 * SS, cy - 4 * SS, cx + 4 * SS, cy + 4 * SS], fill=WHITE)
+        small = im.resize((W, H), Image.LANCZOS)
+        arr = np.asarray(small, dtype=np.float64) + noise_layer(W, H, 3600 + f, 0.09)
+        arr[::2] *= 0.72
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+        masks.append(lamp_mask(W, H, [(W // 2, int(H * 0.30), 2)] if f % 4 < 2 else []))
+    return frames, masks, dict(width=None, signal=True, mode="bayer8", fps=6)
+
+
+def a_seq_rings():
+    """Something coming back the other way. 192x192."""
+    W, H, N = 192, 192, 10
+    frames = []
+    for f in range(N):
+        im, d = frame(W, H)
+        w, h = W * SS, H * SS
+        cx, cy = w / 2, h / 2
+        for k in range(6):
+            # inward, not outward: the phase runs backwards
+            phase = 1.0 - ((f / N + k / 6.0) % 1.0)
+            r = (6 + phase * 120) * SS
+            v = int(PALE * (1.0 - abs(phase - 0.5) * 1.4))
+            if v > 12:
+                d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=v, width=SS)
+        d.line([cx - 6 * SS, cy, cx + 6 * SS, cy], fill=WHITE, width=SS)
+        d.line([cx, cy - 6 * SS, cx, cy + 6 * SS], fill=WHITE, width=SS)
+        small = im.resize((W, H), Image.LANCZOS)
+        arr = np.asarray(small, dtype=np.float64) + noise_layer(W, H, 3700 + f, 0.10)
+        arr[::2] *= 0.66
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+    return frames, None, dict(width=None, palette="greys", colors=4, mode="bayer8", fps=7)
+
+
+def a_seq_field():
+    """And then it is only weather again. 208x150."""
+    W, H, N = 208, 150, 10
+    frames = []
+    for f in range(N):
+        arr = noise_layer(W, H, 3800 + f, 1.0, coarse=2) * 0.42 + 18
+        yy, xx = np.mgrid[0:H, 0:W]
+        # a shape you can almost see, sinking into the grain
+        r = np.sqrt((xx - W / 2) ** 2 + ((yy - H / 2) * 1.5) ** 2)
+        ghost = np.exp(-((r - 34) ** 2) / 240.0) * (52 - f * 5)
+        arr = arr + np.clip(ghost, 0, None)
+        arr[::2] *= 0.72
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+    return frames, None, dict(width=None, palette="greys", colors=4, mode="bayer8", fps=8)
+
+
 ASSETS = {
     "icon": (a_icon, "icon.gif"),
+    "seq-door": (a_seq_door, "seq-door.gif"),
+    "seq-rack": (a_seq_rack, "seq-rack.gif"),
+    "seq-spool": (a_seq_spool, "seq-spool.gif"),
+    "seq-window": (a_seq_window, "seq-window.gif"),
+    "seq-road": (a_seq_road, "seq-road.gif"),
+    "seq-under": (a_seq_under, "seq-under.gif"),
+    "seq-rings": (a_seq_rings, "seq-rings.gif"),
+    "seq-field": (a_seq_field, "seq-field.gif"),
     "btn": (a_btn, "btn.gif"),
     "testcard": (a_testcard, "testcard.gif"),
     "mast": (a_mast, "mast.gif"),

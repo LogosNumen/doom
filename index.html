@@ -59,9 +59,7 @@
     <span class="nb"><span class="bar">︱</span> <a href="help.html">Help</a></span>
     <span class="nb"><span class="bar">︱</span> <a href="tracklist.html">Tracklist</a></span><br>
     <a href="dir.html">Dir/etc</a>
-    <!-- TODO(chris): point this at the hosted guestbook once you've picked one
-         (atabook / 123guestbook / smartgb). Leave the [TODO] visible until then. -->
-    <span class="nb"><span class="bar">︱</span> <a href="#TODO-guestbook">Guestbook [TODO]</a></span>
+    <span class="nb"><span class="bar">︱</span> <a href="guestbook.html">Guestbook</a></span>
     <span class="nb"><span class="bar">︱</span> <a href="etc/forecast.html">Nightside</a></span>
     <span class="nb"><span class="bar">︱</span> <a href="carrier.html">Carrier only</a></span>
   </p>
@@ -74,6 +72,17 @@
 </div>
 
 <div class="frame frame-bot"><span>⌊</span><span>⌋</span></div>
+
+<!-- The way in. Click it and it keeps going: eight frames off a camera that
+     was left running. sequence.html carries your place in the hash, so the
+     back button walks you out the way you came. -->
+<a class="enter" href="sequence.html" aria-label="Go inside — eight frames, one at a time">
+  <picture>
+    <source srcset="img/seq-door_still.gif" media="(prefers-reduced-motion: reduce)">
+    <img src="img/seq-door.gif" width="192" height="160" alt="A door standing open in the dark, with the light still on behind it.">
+  </picture>
+  <span class="enter-cap">［ ｉｔ　ｉｓ　ｎｏｔ　ｌｏｃｋｅｄ ］</span>
+</a>
 
 <div class="stream">
 
@@ -319,6 +328,7 @@
   <span>operator　©　2019-2026</span>
 </div>
 
+<script src="js/backdrop.js"></script>
 <script src="js/sound.js"></script>
 <script src="js/site.js"></script>
 </body>
