@@ -165,6 +165,63 @@ book. <b>Give it a minute and refresh.</b></p>
 
   var HELD = "da.guestbook.held";
 
+  /* ------------------------------------------------------------------
+     RESERVED HANDLES
+
+     Names that already appear in the book and are not up for grabs. To
+     sign as one you have to prove you got through the login -- not that
+     you have an "open" flag in your own localStorage, which anyone can
+     type into their own console, but the phrase itself.
+
+     The page turns the phrase plus the handle into a token and posts it
+     with the entry. tools/build_guestbook.py checks it again on the way
+     in, so setting a flag by hand does not get you published.
+
+     Like the login it protects, this is obfuscation and not security:
+     the expected values sit in a public repository and the token is
+     visible in any issue that used it. It stops casual impersonation,
+     which is all it is for.
+     ------------------------------------------------------------------ */
+
+  var RESERVED = {
+    operator: 2173053863,
+    vhf: 4100230101,
+    station: 2480161925,
+    admin: 3240234902
+  };
+
+  function fnv1a(s) {
+    var h = 2166136261;
+    for (var i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;   // imul: `*` loses bits past 2^53
+    }
+    return h >>> 0;
+  }
+
+  function norm(s) {
+    return String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  }
+
+  function key() {
+    try { return localStorage.getItem("da.relay9.k") || ""; } catch (e) { return ""; }
+  }
+
+  function solved() {
+    try { return localStorage.getItem("da.relay9") === "open"; } catch (e) { return false; }
+  }
+
+  /* Returns "" when the handle is free, otherwise the token that has to
+     travel with it -- or null when it is reserved and you cannot prove it. */
+  function proofFor(h) {
+    var n = norm(h);
+    if (!Object.prototype.hasOwnProperty.call(RESERVED, n)) return "";
+    var k = key();
+    if (!k) return null;
+    var tok = fnv1a(k + "::" + n);
+    return tok === RESERVED[n] ? tok.toString(16) : null;
+  }
+
   var book = document.getElementById("book");
   var out = document.getElementById("out");
   var form = document.getElementById("f");
@@ -252,6 +309,22 @@ book. <b>Give it a minute and refresh.</b></p>
     if (!h) { out.textContent = "> put something in the who field. a handle is fine."; handle.focus(); return; }
     if (!m) { out.textContent = "> the book is for writing in."; msg.focus(); return; }
 
+    /* reserved handles: prove it or pick another name */
+    var proof = proofFor(h);
+    if (proof === null) {
+      out.textContent = solved()
+        ? "> that name is already in this book, and the book wants the phrase\n" +
+          "  itself rather than the session. say it once more on the login page\n" +
+          "  and come back — it will remember after that."
+        : "> that name is spoken for.\n" +
+          "  whoever it belongs to got in through the login, and the book will\n" +
+          "  not take it from anyone who has not. sign as somebody else, or go\n" +
+          "  and work it out.";
+      handle.focus();
+      handle.select();
+      return;
+    }
+
     var e = { handle: h, where: w, at: stamp(), text: m };
     hold(e);
 
@@ -268,7 +341,9 @@ book. <b>Give it a minute and refresh.</b></p>
       var body =
         "handle: " + h + "\n" +
         "where: " + (w || "-") + "\n" +
-        "date: " + e.at + "\n\n" +
+        "date: " + e.at + "\n" +
+        (proof ? "proof: " + proof + "\n" : "") +
+        "\n" +
         m + "\n\n" +
         "---\nsent from the book at /guestbook.html";
       var url = "https://github.com/" + RELAY.repo + "/issues/new" +

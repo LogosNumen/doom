@@ -255,6 +255,48 @@ for free:
   top marked **held, not yet relayed** until the real one lands, so signing
   gives immediate feedback instead of appearing to do nothing.
 
+### Reserved handles
+
+`operator`, `vhf`, `station` and `admin` are not up for grabs. To sign as one
+you have to show you got through the login — and specifically the **pass phrase
+itself**, not an `open` flag, which anyone can type into their own console.
+
+How it works: `login.html` stores the phrase on success (`da.relay9.k`).
+`guestbook.html` turns *phrase + handle* into a token and posts it as a
+`proof:` line with the entry. `build_guestbook.py` checks it again on the way
+in and drops the entry if it does not match.
+
+Both halves matter, because they stop different things:
+
+| Layer | Stops | Bypassed by |
+| --- | --- | --- |
+| `guestbook.html` | someone typing `operator` into the form | opening an issue on the tracker by hand |
+| `build_guestbook.py` | that, and everything else | nothing, short of editing the repo |
+
+The **repository owner is always allowed them** — it is your site and your name,
+so your own entries work whether or not you have solved anything in that
+browser. Everyone else needs the token.
+
+Normalisation means `Operator`, `  OPERATOR  ` and `o p e r a t o r` are all
+caught; the comparison strips to lowercase alphanumerics.
+
+To reserve more names, add them to `RESERVED` in **both** `guestbook.html` and
+`tools/build_guestbook.py`, with the token for each:
+
+```bash
+python -c "
+h=2166136261
+for b in b'stillhere::yourname':
+    h^=b; h=(h*16777619)&0xFFFFFFFF
+print(h, format(h,'08x'))"
+```
+
+**This is obfuscation, not security** — exactly like the login it protects. The
+expected values sit in a public repository and the token is visible in any
+issue that used it. It stops casual impersonation, which is all it is for. If
+you ever want it airtight, the reserved names would have to be owner-only and
+the puzzle route dropped.
+
 **If the Action never runs:** Settings → Actions → General → Workflow
 permissions must be **Read and write permissions**. That is the one setting
 this needs.

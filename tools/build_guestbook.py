@@ -42,6 +42,58 @@ MAX_ENTRIES = 300
 TITLE = re.compile(r"^\s*guestbook\s*:", re.I)
 FOOTER = re.compile(r"\n-{3,}\s*\nsent from the book.*$", re.I | re.S)
 
+# --------------------------------------------------------------------------
+# RESERVED HANDLES
+#
+# Names already in the book. To sign as one you have to show you got through
+# the login: guestbook.html turns the pass phrase plus the handle into a token
+# and posts it with the entry, and it is checked again here.
+#
+# The client-side check is the polite half -- it can be walked straight past by
+# opening an issue on the tracker by hand, which is exactly why this exists.
+#
+# The repository owner is always allowed them: it is their site and their name.
+#
+# Like the login it protects, this is obfuscation and not security. The
+# expected values are sitting in a public repository. It stops casual
+# impersonation, which is all it is for.
+# --------------------------------------------------------------------------
+
+RESERVED = {
+    "operator": 0x81862BA7,
+    "vhf": 0xF4648BD5,
+    "station": 0x93D44485,
+    "admin": 0xC1220F96,
+}
+
+OWNER = (os.environ.get("GITHUB_REPOSITORY_OWNER") or "").lower()
+
+
+def norm(s: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", str(s or "").lower())
+
+
+def header(body: str) -> tuple[dict, str]:
+    """
+    Read the leading "key: value" lines the page writes, stop at the first
+    blank line, and hand back the rest as the message. Parsing them one at a
+    time rather than with one big pattern means an extra field (proof) does
+    not quietly break the message.
+    """
+    fields, lines = {}, body.split("\n")
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if not line.strip():
+            i += 1
+            break
+        m = re.match(r"\s*(handle|where|date|proof)\s*:\s*(.*)$", line, re.I)
+        if not m:
+            break
+        fields[m.group(1).lower()] = m.group(2)
+        i += 1
+    return fields, "\n".join(lines[i:])
+
 
 def clean(s: str, cap: int) -> str:
     """Plain text only, collapsed whitespace, capped."""
@@ -74,21 +126,17 @@ def parse(issue: dict) -> dict | None:
     body = (issue.get("body") or "").replace("\r\n", "\n")
     body = FOOTER.sub("", body)
 
-    handle = where = date = ""
-    text = body
+    fields, text = header(body)
 
-    m = re.match(
-        r"\s*handle:(?P<h>[^\n]*)\n+where:(?P<w>[^\n]*)\n+date:(?P<d>[^\n]*)\n(?P<t>.*)",
-        body, re.S | re.I,
-    )
-    if m:
-        handle = m.group("h")
-        where = m.group("w")
-        date = m.group("d")
-        text = m.group("t")
+    if fields:
+        handle = fields.get("handle", "")
+        where = fields.get("where", "")
+        date = fields.get("date", "")
     else:
         # signed by hand, straight on the tracker: still let it in
         handle = login
+        where = ""
+        text = body
         date = (issue.get("createdAt") or "")[:10]
         if date:
             y, mo, d = date.split("-")
@@ -103,6 +151,31 @@ def parse(issue: dict) -> dict | None:
 
     if not text:
         return None
+
+    # ---- reserved handles -------------------------------------------------
+    n = norm(handle)
+    if n in RESERVED:
+        allowed = False
+        why = "no proof"
+
+        if OWNER and login.lower() == OWNER:
+            allowed, why = True, "repository owner"
+        else:
+            token = one_line(fields.get("proof", ""), 16).lower()
+            try:
+                allowed = int(token, 16) == RESERVED[n]
+            except ValueError:
+                allowed = False
+            if allowed:
+                why = "solved the login"
+
+        if not allowed:
+            print(
+                "issue #%s: refusing reserved handle %r from %s (%s)"
+                % (issue.get("number"), handle, login, why),
+                file=sys.stderr,
+            )
+            return None
 
     return {
         "handle": handle,

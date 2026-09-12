@@ -179,7 +179,14 @@ body::after {
       out.innerHTML =
         "&gt; accepted.\n&gt; welcome back. it has been a while.\n" +
         "&gt; <a href=\"" + DOOR + "\">" + DOOR + "</a>";
-      try { localStorage.setItem("da.relay9", "open"); } catch (e) {}
+      try {
+        localStorage.setItem("da.relay9", "open");
+        // The phrase itself, not just the fact of a session. The guestbook
+        // needs it to prove you got in when you claim a reserved handle --
+        // an "open" flag on its own is something anyone can type into their
+        // own console.
+        localStorage.setItem("da.relay9.k", v);
+      } catch (e) {}
       if (window.DA && window.DA.on) window.DA.speak("still here", { rate: 0.5 });
       p.value = "";
       return;

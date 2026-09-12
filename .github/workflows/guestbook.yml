@@ -53,6 +53,10 @@ jobs:
           echo "issues fetched: $(python -c 'import json,sys;print(len(json.load(open("/tmp/issues.json"))))')"
 
       - name: Rebuild guestbook.json
+        # the owner is always allowed the reserved handles; everyone else has
+        # to carry a proof token from the login
+        env:
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
         run: python tools/build_guestbook.py < /tmp/issues.json
 
       - name: Commit it if it changed
