@@ -255,6 +255,26 @@ for free:
   top marked **held, not yet relayed** until the real one lands, so signing
   gives immediate feedback instead of appearing to do nothing.
 
+### Blocked handles
+
+`stillhere` cannot be signed with by **anyone** — not the owner, not someone
+who has solved the login, not with a valid token. It is refused in the form, in
+the transcriber, and any copy already held in a visitor's own browser is
+dropped the next time they load the page.
+
+The reason is not ownership, it is spoilers: the phrase the station says,
+printed in the book in the largest text on the page next to a date, hands the
+login to every future visitor before they have had a chance to work it out.
+
+The refusal deliberately does **not** say "that is the password" — it says the
+string is not a name. Anyone who already knows understands; anyone who does not
+learns nothing from it.
+
+`BLOCKED` lives in both `guestbook.html` and `tools/build_guestbook.py`. Note
+this covers the *handle* only. The phrase in the body of a message is left
+alone, because "still here" is ordinary English that fits the site's voice, and
+censoring prose would cause more false positives than it prevents leaks.
+
 ### Reserved handles
 
 `operator`, `vhf`, `station` and `admin` are not up for grabs. To sign as one

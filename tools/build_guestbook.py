@@ -66,6 +66,12 @@ RESERVED = {
     "admin": 0xC1220F96,
 }
 
+# Names nobody signs with, including the owner and including anyone who has
+# solved the login. Putting the phrase the station says in the book, in the
+# largest text on the page and next to a date, hands it to every future visitor
+# before they have had a chance to work it out. No proof gets past this one.
+BLOCKED = {"stillhere"}
+
 OWNER = (os.environ.get("GITHUB_REPOSITORY_OWNER") or "").lower()
 
 
@@ -152,8 +158,17 @@ def parse(issue: dict) -> dict | None:
     if not text:
         return None
 
-    # ---- reserved handles -------------------------------------------------
+    # ---- blocked outright, whoever sent it --------------------------------
     n = norm(handle)
+    if n in BLOCKED:
+        print(
+            "issue #%s: refusing blocked handle %r from %s"
+            % (issue.get("number"), handle, login),
+            file=sys.stderr,
+        )
+        return None
+
+    # ---- reserved handles -------------------------------------------------
     if n in RESERVED:
         allowed = False
         why = "no proof"

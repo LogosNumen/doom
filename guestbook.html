@@ -190,6 +190,16 @@ book. <b>Give it a minute and refresh.</b></p>
     admin: 3240234902
   };
 
+  /* Names nobody signs with, including whoever owns the place and including
+     anyone who has solved the login. Putting the phrase the station says in
+     the book, in the largest text on the page, next to a date, hands it to
+     every future visitor before they have had a chance to work it out. */
+  var BLOCKED = ["stillhere"];
+
+  function blocked(h) {
+    return BLOCKED.indexOf(norm(h)) > -1;
+  }
+
   function fnv1a(s) {
     var h = 2166136261;
     for (var i = 0; i < s.length; i++) {
@@ -256,7 +266,18 @@ book. <b>Give it a minute and refresh.</b></p>
   }
 
   function heldEntries() {
-    try { return JSON.parse(localStorage.getItem(HELD) || "[]"); } catch (e) { return []; }
+    var all;
+    try { all = JSON.parse(localStorage.getItem(HELD) || "[]"); } catch (e) { return []; }
+    if (!Array.isArray(all)) return [];
+
+    /* Anything held under a name that is now blocked is dropped, and dropped
+       from storage too. A held entry only ever existed in this one browser,
+       so this is the whole of removing it. */
+    var keep = all.filter(function (e) { return !blocked(e && e.handle); });
+    if (keep.length !== all.length) {
+      try { localStorage.setItem(HELD, JSON.stringify(keep)); } catch (err) {}
+    }
+    return keep;
   }
 
   function hold(e) {
@@ -308,6 +329,16 @@ book. <b>Give it a minute and refresh.</b></p>
 
     if (!h) { out.textContent = "> put something in the who field. a handle is fine."; handle.focus(); return; }
     if (!m) { out.textContent = "> the book is for writing in."; msg.focus(); return; }
+
+    /* blocked outright, whoever you are */
+    if (blocked(h)) {
+      out.textContent =
+        "> that is not a name. it is something the station says, and it is\n" +
+        "  not yours to sign with. put your own down.";
+      handle.focus();
+      handle.select();
+      return;
+    }
 
     /* reserved handles: prove it or pick another name */
     var proof = proofFor(h);
