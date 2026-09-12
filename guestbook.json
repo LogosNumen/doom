@@ -4,6 +4,12 @@
     {
       "handle": "operator",
       "where": "node 9",
+      "at": "12.09.26",
+      "text": "the lamp is not worth fixing when there is so much to do"
+    },
+    {
+      "handle": "operator",
+      "where": "node 9",
       "at": "??.??.21",
       "text": "Opening the book. There is no counter on it and there will not be one. If you got this far you did it on purpose, which is worth more than a number."
     },
