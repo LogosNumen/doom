@@ -100,10 +100,11 @@ body::after {
 message and hold it — it is flat files on a static host, which is why the
 station has no contact form and no address on the footer.</p>
 
-<p class="note">So the book works the way a book in a hut works. You write in
-it, and it goes in the post, and the operator copies it in when he next comes
-up the hill. <b>Signing opens a pre-filled message you send yourself</b>; it
-lands in the site's issue tracker, which is the only inbox this thing has.</p>
+<p class="note">So the book takes the long way round. <b>Signing opens a
+pre-filled message you send yourself</b> — it lands in the site's issue
+tracker, which is the only inbox this thing has. Nothing then copies it out by
+hand: the station picks the tracker up on its own and writes the entry into the
+book. <b>Give it a minute and refresh.</b></p>
 
 <hr>
 
@@ -284,7 +285,8 @@ lands in the site's issue tracker, which is the only inbox this thing has.</p>
       a2.textContent = "post it here";
       out.appendChild(a2);
       out.appendChild(document.createTextNode(
-        " — it opens pre-filled, and you send it. the operator copies it in by hand."));
+        " — it opens pre-filled, and you send it. the station picks it up on its " +
+        "own after that. give it a minute and refresh."));
 
       // open it for them; if the browser blocks it, the link above still works
       try { window.open(url, "_blank", "noopener"); } catch (err) {}

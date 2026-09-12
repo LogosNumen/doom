@@ -1,0 +1,71 @@
+# Transcribes signed issues into guestbook.json, so nobody has to.
+#
+# Someone signs the book on guestbook.html. That opens a pre-filled issue on
+# this repository. This workflow reads the issues back, rebuilds guestbook.json
+# and commits it, which publishes the entry on the site a minute or so later.
+#
+# Moderation: the file is rebuilt from scratch every run, so CLOSING an issue
+# removes its entry from the book. That is the delete button. Reopening puts
+# it back.
+#
+# Permanent, hand-written entries live in guestbook.seed.json and are always
+# appended underneath the signed ones.
+#
+# If this never runs: Settings -> Actions -> General -> Workflow permissions
+# must be "Read and write permissions".
+
+name: guestbook
+
+on:
+  issues:
+    types: [opened, edited, reopened, closed, deleted, transferred]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+
+# never let two runs race each other onto the same file
+concurrency:
+  group: guestbook
+  cancel-in-progress: false
+
+jobs:
+  transcribe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Read the signed issues
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --limit 200 \
+            --json number,title,body,author,createdAt \
+            > /tmp/issues.json
+          echo "issues fetched: $(python -c 'import json,sys;print(len(json.load(open("/tmp/issues.json"))))')"
+
+      - name: Rebuild guestbook.json
+        run: python tools/build_guestbook.py < /tmp/issues.json
+
+      - name: Commit it if it changed
+        run: |
+          if git diff --quiet -- guestbook.json; then
+            echo "nothing new in the book"
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add guestbook.json
+          git commit -m "guestbook: transcribe signatures
+
+          Written by .github/workflows/guestbook.yml from the open issues.
+          Close an issue to remove its entry."
+          git push

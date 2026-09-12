@@ -213,18 +213,58 @@ least-wrong static answer available.
 
 `guestbook.html`. A static host cannot accept a POST, so the book uses the one
 inbox this project already has: **the repository's issue tracker**. Signing
-composes the entry and hands it to you pre-filled; you send it; the operator
-copies it into `guestbook.json` by hand. That is the whole mechanism, and the
-page says so rather than pretending otherwise.
+composes the entry and hands it to you pre-filled, you send it, and then a
+GitHub Action transcribes it into the site. **Nothing is done by hand.**
 
-- Entries shown on the page come from **`guestbook.json`** — edit that file to
-  publish one. It is rendered as *text*, never as markup, so nothing anyone
-  writes can inject anything.
-- The two entries in there now are seed content, written by the site's author
-  to open the book. Delete them once real ones arrive.
+```
+guestbook.html  ──signs──>  a pre-filled issue on this repo
+                                      │
+        .github/workflows/guestbook.yml fires on the issue event
+                                      │
+              tools/build_guestbook.py rebuilds guestbook.json
+                                      │
+                   commits ──> Pages redeploys ──> it is on the site
+```
+
+Roughly a minute end to end. No account for you to create, no API key in
+client-side JavaScript (there is none, and there must never be one — it would
+be public), and no third-party service.
+
+### Moderating it
+
+The file is **rebuilt from scratch on every run**, which gives you the controls
+for free:
+
+| To do this | Do this |
+| --- | --- |
+| Remove an entry | **Close its issue.** It disappears from the book on the next run. |
+| Put it back | Reopen the issue. |
+| Edit an entry | Edit the issue body. |
+| Add a permanent entry | Put it in **`guestbook.seed.json`** by hand. |
+| Rebuild right now | Actions tab → *guestbook* → *Run workflow*. |
+
+- `guestbook.json` is **generated — do not hand-edit it**, it gets overwritten.
+  `guestbook.seed.json` is the hand-written one.
+- Only issues titled `guestbook: …` are considered; anything else on the
+  tracker is ignored, so you can still use issues normally.
+- Everything is stripped to plain text and length-capped (handle 32, where 40,
+  message 600) in `build_guestbook.py`, and rendered with `textContent`, never
+  as markup. Two layers, because the entries are strangers' input.
+- Bot accounts are skipped.
 - A visitor's own entry is also held in their `localStorage` and shown at the
-  top marked **held, not yet relayed**, so signing gives immediate feedback
-  instead of appearing to do nothing.
+  top marked **held, not yet relayed** until the real one lands, so signing
+  gives immediate feedback instead of appearing to do nothing.
+
+**If the Action never runs:** Settings → Actions → General → Workflow
+permissions must be **Read and write permissions**. That is the one setting
+this needs.
+
+You can also run the transcription locally:
+
+```bash
+gh issue list --state open --limit 200 --json number,title,body,author,createdAt \
+  | python tools/build_guestbook.py
+```
 
 ### Using a hosted guestbook instead
 
