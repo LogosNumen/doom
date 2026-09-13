@@ -80,17 +80,37 @@ window.DAA = window.DAA || {};
     return ctx.createGain();
   }
 
+  /**
+   * Retire a voice once its release has finished.
+   *
+   * Sources are stopped on the audio clock, at `at`, not by a timer. That
+   * is the part that has to be right: a timer is wall-clock, and offline
+   * rendering has no wall clock -- currentTime sits at 0 for the whole
+   * render, so a source that is only stopped by a timer keeps running to
+   * the end of the piece. A hundred notes in and the graph is carrying
+   * several hundred oscillators that should have finished minutes ago, and
+   * the render slows to a crawl.
+   *
+   * Disconnecting is then only about freeing memory, so it stays on a
+   * timer and is skipped offline, where the context is thrown away anyway.
+   */
   function cleanup(ctx, nodes, at) {
-    /* Offline rendering has no realtime clock: currentTime sits at 0 until
-       the render completes, so a wall-clock timer would tear voices down
-       while they were still being rendered. The context is thrown away
-       after an offline render anyway, so there is nothing to clean up. */
+    /* Hand the node list back to the caller. note() reads this straight
+       after calling the voice -- the call is synchronous, so there is no
+       window for another voice to overwrite it -- and keeps it so the cap
+       can actually retire the oldest note rather than merely forgetting
+       about it. */
+    DAA.__voiceNodes = nodes;
+
+    nodes.forEach(function (n) {
+      if (n.stop) { try { n.stop(at); } catch (e) {} }
+    });
+
     if (DAA.offline) return;
 
-    const delay = Math.max(0, (at - ctx.currentTime) * 1000) + 120;
+    const delay = Math.max(0, (at - ctx.currentTime) * 1000) + 200;
     setTimeout(function () {
       nodes.forEach(function (n) {
-        try { if (n.stop) n.stop(); } catch (e) {}
         try { n.disconnect(); } catch (e) {}
       });
     }, delay);

@@ -41,6 +41,7 @@ window.DAA = window.DAA || {};
   let nextStepTime = 0;
   let startedAt = 0;
   let voices = [];              // active voice end-times, for the cap
+  let wantVolume = 0.82;        // survives until there is a context to set it on
 
   const SESSION = "da.audio";
 
@@ -97,6 +98,8 @@ window.DAA = window.DAA || {};
 
     bus = { dry: out, reverb: halls.hall.input, delay: delay.input,
             room: halls.room.input, vast: halls.vast.input, chorus: chorus.input };
+
+    master.trim.gain.value = wantVolume;
   }
 
   /* ---- voice allocation -------------------------------------------- */
@@ -133,12 +136,20 @@ window.DAA = window.DAA || {};
     prune(now);
 
     if (voices.length >= MAX_VOICES) {
+      // steal the one closest to finishing, and actually stop it: dropping
+      // the record alone would leave the node running and cap nothing
       voices.sort(function (a, b) { return a.until - b.until; });
-      voices.shift();
+      const old = voices.shift();
+      if (old && old.nodes) {
+        old.nodes.forEach(function (n) {
+          if (n.stop) { try { n.stop(now + 0.12); } catch (e) {} }
+        });
+      }
     }
 
+    DAA.__voiceNodes = null;
     const until = fn(ctx, opts.bus || bus, opts);
-    voices.push({ until: until });
+    voices.push({ until: until, nodes: DAA.__voiceNodes });
     return until;
   }
 
@@ -260,11 +271,17 @@ window.DAA = window.DAA || {};
   function playing() { return track ? track.id : null; }
   function elapsed() { return ctx && track ? ctx.currentTime - startedAt : 0; }
 
+  /**
+   * Master volume. Remembered even before there is a context, because the
+   * tracklist shows a slider on page load and nothing has been played yet
+   * -- without this, moving it before pressing play silently does nothing
+   * and the readout disagrees with the mix.
+   */
   function volume(v) {
-    if (!master) return 1;
-    if (v === undefined) return master.trim.gain.value;
-    master.trim.gain.setTargetAtTime(Math.max(0, Math.min(1.2, v)), ctx.currentTime, 0.05);
-    return v;
+    if (v === undefined) return master ? master.trim.gain.value : wantVolume;
+    wantVolume = Math.max(0, Math.min(1.2, v));
+    if (master) master.trim.gain.setTargetAtTime(wantVolume, ctx.currentTime, 0.05);
+    return wantVolume;
   }
 
   /* ---- carrying the track between pages ----------------------------- *

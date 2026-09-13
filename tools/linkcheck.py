@@ -28,7 +28,8 @@ from html.parser import HTMLParser
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # things that are not site payload
-SKIP_DIRS = {".git", ".venv", "tools", "screenshots", "__pycache__", ".claude"}
+SKIP_DIRS = {".git", ".venv", "tools", "screenshots", "__pycache__", ".claude",
+             ".github", "previews"}   # previews/ is rendered audio, not payload
 SKIP_FILES = {"DESIGN_NOTES.md", "README.md", ".gitignore"}
 
 BUDGET = 10 * 1024 * 1024

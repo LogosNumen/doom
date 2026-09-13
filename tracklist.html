@@ -16,30 +16,67 @@ body {
   font:12px/1.9 "MS Gothic","Osaka-Mono","Courier New",monospace;
   letter-spacing:.1em; padding:36px 12px 90px;
 }
-.page { max-width:640px; margin:0 auto; }
+.page { max-width:660px; margin:0 auto; }
 h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
      letter-spacing:.5em; }
 .sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:8px; }
-.warn { color:#6b675e; font-size:11px; letter-spacing:.06em; max-width:46ch;
-        margin:0 auto 26px; line-height:1.9; }
+.warn { color:#6b675e; font-size:11px; letter-spacing:.06em; max-width:48ch;
+        margin:0 auto 22px; line-height:1.9; }
 hr { border:0; border-top:1px solid #1c1a17; margin:20px 0; }
 
+/* ---- the spectrum ---- */
+#scope { width:100%; max-width:640px; height:70px; display:block; margin:0 auto 4px;
+         border:1px solid #1c1a17; background:#000; }
+#nowline { color:#3a3833; font-size:10px; letter-spacing:.3em; min-height:18px;
+           margin-bottom:14px; }
+#nowline b { color:#b4503c; font-weight:normal; }
+
+/* ---- transport ---- */
+.bar { display:flex; gap:14px; align-items:center; justify-content:center;
+       flex-wrap:wrap; margin-bottom:18px; font-size:10px; letter-spacing:.24em;
+       color:#6b675e; }
+.bar label { color:#3a3833; }
+input[type=range] {
+  -webkit-appearance:none; appearance:none; width:130px; height:2px;
+  background:#1c1a17; outline:none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance:none; width:9px; height:14px; background:#6b675e; cursor:pointer;
+}
+input[type=range]::-moz-range-thumb {
+  width:9px; height:14px; background:#6b675e; border:0; cursor:pointer;
+}
+
+/* ---- the list ---- */
 table { width:100%; border-collapse:collapse; text-align:left; }
 th { color:#6b675e; font-weight:normal; font-size:10px; letter-spacing:.3em;
      padding:0 0 8px; border-bottom:1px solid #1c1a17; }
 td { padding:11px 6px 11px 0; border-bottom:1px solid #100e0c; vertical-align:top; }
 td.n { color:#6b675e; width:28px; font-size:11px; }
-td.t { }
 td.t small { display:block; color:#6b675e; font-size:10px; letter-spacing:.04em;
              line-height:1.7; margin-top:2px; }
-td.len { color:#6b675e; font-size:10px; width:52px; white-space:nowrap; }
+td.len { color:#6b675e; font-size:10px; width:58px; white-space:nowrap;
+         font-variant-numeric:tabular-nums; }
 td.m { width:88px; }
 td.b { width:64px; text-align:right; }
 
 .meter { color:#3a3833; letter-spacing:0; font-size:13px; line-height:1;
          display:inline-block; }
+tr.live .meter { color:#b4503c; }
+tr.live td.t { color:#c8c3b4; }
+tr.live td.len { color:#b4503c; }
 
-/* ---- the second section: whatever you brought ---- */
+button {
+  background:#000; color:#c8c3b4; border:1px solid #1c1a17;
+  font:11px/1 "MS Gothic","Courier New",monospace; letter-spacing:.2em;
+  padding:6px 9px; cursor:pointer; min-width:56px;
+  transition:color .15s linear, border-color .15s linear;
+}
+button:hover { color:#b4503c; border-color:#6b675e; }
+tr.live button { color:#b4503c; border-color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; }
+
+/* ---- your own ---- */
 h2.sec { font:12px/2.6 "MS Gothic","Courier New",monospace; font-weight:normal;
          letter-spacing:.5em; color:#c8c3b4; margin-top:46px; }
 #drop2 { border:1px dashed #1c1a17; padding:22px 16px; text-align:center;
@@ -47,21 +84,8 @@ h2.sec { font:12px/2.6 "MS Gothic","Courier New",monospace; font-weight:normal;
 #drop2.over { border-color:#b4503c; color:#c8c3b4; }
 #msg2 { color:#b4503c; font-size:10px; letter-spacing:.04em; min-height:18px;
         margin-bottom:8px; line-height:1.8; }
-td.x button { color:#3a3833; border-color:#100e0c; padding:5px 7px; min-width:0; }
-td.t i { font-style:normal; color:#6b675e; }
-tr.live .meter { color:#b4503c; }
-tr.live td.t { color:#c8c3b4; }
 
-button {
-  background:#000; color:#c8c3b4; border:1px solid #1c1a17;
-  font:11px/1 "MS Gothic","Courier New",monospace; letter-spacing:.2em;
-  padding:6px 9px; cursor:pointer; min-width:56px;
-}
-button:hover { color:#b4503c; border-color:#6b675e; }
-tr.live button { color:#b4503c; border-color:#b4503c; }
-:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; }
-
-a { color:#6b675e; text-decoration:none; }
+a { color:#6b675e; text-decoration:none; transition:color .15s linear; }
 a:hover, a:focus { color:#b4503c; }
 .foot { margin-top:44px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
 
@@ -73,7 +97,6 @@ body::after {
 @media (max-width:520px) {
   td.len, th.len { display:none; }
   td.m, th.m { width:56px; }
-  td.b, th.b { width:56px; }
   button { min-width:48px; padding:6px 6px; letter-spacing:.1em; }
 }
 @media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
@@ -84,11 +107,24 @@ body::after {
 <div class="page">
 
 <h1>Ｔｒａｃｋｌｉｓｔ</h1>
-<p class="sub">seven patches · no files</p>
+<p class="sub">seven pieces · no files</p>
 <p class="warn">None of these are recordings. There is no audio on this server.
-Each one is a handful of oscillators and a noise buffer, built when you press
-play and thrown away when you press stop. They are never twice the same and
-nobody can send you a copy.</p>
+Each one is written when you press play — oscillators, filtered noise and a
+generated reverb — and thrown away when you press stop. They run five to seven
+minutes without repeating, they are seeded differently every visit, and nobody
+can send you a copy.</p>
+
+<canvas id="scope" width="640" height="70"
+        aria-label="A spectrum display of whatever is playing."></canvas>
+<p id="nowline">—</p>
+
+<p class="bar">
+  <label for="vol">ｖｏｌｕｍｅ</label>
+  <input id="vol" type="range" min="0" max="100" value="80"
+         aria-label="Master volume">
+  <span id="volnum">80</span>
+  <button id="stopall" type="button">ＳＴＯＰ</button>
+</p>
 
 <hr>
 
@@ -97,7 +133,7 @@ nobody can send you a copy.</p>
     <tr>
       <th class="n">#</th>
       <th>ｔｉｔｌｅ</th>
-      <th class="len">ｌｅｎ</th>
+      <th class="len">ｔｉｍｅ</th>
       <th class="m">ｌｅｖｅｌ</th>
       <th class="b"></th>
     </tr>
@@ -108,9 +144,8 @@ nobody can send you a copy.</p>
 <h2 class="sec">Ｙｏｕｒ　ｏｗｎ</h2>
 <p class="warn">Records brought in from outside. Nothing is uploaded and nothing
 is stored on the server — the station still has no audio on it. Files you add
-here are kept in this browser, on this machine, and go out through the same
-single output as everything above, so putting one on stops whatever was
-already running.</p>
+here are kept in this browser, and go out through the same single output as
+everything above.</p>
 
 <div id="drop2">
   ｄｒｏｐ　ａｕｄｉｏ　ｆｉｌｅｓ　ｈｅｒｅ<br><br>
@@ -119,12 +154,10 @@ already running.</p>
 </div>
 <div id="msg2" role="status" aria-live="polite"></div>
 
-<table>
-  <tbody id="ownRows"></tbody>
-</table>
+<table><tbody id="ownRows"></tbody></table>
 
 <p class="foot">
-  <a href="etc/numbers.html">[ numbers ]</a> &nbsp;
+  <a href="etc/marker.html">[ marker ]</a> &nbsp;
   <a href="carrier.html">[ carrier ]</a> &nbsp;
   <a href="index.html">[ back ]</a>
 </p>
@@ -138,181 +171,172 @@ already running.</p>
 (function () {
   "use strict";
 
-  /* Each patch gets (ctx, out) and returns its own teardown. DA.play() makes
-     sure only one of them — or one experiment, anywhere on the site — is
-     running at any moment. */
+  const rows = document.getElementById("rows");
+  const nowline = document.getElementById("nowline");
+  const scope = document.getElementById("scope");
+  const sctx = scope.getContext("2d", { alpha: false });
+  const BARS = " ▁▂▃▅▇";
 
-  function osc(c, type, f, g, to) {
-    var o = c.createOscillator(), v = c.createGain();
-    o.type = type; o.frequency.value = f; v.gain.value = g;
-    o.connect(v); v.connect(to); o.start();
-    return o;
+  let built = false;
+  let liveRow = null;
+
+  function clock(s) {
+    if (!isFinite(s) || s < 0) s = 0;
+    const m = Math.floor(s / 60);
+    const r = Math.floor(s % 60);
+    return m + ":" + (r < 10 ? "0" : "") + r;
   }
 
-  function killer(nodes, bus) {
-    return function () {
-      nodes.forEach(function (n) { try { n.stop(); } catch (e) {} });
-      try { bus.disconnect(); } catch (e) {}
-    };
+  /* ---- the list, once the engine is here --------------------------- */
+
+  function build() {
+    if (built) return;
+    built = true;
+    const T = window.DAA.tracks;
+    const order = ["carrier", "nocturne", "testcard", "hymn", "decay",
+                   "forecast", "relay"];
+
+    order.forEach(function (id, i) {
+      const def = T[id];
+      if (!def) return;
+      const tr = document.createElement("tr");
+      tr.dataset.track = id;
+      tr.innerHTML =
+        '<td class="n">' + String(i + 1).padStart(2, "0") + "</td>" +
+        '<td class="t"></td>' +
+        '<td class="len">—</td>' +
+        '<td class="m"><span class="meter">' + "▁".repeat(9) + "</span></td>" +
+        '<td class="b"><button type="button">ＰＬＡＹ</button></td>';
+      tr.querySelector(".t").innerHTML = "<span></span><small></small>";
+      tr.querySelector(".t span").textContent = def.title;
+      tr.querySelector(".t small").textContent =
+        def.blurb + "  ·  " + def.bpm + " bpm, " + def.mode;
+      rows.appendChild(tr);
+
+      tr.querySelector("button").addEventListener("click", function () {
+        const eng = window.DAA.engine;
+        if (eng.playing() === id) { eng.stop(1.2); return; }
+        if (window.DA.playing()) window.DA.stop(false);
+        // two-second crossfade when switching, not a cut
+        eng.play(id, { crossfade: 2 });
+      });
+    });
   }
 
-  var TRACKS = [
-    {
-      t: "Ｃａｒｒｉｅｒ　ｏｎｌｙ",
-      d: "the empty channel, unmodulated. what the station actually sounds like.",
-      len: "∞",
-      build: function (c, out) { return window.DA.drone(c, out); }
-    },
-    {
-      t: "Ｍａｉｎｓ",
-      d: "fifty cycles and everything it drags in behind it.",
-      len: "∞",
-      build: function (c, out) {
-        var bus = c.createGain(); bus.gain.value = 0.34; bus.connect(out);
-        var n = [];
-        [50, 100, 150, 250, 350].forEach(function (f, i) {
-          n.push(osc(c, i ? "sine" : "triangle", f, 0.20 / (i + 1), bus));
-        });
-        return killer(n, bus);
+  /* start the engine when the page opens so the list is real, but do not
+     make a sound: nothing plays until a button is pressed */
+  window.DA.loadEngine().then(function (ok) {
+    if (!ok) {
+      nowline.textContent = "this browser has no web audio.";
+      return;
+    }
+    build();
+    const v = Math.round(window.DAA.engine.volume() * 100);
+    document.getElementById("vol").value = v;
+    document.getElementById("volnum").textContent = v;
+  });
+
+  /* ---- which row is live ------------------------------------------- */
+
+  document.addEventListener("daa:track", function (e) {
+    const id = e.detail.id;
+    [].forEach.call(rows.children, function (tr) {
+      const on = tr.dataset.track === id;
+      tr.classList.toggle("live", on);
+      tr.querySelector("button").textContent = on ? "ＳＴＯＰ" : "ＰＬＡＹ";
+      if (on) liveRow = tr;
+      else {
+        tr.querySelector(".meter").textContent = "▁".repeat(9);
+        tr.querySelector(".len").textContent = "—";
       }
-    },
-    {
-      t: "Ｓｎｏｗ",
-      d: "the dead channel, high-passed. brighter than you remember it.",
-      len: "∞",
-      build: function (c, out) {
-        var bus = c.createGain(); bus.gain.value = 0.22; bus.connect(out);
-        var n = window.DA.noise();
-        var hp = c.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 1900;
-        n.connect(hp); hp.connect(bus); n.start();
-        return killer([n], bus);
-      }
-    },
-    {
-      t: "Ｍａｒｋｅｒ，　４６２５",
-      d: "the buzzer. one pulse a second, forever, for no stated reason.",
-      len: "∞",
-      build: function (c, out) {
-        var bus = c.createGain(); bus.gain.value = 0.0; bus.connect(out);
-        var o = osc(c, "square", 830, 0.12, bus);
-        // one pulse a second, gated on the bus rather than by restarting the osc
-        function pulse() {
-          var now = c.currentTime;
-          bus.gain.cancelScheduledValues(now);
-          bus.gain.setValueAtTime(0.0, now);
-          bus.gain.linearRampToValueAtTime(0.5, now + 0.02);
-          bus.gain.linearRampToValueAtTime(0.0, now + 0.32);
-        }
-        pulse();
-        var iv = setInterval(pulse, 1000);
-        return function () { clearInterval(iv); killer([o], bus)(); };
-      }
-    },
-    {
-      t: "Ｓｌｏｗ　ｓｗｅｅｐ",
-      d: "a bandpass walking up and down the noise floor at one pass a minute.",
-      len: "∞",
-      build: function (c, out) {
-        var bus = c.createGain(); bus.gain.value = 0.42; bus.connect(out);
-        var n = window.DA.noise();
-        var bp = c.createBiquadFilter();
-        bp.type = "bandpass"; bp.frequency.value = 700; bp.Q.value = 5.5;
-        n.connect(bp); bp.connect(bus); n.start();
-        var lfo = c.createOscillator(); lfo.frequency.value = 0.017;
-        var lg = c.createGain(); lg.gain.value = 900;
-        lfo.connect(lg); lg.connect(bp.frequency); lfo.start();
-        return killer([n, lfo], bus);
-      }
-    },
-    {
-      t: "Ｔｗｏ　ｔｏｎｅｓ",
-      d: "220 and 220.6. the beat is the whole track. count it if you like.",
-      len: "∞",
-      build: function (c, out) {
-        var bus = c.createGain(); bus.gain.value = 0.3; bus.connect(out);
-        var a = osc(c, "sine", 220, 0.3, bus);
-        var b = osc(c, "sine", 220.6, 0.3, bus);
-        return killer([a, b], bus);
-      }
-    },
-    {
-      t: "Ｒａｉｎ　ｏｎ　ｔｈｅ　ｈｕｔ",
-      d: "recorded nowhere. corrugated iron, approximately, from arithmetic.",
-      len: "∞",
-      build: function (c, out) {
-        var bus = c.createGain(); bus.gain.value = 0.5; bus.connect(out);
-        var n = window.DA.noise();
-        var lp = c.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 5200;
-        var pk = c.createBiquadFilter();
-        pk.type = "peaking"; pk.frequency.value = 2400; pk.gain.value = 9; pk.Q.value = 1.2;
-        var g = c.createGain(); g.gain.value = 0.16;
-        n.connect(lp); lp.connect(pk); pk.connect(g); g.connect(bus); n.start();
-        var lfo = c.createOscillator(); lfo.frequency.value = 0.09;
-        var lg = c.createGain(); lg.gain.value = 0.05;
-        lfo.connect(lg); lg.connect(g.gain); lfo.start();
-        return killer([n, lfo], bus);
+    });
+    if (!id || id === "drone") liveRow = null;
+    if (id && id !== "drone" && window.DAA.tracks[id]) {
+      nowline.innerHTML = "ｎｏｗ　ｐｌａｙｉｎｇ　<b></b>";
+      nowline.querySelector("b").textContent = window.DAA.tracks[id].title;
+    } else {
+      nowline.textContent = "—";
+    }
+  });
+
+  document.getElementById("stopall").addEventListener("click", function () {
+    if (window.DAA && window.DAA.engine) window.DAA.engine.stop(1.2);
+    window.DA.stop(false);
+  });
+
+  document.getElementById("vol").addEventListener("input", function () {
+    const v = this.value / 100;
+    document.getElementById("volnum").textContent = this.value;
+    if (window.DAA && window.DAA.engine) window.DAA.engine.volume(v);
+  });
+
+  /* ---- meters and spectrum ----------------------------------------- *
+   * Driven off the engine's AnalyserNode, not animated on a timer. A fake
+   * meter is worse than no meter: it tells you the page is doing something
+   * when it might not be.                                               */
+
+  const reduced =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function paintScope(spec) {
+    const w = scope.width, h = scope.height;
+    sctx.fillStyle = "#000";
+    sctx.fillRect(0, 0, w, h);
+    if (!spec) return;
+
+    // dithered columns, in the site's four tones, at the site's grain
+    const cols = 80;
+    const cw = Math.floor(w / cols);
+    const tones = ["#1c1a17", "#3a3833", "#6b675e", "#c8c3b4"];
+    for (let c = 0; c < cols; c++) {
+      // log-ish spacing so the bass does not take three quarters of the width
+      const a = Math.floor(Math.pow(c / cols, 1.8) * spec.length);
+      const b = Math.max(a + 1, Math.floor(Math.pow((c + 1) / cols, 1.8) * spec.length));
+      let m = 0;
+      for (let i = a; i < b && i < spec.length; i++) m = Math.max(m, spec[i]);
+      const bh = Math.round((m / 255) * h);
+      for (let y = 0; y < bh; y += 2) {
+        const t = y / h;
+        const lv = t > 0.72 ? 3 : t > 0.42 ? 2 : t > 0.16 ? 1 : 0;
+        sctx.fillStyle = tones[lv];
+        // one pixel gap: the grain is the point
+        sctx.fillRect(c * cw, h - y - 2, cw - 1, 1);
       }
     }
-  ];
+  }
 
-  /* ---- table ------------------------------------------------------ */
-
-  var rows = document.getElementById("rows");
-  var live = null;
-  var analyser = null;
-  var buf = null;
-
-  var BARS = " ▁▂▃▅▇";
-
-  TRACKS.forEach(function (tr, i) {
-    var el = document.createElement("tr");
-    el.innerHTML =
-      '<td class="n">' + String(i + 1).padStart(2, "0") + "</td>" +
-      '<td class="t">' + tr.t + "<small>" + tr.d + "</small></td>" +
-      '<td class="len">' + tr.len + "</td>" +
-      '<td class="m"><span class="meter">' + "▁".repeat(9) + "</span></td>" +
-      '<td class="b"><button type="button">ＰＬＡＹ</button></td>';
-    rows.appendChild(el);
-
-    var btn = el.querySelector("button");
-    btn.addEventListener("click", function () {
-      if (live === el) { window.DA.stop(); return; }
-      var ok = window.DA.play("track-" + i, function (c, out) {
-        var tap = c.createGain(); tap.gain.value = 1.0; tap.connect(out);
-        var stop = tr.build(c, tap);
-        analyser = c.createAnalyser();
-        analyser.fftSize = 512;
-        buf = new Uint8Array(analyser.fftSize);
-        tap.connect(analyser);
-        return function () { stop(); try { analyser.disconnect(); } catch (e) {} analyser = null; };
-      });
-      if (!ok) {
-        el.querySelector(".meter").textContent = "no audio";
+  function tick() {
+    const eng = window.DAA && window.DAA.engine;
+    if (eng && eng.playing()) {
+      const lvl = Math.min(1, eng.level() * 5.5);
+      if (liveRow) {
+        let s = "";
+        for (let b = 0; b < 9; b++) {
+          const need = (b + 1) / 9;
+          const step = lvl >= need ? 5 : Math.max(1, Math.round(lvl / need * 5) || 1);
+          s += BARS.charAt(Math.min(5, step));
+        }
+        liveRow.querySelector(".meter").textContent = s;
+        liveRow.querySelector(".len").textContent = clock(eng.elapsed());
       }
-    });
-  });
+      paintScope(eng.spectrum());
+    } else {
+      paintScope(null);
+    }
+    setTimeout(tick, reduced ? 900 : 90);
+  }
+  tick();
+})();
+</script>
 
-  /* the bus tells everyone who is playing; the table just listens */
-  document.addEventListener("da:source", function (e) {
-    var id = e.detail.id;
-    [].forEach.call(rows.children, function (el, i) {
-      var on = id === "track-" + i;
-      el.classList.toggle("live", on);
-      el.querySelector("button").textContent = on ? "ＳＴＯＰ" : "ＰＬＡＹ";
-      if (on) live = el;
-      if (!on) el.querySelector(".meter").textContent = "▁".repeat(9);
-    });
-    if (!id) { live = null; analyser = null; }
-  });
-
-  /* ================================================================
-     Your own — records brought in from outside.
-
-     Kept in this browser via IndexedDB. Nothing is uploaded; there is no
-     server behind this site to upload to. They play through the same
-     single-source bus as the patches above, so one output at a time still
-     holds across the whole station.
-     ================================================================ */
+<script>
+/* ------------------------------------------------------------------ *
+ *  Your own — audio from this machine, kept in this browser.
+ *  Unchanged from before: it does not need the track engine, and it
+ *  still goes out through the same single output.
+ * ------------------------------------------------------------------ */
+(function () {
+  "use strict";
 
   var TDB = null;
   function tdb() {
@@ -345,7 +369,7 @@ already running.</p>
     var s = name + "|" + size, h = 2166136261;
     for (var i = 0; i < s.length; i++) {
       h ^= s.charCodeAt(i);
-      h = Math.imul(h, 16777619) >>> 0;   // imul: `*` loses bits past 2^53
+      h = Math.imul(h, 16777619) >>> 0;
     }
     return "t" + (h >>> 0).toString(36);
   }
@@ -378,7 +402,6 @@ already running.</p>
       return /^audio\//.test(f.type) || /\.(mp3|m4a|aac|ogg|oga|opus|wav|flac|webm)$/i.test(f.name);
     });
     if (!list.length) { msg2.textContent = "those are not audio files."; return; }
-
     for (var i = 0; i < list.length; i++) {
       try {
         msg2.textContent = "reading " + (i + 1) + " of " + list.length + "…";
@@ -386,10 +409,9 @@ already running.</p>
         var bytes = await f.arrayBuffer();
         var len = await duration(bytes, f.type);
         await ttx("readwrite", function (s) {
-          return s.put({
-            id: trackId(f.name, f.size), name: f.name, type: f.type || "audio/mpeg",
-            bytes: bytes, len: len, added: Date.now()
-          });
+          return s.put({ id: trackId(f.name, f.size), name: f.name,
+                         type: f.type || "audio/mpeg", bytes: bytes, len: len,
+                         added: Date.now() });
         });
       } catch (e) {
         msg2.textContent = "could not read " + list[i].name + " — " + e.message;
@@ -401,35 +423,21 @@ already running.</p>
   }
 
   function playOwn(rec) {
+    if (window.DAA && window.DAA.engine) window.DAA.engine.stop(0.6);
     window.DA.play("own-" + rec.id, function (c, out) {
       var url = URL.createObjectURL(new Blob([rec.bytes], { type: rec.type || "audio/mpeg" }));
       var el = new Audio();
       el.src = url;
       var src = c.createMediaElementSource(el);
       var g = c.createGain();
-      // the station's master gain sits low because everything else is a drone;
-      // a record needs that headroom handed back
       g.gain.value = 3.0;
-      src.connect(g);
-      g.connect(out);
-
-      analyser = c.createAnalyser();
-      analyser.fftSize = 512;
-      buf = new Uint8Array(analyser.fftSize);
-      g.connect(analyser);
-
+      src.connect(g); g.connect(out);
       el.addEventListener("ended", function () { window.DA.stop(); });
-      el.play().catch(function () {
-        msg2.textContent = "the browser would not start playback.";
-      });
-
+      el.play().catch(function () { msg2.textContent = "the browser would not start playback."; });
       return function () {
         try { el.pause(); } catch (e) {}
         el.removeAttribute("src");
-        try { src.disconnect(); } catch (e) {}
-        try { g.disconnect(); } catch (e) {}
-        try { analyser.disconnect(); } catch (e) {}
-        analyser = null;
+        try { src.disconnect(); g.disconnect(); } catch (e) {}
         URL.revokeObjectURL(url);
       };
     });
@@ -445,7 +453,6 @@ already running.</p>
     recs.forEach(function (rec, i) {
       var tr = document.createElement("tr");
       tr.dataset.own = rec.id;
-
       var title = rec.name.replace(/\.[a-z0-9]+$/i, "");
       tr.innerHTML =
         '<td class="n">' + String(i + 1).padStart(2, "0") + "</td>" +
@@ -461,7 +468,7 @@ already running.</p>
       play.type = "button";
       play.textContent = "ＰＬＡＹ";
       play.addEventListener("click", function () {
-        if (window.DA.playing("own-" + rec.id)) { window.DA.stop(); return; }
+        if (window.DA.playing("own-" + rec.id)) { window.DA.stop(false); return; }
         playOwn(rec);
       });
       b.appendChild(play);
@@ -472,12 +479,11 @@ already running.</p>
       x.title = "Remove from this browser";
       x.style.cssText = "margin-left:6px;color:#3a3833;border-color:#100e0c;min-width:0;padding:6px 7px";
       x.addEventListener("click", async function () {
-        if (window.DA.playing("own-" + rec.id)) window.DA.stop();
+        if (window.DA.playing("own-" + rec.id)) window.DA.stop(false);
         await ttx("readwrite", function (s) { return s.delete(rec.id); });
         await paintOwn();
       });
       b.appendChild(x);
-
       ownRows.appendChild(tr);
     });
   }
@@ -488,8 +494,7 @@ already running.</p>
       var on = sid === "own-" + tr.dataset.own;
       tr.classList.toggle("live", on);
       tr.querySelector(".b button").textContent = on ? "ＳＴＯＰ" : "ＰＬＡＹ";
-      if (on) live = tr;
-      else tr.querySelector(".meter").textContent = "▁".repeat(9);
+      if (!on) tr.querySelector(".meter").textContent = "▁".repeat(9);
     });
   });
 
@@ -514,33 +519,6 @@ already running.</p>
   window.addEventListener("drop", function (e) { e.preventDefault(); });
 
   paintOwn();
-
-  /* ---- the level meter -------------------------------------------- */
-
-  var reduced =
-    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  function tick() {
-    if (live && analyser && buf) {
-      analyser.getByteTimeDomainData(buf);
-      var sum = 0;
-      for (var i = 0; i < buf.length; i++) {
-        var v = (buf[i] - 128) / 128;
-        sum += v * v;
-      }
-      var rms = Math.sqrt(sum / buf.length);
-      var lvl = Math.min(1, rms * 5.5);
-      var s = "";
-      for (var b = 0; b < 9; b++) {
-        var need = (b + 1) / 9;
-        var step = lvl >= need ? 5 : Math.max(1, Math.round(lvl / need * 5) || 1);
-        s += BARS.charAt(Math.min(5, step));
-      }
-      live.querySelector(".meter").textContent = s;
-    }
-    setTimeout(tick, reduced ? 900 : 90);
-  }
-  tick();
 })();
 </script>
 </body>
