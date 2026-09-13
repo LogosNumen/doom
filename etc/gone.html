@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｇｏｎｅ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+html, body { height:100%; }
+body {
+  background:#000; color:#c8c3b4; text-align:center;
+  font:12px/2.0 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.08em; padding:44px 14px 80px;
+  display:flex; flex-direction:column; justify-content:center;
+}
+.page { max-width:520px; margin:0 auto; width:100%; }
+h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.5em; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:28px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:26px 0; }
+
+p.body { max-width:44ch; margin:0 auto 18px; text-align:left;
+         letter-spacing:.04em; }
+p.quiet { color:#6b675e; }
+p.mid { text-align:center; }
+
+.once { border:1px solid #b4503c; color:#b4503c; display:inline-block;
+        padding:7px 14px; letter-spacing:.45em; font-size:10px;
+        margin-bottom:26px; }
+.after { border:1px solid #1c1a17; color:#3a3833; display:inline-block;
+         padding:7px 14px; letter-spacing:.45em; font-size:10px;
+         margin-bottom:26px; }
+
+a { color:#c8c3b4; text-decoration:none; transition:color .15s linear; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
+.foot { margin-top:40px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+.foot a { color:#6b675e; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+</style>
+</head>
+<body>
+
+<div class="page" id="page">
+  <noscript>
+    <h1>Ｇｏｎｅ</h1>
+    <p class="body">This page only shows itself once, and it needs JavaScript to
+    keep count. With scripts off it cannot tell whether you have been, so it
+    tells you nothing, which is at least consistent.</p>
+  </noscript>
+</div>
+
+<script src="../js/backdrop.js"></script>
+<script src="../js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ------------------------------------------------------------------
+     The listing gives this file no date and no size, because both are
+     questions it cannot answer. It shows itself once per browser and
+     then it does not.
+
+     Nothing is destroyed: the flag is one key in localStorage on your
+     own machine (da.gone). Clearing site data brings it back. The page
+     says so afterwards, because a page that appears broken and is not
+     is just a bug with better manners.
+     ------------------------------------------------------------------ */
+
+  var KEY = "da.gone";
+  var page = document.getElementById("page");
+
+  var been = false;
+  try { been = localStorage.getItem(KEY) === "1"; } catch (e) {}
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text) n.textContent = text;
+    return n;
+  }
+
+  function foot() {
+    var f = el("p", "foot");
+    f.innerHTML =
+      '<a href="../dir.html">[ dir ]</a> &nbsp; <a href="../index.html">[ back ]</a>';
+    return f;
+  }
+
+  page.textContent = "";
+
+  if (!been) {
+    try { localStorage.setItem(KEY, "1"); } catch (e) {}
+
+    page.appendChild(el("p", "mid")).appendChild(el("span", "once", "ＯＮＣＥ"));
+    page.appendChild(el("h1", null, "Ｇｏｎｅ"));
+    page.appendChild(el("p", "sub", "no date · no size · one showing"));
+
+    [
+      ["body", "There was a page here for about a week in a year I have not " +
+       "written down. I took it off because it was about somebody, and it was " +
+       "not mine to keep up, and I have never been able to decide whether " +
+       "taking it down was the decent thing or just the easy one."],
+      ["body quiet", "What is left is the habit of it. A file in the listing " +
+       "with no date and no size, which the server reports honestly as nothing, " +
+       "and which I have not deleted, because deleting it would settle the " +
+       "question."],
+      ["body", "So this is what it does now. It shows itself once to whoever " +
+       "finds it, and then it is not there any more, and you are the only one " +
+       "who can say what was on it."],
+      ["body quiet", "That is closer to the truth of the thing than leaving it " +
+       "up would have been."]
+    ].forEach(function (p) { page.appendChild(el("p", p[0], p[1])); });
+
+    page.appendChild(el("hr"));
+    page.appendChild(el("p", "body quiet",
+      "Read it again if you like. Reloading will not bring it back — the page " +
+      "has just written a flag to this browser saying you have been. Clearing " +
+      "site data for this site undoes that, and I am telling you so plainly " +
+      "because a page that looks broken and is not is worse than no page."));
+    page.appendChild(foot());
+
+    if (window.DA && window.DA.on) window.DA.speak("once", { rate: 0.45 });
+
+  } else {
+    page.appendChild(el("p", "mid")).appendChild(el("span", "after", "ＳＥＥＮ"));
+    page.appendChild(el("h1", null, "Ｇｏｎｅ"));
+    page.appendChild(el("p", "sub", "you have been"));
+
+    page.appendChild(el("p", "body quiet",
+      "You have already had this one. It showed itself, and it is not going " +
+      "to again, and that is the whole of what it does."));
+    page.appendChild(el("p", "body quiet",
+      "Whatever it said is with you now rather than with the site, which was " +
+      "the arrangement. If you want it back, clear this site's data and it " +
+      "will forget you."));
+    page.appendChild(foot());
+  }
+})();
+</script>
+</body>
+</html>

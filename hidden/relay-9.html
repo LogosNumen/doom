@@ -12,33 +12,62 @@
     -webkit-font-smoothing:none; font-smooth:never; }
 body {
   background:#000; color:#c8c3b4; text-align:center;
-  font:13px/2.05 "MS Gothic","Osaka-Mono","Courier New",monospace;
-  letter-spacing:.08em; padding:46px 14px 90px;
+  font:12px/1.95 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.07em; padding:38px 14px 90px;
 }
-.page { max-width:540px; margin:0 auto; }
+.page { max-width:600px; margin:0 auto; }
 
-h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+h1 { font:15px/2.3 "MS Gothic","Courier New",monospace; font-weight:normal;
      letter-spacing:.6em; color:#b4503c; }
-.sub { color:#6b675e; font-size:10px; letter-spacing:.45em; margin-bottom:26px; }
-hr { border:0; border-top:1px solid #1c1a17; margin:26px 0; }
+h2 { font:11px/2.6 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.45em; color:#6b675e; margin-top:40px; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.45em; margin-bottom:24px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:24px 0; }
 
-p { max-width:44ch; margin:0 auto 18px; text-align:left; }
+.stamp { border:1px solid #b4503c; color:#b4503c; display:inline-block;
+         padding:8px 16px; letter-spacing:.5em; font-size:11px; margin-bottom:22px; }
+
+p { max-width:46ch; margin:0 auto 17px; text-align:left; letter-spacing:.04em; }
 p.mid { text-align:center; }
 p.quiet { color:#6b675e; }
+p b { color:#c8c3b4; font-weight:normal; }
 
-.stamp {
-  border:1px solid #b4503c; color:#b4503c; display:inline-block;
-  padding:8px 16px; letter-spacing:.5em; font-size:11px; margin-bottom:24px;
-}
+/* ---- the board -------------------------------------------------- */
+
+.board { border:1px solid #1c1a17; padding:16px 16px 14px; text-align:left;
+         max-width:460px; margin:0 auto; }
+.board .row { display:flex; align-items:baseline; gap:6px; padding:5px 0;
+              font-size:11px; letter-spacing:.04em; }
+.board .k { color:#6b675e; white-space:nowrap; }
+.board .d { flex:1; color:#1c1a17; overflow:hidden; white-space:nowrap; }
+.board .v { color:#c8c3b4; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.board .v.warn { color:#b4503c; }
+.board .v.flat { color:#3a3833; }
+
+/* ---- lists of ways on ------------------------------------------- */
 
 .roll { color:#6b675e; font-size:11px; letter-spacing:.04em; text-align:left;
-        max-width:44ch; margin:0 auto 20px; line-height:2.0; }
+        max-width:46ch; margin:0 auto 8px; line-height:2.05; }
 .roll b { color:#c8c3b4; font-weight:normal; }
+.roll a { color:#c8c3b4; }
 
-a { color:#c8c3b4; text-decoration:none; }
+.files { text-align:left; max-width:46ch; margin:0 auto; }
+.files a { display:block; padding:9px 0; border-bottom:1px solid #100e0c;
+           color:#c8c3b4; font-size:11px; letter-spacing:.05em; }
+.files a:last-child { border-bottom:0; }
+.files a small { display:block; color:#6b675e; font-size:10px;
+                 letter-spacing:.02em; line-height:1.8; }
+.files a:hover small, .files a:focus small { color:#6b675e; }
+
+.door { border:1px solid #b4503c; display:inline-block; padding:11px 20px;
+        letter-spacing:.4em; font-size:11px; color:#b4503c;
+        transition:color .15s linear, border-color .15s linear; }
+.door:hover, .door:focus { color:#c8c3b4; border-color:#c8c3b4; }
+
+a { color:#c8c3b4; text-decoration:none; transition:color .15s linear; }
 a:hover, a:focus { color:#b4503c; }
 :focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
-.foot { margin-top:44px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+.foot { margin-top:46px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
 .foot a { color:#6b675e; }
 
 body::after {
@@ -46,7 +75,11 @@ body::after {
   background:repeating-linear-gradient(to bottom,
     rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
 }
-@media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+@media (max-width:520px) {
+  .board .d { display:none; }
+  .board .row { justify-content:space-between; }
+}
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; } }
 </style>
 </head>
 <body>
@@ -56,7 +89,7 @@ body::after {
 <p class="mid"><span class="stamp">ＳＥＳＳＩＯＮ　ＯＰＥＮ</span></p>
 
 <h1>Ｒｅｌａｙ　Ｎｉｎｅ</h1>
-<p class="sub">you took the offset off</p>
+<p class="sub">node 9 · unattended · you took the offset off</p>
 
 <picture>
   <source srcset="../img/mast_still.gif" media="(prefers-reduced-motion: reduce)">
@@ -65,50 +98,104 @@ body::after {
 
 <hr>
 
+<h2>ＳＴＡＴＥ　ＯＦ　ＴＨＥ　Ｓ Ｔ Ａ Ｔ Ｉ Ｏ Ｎ</h2>
+
+<div class="board" id="board" aria-live="off">
+  <div class="row"><span class="k">carrier</span><span class="d"></span><span class="v" id="v-carrier">—</span></div>
+  <div class="row"><span class="k">level</span><span class="d"></span><span class="v" id="v-level">—</span></div>
+  <div class="row"><span class="k">modulation</span><span class="d"></span><span class="v flat" id="v-mod">none</span></div>
+  <div class="row"><span class="k">lamp</span><span class="d"></span><span class="v warn" id="v-lamp">—</span></div>
+  <div class="row"><span class="k">dwell remaining</span><span class="d"></span><span class="v" id="v-dwell">—</span></div>
+  <div class="row"><span class="k">hum</span><span class="d"></span><span class="v" id="v-hum">—</span></div>
+  <div class="row"><span class="k">hut</span><span class="d"></span><span class="v" id="v-hut">—</span></div>
+  <div class="row"><span class="k">last voice heard</span><span class="d"></span><span class="v flat">—</span></div>
+  <div class="row"><span class="k">this session</span><span class="d"></span><span class="v" id="v-you">—</span></div>
+</div>
+
+<p class="quiet" style="max-width:46ch;margin-top:14px;font-size:11px">
+Read off the panel, except the ones that are not connected to anything, which
+is most of them. The board has been like this for as long as I have had a key
+to the door.</p>
+
+<hr>
+
+<h2>ＴＨＥ　ＷＯＲＤ</h2>
+
 <p>So: nine groups, two digits each that mean anything, one number taken off
 them, and it spells the least mysterious thing it could possibly have spelled.</p>
 
 <p class="quiet">I did think about making it a better word. Something with more
 in it. I sat with a list for an evening and everything I liked was a word about
-radios, and the station is not about radios, and the two people who have got
-this far did not do it for a word about radios.</p>
+radios, and the station is not about radios, and the people who get this far do
+not do it for a word about radios.</p>
 
 <p>It says what it says because that is the whole content of the transmission
 and always has been. A machine nobody is at, saying <b>still here</b>, on a
 frequency nobody is on, every night, correctly, for years.</p>
 
+<p class="quiet" id="again">—</p>
+
 <hr>
 
+<h2>ＷＨＡＴ　ＩＳ　ＡＣＴＵＡＬＬＹ　ＵＰ　ＴＨＥＲＥ</h2>
+
 <div class="roll">
-  ＷＨＡＴ　ＩＳ　ＡＣＴＵＡＬＬＹ　ＵＰ　ＴＨＥＲＥ<br>
   ── one mast, guyed, <b>lamp working</b><br>
   ── one hut, warm, reason unknown<br>
   ── four racks, three of them off<br>
   ── one <a href="hum.html">hum</a> with no source<br>
   ── one recorder, one reel, one <a href="tape-b7.html">splice</a><br>
   ── one duty log that stops on a <a href="0300z.html">Tuesday</a><br>
-  ── no procedure for shutting any of it down
+  ── one <a href="../etc/shutdown.html">procedure</a> that was never written<br>
+  ── no way of stopping any of it
 </div>
-
-<p class="quiet">That is the end of the station. There is nothing further up
-the hill.</p>
 
 <hr>
 
-<p>There is one room left, and it is not part of the transmission. Somebody has
-to sit out a forty-minute dwell with nothing on the channel, and they did it by
-reading. The shelf in the hut is empty — you bring your own.</p>
+<h2>ＴＨＥ　ＦＩＬＥＳ　ＴＨＥ　ＩＮＤＥＸ　ＣＡＬＬＳ　ＥＭＰＴＹ</h2>
 
-<p class="mid"><a href="reader.html">[ the reading room ]</a></p>
+<p class="quiet">Five entries in the <a href="../dir.html">dir</a> report zero
+bytes and have done for years. The server is not lying — there is nothing in
+them in the sense it means. They open anyway. This is the only place they are
+listed together, because listing them together makes a point I am not sure I
+want made on the front page.</p>
+
+<div class="files">
+  <a href="../etc/coastline.html">coastline.html
+    <small>a chart of somewhere nobody has been back to. the names go out while you look at it.</small></a>
+  <a href="../etc/dwell.html">dwell.html
+    <small>R1. forty of something. the page will sit with you for it.</small></a>
+  <a href="../etc/gone.html">gone.html
+    <small>no date, no size. shows itself once and then it has shown itself.</small></a>
+  <a href="../etc/nobody.html">nobody.html
+    <small>the visitor counter that was never wired to anything, and the one that was.</small></a>
+  <a href="../etc/shutdown.html">shutdown.html
+    <small>seven things that cannot be done, and an eighth that is not written down.</small></a>
+</div>
+
+<hr>
+
+<h2>ＴＨＥ　ＲＥＡＤＩＮＧ　ＲＯＯＭ</h2>
+
+<p>Somebody has to sit out a forty-minute dwell with nothing on the channel,
+and they did it by reading. The shelf in the hut is empty — you bring your own.</p>
+
+<p class="mid"><a class="door" href="reader.html">［　ｔｈｅ　ｒｅａｄｉｎｇ　ｒｏｏｍ　］</a></p>
 
 <p class="quiet">It takes .epub files off your own machine and keeps your place
-in them. Nothing you open there leaves this browser; there is no server behind
-this site to send it to.</p>
+in them, across volumes. Nothing you open there leaves this browser; there is
+no server behind this site to send it to.</p>
+
+<hr>
+
+<p class="quiet">That is the end of the station. There is nothing further up the
+hill, and I have checked, in the way you check a pocket you know is empty.</p>
 
 <p>Thanks for going through it properly. Put the sound on for the walk back.</p>
 
 <p class="foot">
   <a href="../carrier.html">[ carrier ]</a> &nbsp;
+  <a href="../guestbook.html">[ the book ]</a> &nbsp;
   <a href="../index.html">[ back ]</a>
 </p>
 
@@ -117,8 +204,101 @@ this site to send it to.</p>
 <script src="../js/backdrop.js"></script>
 <script src="../js/sound.js"></script>
 <script>
+(function () {
+  "use strict";
+
   // the door stays open once it has been opened
   try { localStorage.setItem("da.relay9", "open"); } catch (e) {}
+
+  var reduced =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---- how many times you have been up here ----------------------- *
+   * Local to this browser, sent nowhere. The page says something a bit
+   * different depending, because somebody who comes back deserves more
+   * than the same paragraph.                                          */
+
+  var visits = 1;
+  try {
+    visits = (parseInt(localStorage.getItem("da.node9") || "0", 10) || 0) + 1;
+    localStorage.setItem("da.node9", String(visits));
+  } catch (e) {}
+
+  var AGAIN = {
+    1: "That is the first time you have been up here. There is no ceremony for " +
+       "it and I have not written one.",
+    2: "Second time. I did wonder whether anybody came back.",
+    3: "Third. The board above has not changed and it is not going to, but you " +
+       "checked it, which is the job.",
+    5: "Five. At this point you are not solving anything, you are just visiting, " +
+       "which is a different and better thing to be doing.",
+    10: "Ten. I have started leaving the light on for you, which is a figure of " +
+        "speech, because the light was never off."
+  };
+
+  function again(n) {
+    if (AGAIN[n]) return AGAIN[n];
+    if (n >= 10) {
+      return "That is " + n + " times now. The counter is on your machine and " +
+             "nowhere else, so this is between the page and you.";
+    }
+    return "Back again. The carrier is where you left it.";
+  }
+  document.getElementById("again").textContent = again(visits);
+
+  /* ---- the board -------------------------------------------------- */
+
+  function $(id) { return document.getElementById(id); }
+
+  function pad(n, w) {
+    var s = String(n);
+    while (s.length < w) s = "0" + s;
+    return s;
+  }
+
+  /* Dwell runs down from forty minutes and starts again, because that is
+     all it has ever done. Seeded off the clock so it is in the same place
+     for everyone who happens to be looking at the same moment. */
+  function dwellLeft() {
+    var secs = 40 * 60;
+    var now = Math.floor(Date.now() / 1000);
+    var into = now % secs;
+    return secs - into;
+  }
+
+  var t = 0;
+
+  function paint() {
+    t++;
+
+    $("v-carrier").textContent = "1  (sealed)";
+
+    // a level that drifts and never arrives anywhere
+    var lvl = -42.0 + Math.sin(t / 37) * 1.6 + Math.sin(t / 7.3) * 0.4;
+    $("v-level").textContent = lvl.toFixed(1) + " dB";
+
+    // the lamp, out of spec, as it has been for years
+    $("v-lamp").textContent = "40 / min   (spec 30)";
+
+    var d = dwellLeft();
+    $("v-dwell").textContent = pad(Math.floor(d / 60), 2) + ":" + pad(d % 60, 2);
+
+    var hum = 11.0 + Math.sin(t / 53) * 0.06;
+    $("v-hum").textContent = hum.toFixed(2) + " Hz";
+
+    // warmer than it has any business being
+    var hut = 17.4 + Math.sin(t / 91) * 0.5;
+    $("v-hut").textContent = hut.toFixed(1) + " °C   (outside 4)";
+
+    $("v-you").textContent =
+      visits === 1 ? "first" : "visit " + visits;
+  }
+
+  paint();
+  if (!reduced) {
+    setInterval(function () { if (!document.hidden) paint(); }, 1000);
+  }
+})();
 </script>
 </body>
 </html>

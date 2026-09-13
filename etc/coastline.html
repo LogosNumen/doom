@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｃｏａｓｔｌｉｎｅ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4; text-align:center;
+  font:12px/1.95 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.08em; padding:34px 14px 80px;
+}
+.page { max-width:660px; margin:0 auto; }
+h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.5em; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:22px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:22px 0; }
+
+#chart { border:1px solid #1c1a17; max-width:100%; height:auto; display:block;
+         margin:0 auto; background:#000; }
+.legend { color:#3a3833; font-size:10px; letter-spacing:.2em; margin-top:10px; }
+#left { color:#6b675e; font-size:11px; letter-spacing:.06em; margin-top:8px; }
+#left b { color:#b4503c; font-weight:normal; }
+
+p.body { max-width:48ch; margin:0 auto 16px; text-align:left;
+         color:#c8c3b4; letter-spacing:.04em; }
+p.quiet { color:#6b675e; }
+
+a { color:#c8c3b4; text-decoration:none; transition:color .15s linear; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
+.foot { margin-top:40px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+.foot a { color:#6b675e; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Ｃｏａｓｔｌｉｎｅ</h1>
+<p class="sub">chart 9 · surveyed once · withdrawn</p>
+
+<canvas id="chart" width="560" height="360"
+        aria-label="A nautical chart of a coastline, with depth soundings and place names. The names are going out one at a time."></canvas>
+<p class="legend">ｓｏｕｎｄｉｎｇｓ　ｉｎ　ｍｅｔｒｅｓ　·　ｎｏｔ　ｔｏ　ｂｅ　ｕｓｅｄ　ｆｏｒ　ｎａｖｉｇａｔｉｏｎ</p>
+<p id="left">names remaining: <b>—</b></p>
+
+<hr>
+
+<p class="body">The chart was drawn from one survey. Nobody has been back to
+check it, and the survey it came from is not in any of the folders that
+should have it.</p>
+
+<p class="body quiet">The listing says this file is empty. The listing is
+right, in the way that matters: everything on this chart is a name for water,
+and the names are going out one at a time while you look at them, and when
+they have all gone the drawing underneath is just a line.</p>
+
+<p class="body quiet">Wait it out if you want. It does not take long. Nothing
+here is on any chart that anyone else holds, so losing it costs the same as
+keeping it.</p>
+
+<p class="foot">
+  <a href="forecast.html">[ forecast ]</a> &nbsp;
+  <a href="../dir.html">[ dir ]</a> &nbsp;
+  <a href="../index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="../js/backdrop.js"></script>
+<script src="../js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var c = document.getElementById("chart");
+  var ctx = c.getContext("2d", { alpha: false });
+  var W = c.width, H = c.height;
+  var reduced =
+    window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var FG = "#c8c3b4", DIM = "#6b675e", INK = "#1c1a17", SIG = "#b4503c";
+
+  /* ---- a coast, from arithmetic ----------------------------------- *
+   * Fixed seed: the survey was done once, so the coastline is the same
+   * every time you open it. Only the names change, by going away.     */
+
+  function rnd(seed) {
+    var s = seed >>> 0;
+    return function () {
+      s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+      return s / 4294967296;
+    };
+  }
+
+  var r = rnd(0x0C0A57);
+
+  // the shore: a wandering line down the left, with inlets
+  var shore = [];
+  var x = W * 0.30;
+  for (var y = -10; y <= H + 10; y += 6) {
+    x += (r() - 0.5) * 26;
+    if (r() < 0.10) x += (r() - 0.5) * 70;          // an inlet or a headland
+    x = Math.max(W * 0.10, Math.min(W * 0.56, x));
+    shore.push([x, y]);
+  }
+
+  // soundings: depths that get deeper as you go out
+  var sounds = [];
+  for (var i = 0; i < 46; i++) {
+    var sy = r() * H;
+    var near = shore[Math.max(0, Math.min(shore.length - 1,
+      Math.round((sy + 10) / 6)))][0];
+    var sx = near + 18 + r() * (W - near - 34);
+    var depth = Math.round(3 + (sx - near) / (W - near) * 70 + r() * 8);
+    sounds.push([sx, sy, depth]);
+  }
+
+  /* Places that are not on anyone else's chart. They go out one at a time. */
+  var NAMES = [
+    { t: "QUIET GROUND", x: 0.70, y: 0.13 },
+    { t: "THOLE", x: 0.46, y: 0.26 },
+    { t: "COLD SISTERS", x: 0.76, y: 0.38 },
+    { t: "LAMMER", x: 0.40, y: 0.50 },
+    { t: "NINE MILE FLAT", x: 0.70, y: 0.62 },
+    { t: "ROOK", x: 0.43, y: 0.74 },
+    { t: "WIDOW'S REACH", x: 0.72, y: 0.86 },
+    { t: "CORVID", x: 0.20, y: 0.93 }
+  ];
+  NAMES.forEach(function (n) { n.on = true; });
+
+  function draw() {
+    ctx.fillStyle = "#000";
+    ctx.fillRect(0, 0, W, H);
+
+    // the graticule
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 1;
+    for (var gx = 0; gx <= W; gx += 56) {
+      ctx.beginPath(); ctx.moveTo(gx + 0.5, 0); ctx.lineTo(gx + 0.5, H); ctx.stroke();
+    }
+    for (var gy = 0; gy <= H; gy += 56) {
+      ctx.beginPath(); ctx.moveTo(0, gy + 0.5); ctx.lineTo(W, gy + 0.5); ctx.stroke();
+    }
+
+    // the land, hatched
+    ctx.strokeStyle = INK;
+    for (var hy = -H; hy < H; hy += 7) {
+      ctx.beginPath();
+      ctx.moveTo(0, hy);
+      ctx.lineTo(W * 0.60, hy + W * 0.60);
+      ctx.stroke();
+    }
+    // mask the sea side of the hatching back out
+    ctx.fillStyle = "#000";
+    ctx.beginPath();
+    ctx.moveTo(W, 0);
+    shore.forEach(function (p) { ctx.lineTo(p[0], p[1]); });
+    ctx.lineTo(W, H);
+    ctx.closePath();
+    ctx.fill();
+
+    // the shore itself
+    ctx.strokeStyle = FG;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    shore.forEach(function (p, i) { i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); });
+    ctx.stroke();
+
+    // soundings
+    ctx.fillStyle = DIM;
+    ctx.font = '9px "MS Gothic", "Courier New", monospace';
+    ctx.textAlign = "center";
+    sounds.forEach(function (s) { ctx.fillText(String(s[2]), s[0], s[1]); });
+
+    // names, while they last
+    ctx.font = '10px "MS Gothic", "Courier New", monospace';
+    NAMES.forEach(function (n) {
+      if (!n.on) return;
+      ctx.fillStyle = FG;
+      ctx.fillText(n.t, n.x * W, n.y * H);
+    });
+
+    var left = NAMES.filter(function (n) { return n.on; }).length;
+    var el = document.getElementById("left").querySelector("b");
+    el.textContent = left ? String(left) : "none. it is a line.";
+  }
+
+  draw();
+
+  if (!reduced) {
+    /* One name goes every few seconds, in a fixed order, and does not come
+       back while you are on the page. Reloading re-surveys it, which is the
+       only thing on this site that is kinder than it sounds. */
+    var idx = 0;
+    var iv = setInterval(function () {
+      if (idx >= NAMES.length) { clearInterval(iv); return; }
+      NAMES[idx].on = false;
+      idx++;
+      draw();
+    }, 4200);
+  }
+})();
+</script>
+</body>
+</html>

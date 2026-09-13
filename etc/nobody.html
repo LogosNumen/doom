@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｎｏｂｏｄｙ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4; text-align:center;
+  font:12px/2.0 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.08em; padding:38px 14px 80px;
+}
+.page { max-width:540px; margin:0 auto; }
+h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.5em; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:30px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:26px 0; }
+
+/* a hit counter of the kind every site had, wired to nothing */
+.counter { display:inline-flex; gap:3px; padding:7px; border:1px solid #1c1a17;
+           background:#000; margin-bottom:8px; }
+.counter span {
+  display:block; width:20px; height:30px; line-height:30px;
+  background:#0b0a09; color:#c8c3b4; border:1px solid #100e0c;
+  font:17px/30px "MS Gothic","Courier New",monospace; letter-spacing:0;
+  font-variant-numeric:tabular-nums;
+}
+.counter.mine span { color:#b4503c; }
+.cap { color:#3a3833; font-size:10px; letter-spacing:.34em; margin-bottom:26px; }
+
+p.body { max-width:44ch; margin:0 auto 18px; text-align:left;
+         letter-spacing:.04em; }
+p.quiet { color:#6b675e; }
+
+.spec { text-align:left; max-width:44ch; margin:0 auto 20px; color:#6b675e;
+        font-size:11px; letter-spacing:.05em; line-height:2.0; }
+.spec b { color:#c8c3b4; font-weight:normal; }
+
+a { color:#c8c3b4; text-decoration:none; transition:color .15s linear; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
+.foot { margin-top:40px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+.foot a { color:#6b675e; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Ｎｏｂｏｄｙ</h1>
+<p class="sub">visitor counter · not connected</p>
+
+<div class="counter" id="global" aria-label="Site counter, reading zero"></div>
+<p class="cap">ｖｉｓｉｔｏｒｓ　ｔｏ　ｔｈｉｓ　ｓｔａｔｉｏｎ</p>
+
+<hr>
+
+<p class="body">Every site had one of these. Mine came with the template and I
+never took it off, and at some point I noticed it had never once moved.</p>
+
+<p class="body quiet">I checked the obvious things. It is not pointed at a
+script. There is no script for it to be pointed at. It is an image tag with
+nothing behind it, drawing a number that was baked in when the page was made,
+and it has been reporting that number to everybody who has ever loaded it.</p>
+
+<p class="body">Which makes it the most accurate instrument in the building.
+The meter on the front panel is not connected either, and that one at least has
+the decency to twitch.</p>
+
+<hr>
+
+<div class="spec" id="local"></div>
+
+<p class="body quiet">The second number is the honest one, and it only exists
+on your machine. Nobody else can see it, I cannot see it, and nothing sends it
+anywhere. It is a counter for an audience of one, which is the correct size for
+an audience here.</p>
+
+<p class="foot">
+  <a href="../guestbook.html">[ the book ]</a> &nbsp;
+  <a href="../dir.html">[ dir ]</a> &nbsp;
+  <a href="../index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="../js/backdrop.js"></script>
+<script src="../js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  function digits(box, value, width) {
+    box.textContent = "";
+    var s = String(value);
+    while (s.length < width) s = "0" + s;
+    for (var i = 0; i < s.length; i++) {
+      var d = document.createElement("span");
+      d.textContent = s.charAt(i);
+      box.appendChild(d);
+    }
+  }
+
+  // the one that was never wired to anything
+  digits(document.getElementById("global"), 0, 6);
+
+  /* The one that is real, and is yours, and goes no further than this
+     browser. */
+  var KEY = "da.nobody";
+  var n = 0;
+  try {
+    n = parseInt(localStorage.getItem(KEY) || "0", 10) || 0;
+    n += 1;
+    localStorage.setItem(KEY, String(n));
+  } catch (e) {
+    n = 1;                       // private mode: you are here, once, forever
+  }
+
+  var box = document.getElementById("local");
+  box.innerHTML =
+    "ＴＨＥ　ＯＴＨＥＲ　ＣＯＵＮＴＥＲ<br>" +
+    "── site counter, as delivered ..... <b>000000</b><br>" +
+    "── times <i>you</i> have been here ... <b id=\"mine\"></b><br>" +
+    "── stored ......................... on this machine only<br>" +
+    "── sent anywhere .................. no";
+  document.getElementById("mine").textContent =
+    String(n) + (n === 1 ? "  (first)" : "");
+})();
+</script>
+</body>
+</html>

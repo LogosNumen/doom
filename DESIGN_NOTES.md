@@ -461,3 +461,79 @@ spool, a window, a road, a mast from underneath, rings coming inward, and then
 grain. Procedural art is bad at literal illustration and good at shapes you
 recognise a beat late, which happens to be exactly the register this site
 wants.
+
+---
+
+## 11. The five empty files, and node 9
+
+### Honouring the listing instead of contradicting it
+
+`dir.html` had advertised five files at 0 bytes since the first build, all of
+them pointing at the 404. The obvious move was to write five ordinary pages and
+change the sizes. That would have thrown away the only interesting thing about
+them, which is what the listing already says: *emptied*, *never written*, and
+one with no date and no size at all.
+
+So each page is built to be true to its own row:
+
+- **coastline** — *emptied*. A chart whose place names go out one at a time
+  while you read it. By the end the drawing is a line with no names on it, which
+  is what "emptied" would actually look like. The coast is drawn from a fixed
+  seed so the survey is the same every visit; only the names are impermanent.
+- **dwell** — *emptied*, and R1 in the manual. The page makes you sit out the
+  interval. The count only runs while the tab is visible, so tabbing away and
+  coming back does not count as having waited, which is the whole content.
+- **gone** — no date, no size. Shows itself once per browser and then does not.
+  The listing cannot report a date or a size because neither is a stable fact
+  about it.
+- **nobody** — *emptied*. The visitor counter every site had, wired to nothing,
+  reporting the same number to everyone forever. Paired with a real one that
+  never leaves your machine.
+- **shutdown** — *never written*. Seven impossible steps and a missing eighth.
+  This is the one the manual has been referring to since the first build
+  (`help.html` says the procedure "is not in this copy, and the page numbers run
+  continuously, so it was never in this copy"), so it had a shape to fill before
+  a line of it was written.
+
+The sizes in the listing stay at 0 and the links keep the dead-link styling.
+The prose underneath gained one sentence — *"They still open. That is not the
+same as there being something in them."* — which is the only invitation any of
+them get.
+
+### A page that hides itself needs to say so
+
+`gone.html` is the riskiest thing here: a page that is deliberately blank on the
+second visit is indistinguishable from a broken one. So the second state is not
+blank. It carries a stamp reading SEEN, says what happened, says the flag is one
+key in this browser's own storage, and says clearing site data brings it back.
+
+A page that looks broken and is not is worse than no page. The rule I applied:
+any deliberate absence has to explain itself *after* the fact, never before.
+
+### Node 9
+
+The reward page was thin — a stamp, a picture and four paragraphs. The reward
+for finishing a puzzle should feel like arriving at a place rather than reaching
+the end of some text.
+
+It is now the hub: a live status board, an index of the five empty files (the
+only place they appear together), the way into the reading room, links to every
+hidden page, and a line that changes with how many times you have been. The
+board is the anchor — it reads like an instrument panel that has been saying the
+same wrong thing for years, which is the one idea the whole site is built on.
+Lamp at forty a minute against a spec of thirty, in the accent colour, is the
+only alarming thing on it, and it is alarming mostly because nobody is coming.
+
+The visit counter is local and sent nowhere. It exists so returning is worth
+something, which on a site with no analytics is otherwise impossible to reward.
+
+### What the testing caught
+
+- `#done` on `shutdown.html` shipped without its `hidden` attribute, so the
+  conclusion — the whole payoff — was visible before you had tried a single
+  step. Only found by asserting on it *before* clicking rather than after.
+- `dwell.html` appeared not to count at all. It was working correctly: the
+  preview pane reports `visibilityState: "hidden"`, and the page is supposed to
+  stop counting when you are not looking at it. Verified by faking a visible
+  document and firing the real `visibilitychange` handler, rather than by
+  assuming.

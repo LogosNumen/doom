@@ -560,3 +560,38 @@ not security, and there is nothing here worth securing.**
 - The last frame of the sequence turns `[ stop here ]` into
   `[ back to the station ]`, and a click at that point leaves rather than
   looping.
+
+### The five "empty" files
+
+`dir.html` lists five entries at 0 bytes, labelled *emptied* or *never written*.
+They were dead links for a long time. They are real pages now, and each one is
+built to honour what the listing claims about it rather than to contradict it —
+they are all, in their own way, empty.
+
+| File | What it does |
+| --- | --- |
+| `etc/coastline.html` | A chart of a coast nobody has been back to, drawn procedurally from a fixed seed. The place names **go out one at a time** while you look at it. After ~35s the drawing is just a line. Reloading re-surveys it. |
+| `etc/dwell.html` | R1 DWELL = 40. The page makes you wait, and lines of writing arrive on the way. **The count only runs while the tab is actually visible** — hiding it stops the clock, which is the point. Forty seconds, not minutes. |
+| `etc/gone.html` | Shows itself **once per browser** and then does not. Sets `da.gone` in localStorage; the second visit explains plainly what happened, so it never reads as a bug. **To see it again, clear this site's data** (or delete the `da.gone` key). |
+| `etc/nobody.html` | The visitor counter that was never wired to anything, reading `000000` forever — beside a second counter that is real, is yours, and never leaves your machine (`da.nobody`). |
+| `etc/shutdown.html` | The shutdown procedure, reconstructed. Seven steps, each of which gives its reason for being impossible when you click it, and an eighth that is not written down. The conclusion stays hidden until all seven have been tried. |
+
+The `dir` listing still shows them as 0 bytes and still styles them like dead
+links — that is deliberate, and the prose under the listing now says *"They
+still open. That is not the same as there being something in them."*
+
+### Node 9
+
+`hidden/relay-9.html`, the page behind the login, is the hub rather than a dead
+end. It carries:
+
+- a **live status board** — carrier, drifting level, lamp at 40/min against a
+  spec of 30 (flagged in the accent colour), a 40-minute dwell counting down,
+  the 11 Hz hum, and a hut that is warmer than outside for no stated reason.
+  All procedural, 1fps, paused when the tab is hidden, static under
+  reduced motion.
+- **an index of the five "empty" files**, which is the only place they are
+  listed together.
+- a note that **changes with how many times you have been** (`da.node9`, local
+  only) — there are distinct lines at visits 1, 2, 3, 5 and 10.
+- the way into the reading room, and links to every hidden page.

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｓｈｕｔｄｏｗｎ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+body {
+  background:#000; color:#c8c3b4; text-align:center;
+  font:12px/1.95 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.08em; padding:36px 14px 80px;
+}
+.page { max-width:580px; margin:0 auto; }
+h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.5em; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:10px; }
+.stamp { border:1px solid #1c1a17; color:#3a3833; display:inline-block;
+         padding:6px 13px; letter-spacing:.4em; font-size:10px;
+         margin-bottom:26px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:24px 0; }
+
+p.body { max-width:46ch; margin:0 auto 16px; text-align:left;
+         letter-spacing:.04em; }
+p.quiet { color:#6b675e; }
+
+/* the procedure */
+ol { list-style:none; text-align:left; max-width:46ch; margin:0 auto; counter-reset:s; }
+li { border-bottom:1px solid #100e0c; }
+li:last-child { border-bottom:0; }
+
+li button {
+  display:block; width:100%; text-align:left; background:none; border:0;
+  color:#c8c3b4; cursor:pointer; padding:13px 4px 13px 34px; position:relative;
+  font:12px/1.7 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.05em; transition:color .15s linear;
+}
+li button:hover { color:#b4503c; }
+li button::before {
+  counter-increment:s; content:"[ ] " counter(s);
+  position:absolute; left:0; top:13px; color:#3a3833; font-size:10px;
+  letter-spacing:0;
+}
+li.tried button { color:#6b675e; cursor:default; }
+li.tried button::before { content:"[×] " counter(s); color:#b4503c; }
+li .why {
+  display:none; padding:0 4px 15px 34px; color:#6b675e; font-size:11px;
+  letter-spacing:.04em; line-height:1.95;
+}
+li.tried .why { display:block; }
+
+li.missing { color:#3a3833; padding:13px 4px 13px 34px; position:relative;
+             font-size:12px; letter-spacing:.05em; }
+li.missing::before { counter-increment:s; content:"    " counter(s);
+                     position:absolute; left:0; top:13px; color:#1c1a17;
+                     font-size:10px; letter-spacing:0; }
+
+#done { max-width:46ch; margin:0 auto; text-align:left; }
+#done[hidden] { display:none; }
+#done p { margin-bottom:16px; letter-spacing:.04em; }
+#done .k { color:#b4503c; }
+
+a { color:#c8c3b4; text-decoration:none; transition:color .15s linear; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
+.foot { margin-top:40px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+.foot a { color:#6b675e; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Ｓｈｕｔｄｏｗｎ</h1>
+<p class="sub">procedure · never written</p>
+<p><span class="stamp">ＮＯＴ　ＩＮ　ＴＨＩＳ　ＣＯＰＹ</span></p>
+
+<p class="body">The manual runs continuously from page one to the end. There is
+no gap in the numbering, so this was not torn out of my copy — it was never in
+any copy.</p>
+
+<p class="body quiet">I have reconstructed what the steps would have to be, from
+the other procedures, which all assume this one exists and refer to it. Work
+down them. Each one is a thing you would have to be able to do.</p>
+
+<hr>
+
+<ol id="proc">
+  <li>
+    <button type="button">Notify the controlling authority of the intended cessation.</button>
+    <div class="why">There is no controlling authority named anywhere in the
+    building. The letterhead on the manual is a printer's specimen — the same
+    three words in four different weights.</div>
+  </li>
+  <li>
+    <button type="button">Enter the time of the final transmission in the station log.</button>
+    <div class="why">The log has a column for the first transmission of a watch
+    and none for the last. Six years of it and I only noticed writing this.</div>
+  </li>
+  <li>
+    <button type="button">Cease modulation.</button>
+    <div class="why">Already done, and not by me. There has been no modulation
+    on this carrier in the whole time I have been coming up here. You cannot
+    stop a thing that is not happening.</div>
+  </li>
+  <li>
+    <button type="button">Reduce carrier to zero and confirm at the meter.</button>
+    <div class="why">R0 is sealed at 1 and the manual notes, in the same flat
+    voice it uses for everything, that it has never been 0. The meter is not
+    connected. There is nothing to confirm it at.</div>
+  </li>
+  <li>
+    <button type="button">Isolate the supply at the main.</button>
+    <div class="why">Three racks are already off at the wall. The fourth is not
+    connected at either end and hums regardless, so isolating the supply would
+    isolate it from nothing.</div>
+  </li>
+  <li>
+    <button type="button">Secure the site and chain the gate.</button>
+    <div class="why">The chain was cut long before I had keys — you can tell
+    from the rust on the cut. I have never brought a replacement. I have thought
+    about it every single time and never once put one in the car.</div>
+  </li>
+  <li>
+    <button type="button">Return the keys.</button>
+    <div class="why">To whom.</div>
+  </li>
+  <li class="missing">—</li>
+</ol>
+
+<div id="done" hidden>
+  <hr>
+  <p class="k">That is as far as it goes.</p>
+  <p>Seven things that cannot be done and an eighth that is not written down,
+  and the eighth is the one that would actually stop it.</p>
+  <p class="quiet" style="color:#6b675e">I do not think the procedure was lost.
+  I think whoever assembled the manual got to this page, understood what it
+  would have to say, and put the binder down.</p>
+  <p class="quiet" style="color:#6b675e">The lamp is still doing forty a minute.
+  It is supposed to be thirty. Nobody is coming to fix that either, and I have
+  stopped describing it as a fault.</p>
+</div>
+
+<p class="foot">
+  <a href="../help.html">[ manual ]</a> &nbsp;
+  <a href="../dir.html">[ dir ]</a> &nbsp;
+  <a href="../index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="../js/backdrop.js"></script>
+<script src="../js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var items = [].slice.call(document.querySelectorAll("#proc li button"));
+  var done = document.getElementById("done");
+  var tried = 0;
+
+  items.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var li = b.parentNode;
+      if (li.classList.contains("tried")) return;
+      li.classList.add("tried");
+      b.setAttribute("aria-disabled", "true");
+      tried++;
+      if (tried === items.length) {
+        done.hidden = false;
+        if (window.DA && window.DA.on) {
+          window.DA.speak("no procedure", { rate: 0.45 });
+        }
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>

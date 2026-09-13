@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｄｗｅｌｌ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+html, body { min-height:100%; }
+body {
+  background:#000; color:#c8c3b4; text-align:center;
+  font:12px/2.0 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.08em; padding:40px 14px 80px;
+}
+.page { max-width:520px; margin:0 auto; }
+h1 { font:14px/2.4 "MS Gothic","Courier New",monospace; font-weight:normal;
+     letter-spacing:.5em; }
+.sub { color:#6b675e; font-size:10px; letter-spacing:.4em; margin-bottom:30px; }
+hr { border:0; border-top:1px solid #1c1a17; margin:26px 0; }
+
+#clock {
+  font:30px/1.2 "MS Gothic","Courier New",monospace; letter-spacing:.14em;
+  color:#c8c3b4; font-variant-numeric:tabular-nums; margin-bottom:6px;
+}
+#clock.done { color:#b4503c; }
+#of { color:#3a3833; font-size:10px; letter-spacing:.4em; margin-bottom:20px; }
+
+#bar { height:2px; background:#100e0c; max-width:340px; margin:0 auto 28px; }
+#bar i { display:block; height:2px; width:0; background:#6b675e;
+         transition:width .4s linear; }
+#bar i.done { background:#b4503c; }
+
+#lines { text-align:left; max-width:44ch; margin:0 auto; min-height:180px; }
+#lines p { margin-bottom:16px; color:#c8c3b4; letter-spacing:.04em; opacity:0;
+           transition:opacity 1.4s linear; }
+#lines p.in { opacity:1; }
+#lines p.q { color:#6b675e; }
+
+#end { text-align:left; max-width:44ch; margin:0 auto; }
+#end[hidden] { display:none; }
+#end p { margin-bottom:16px; letter-spacing:.04em; }
+#end .k { color:#b4503c; }
+
+.note { color:#3a3833; font-size:10px; letter-spacing:.14em; margin-top:22px;
+        line-height:1.9; }
+
+a { color:#c8c3b4; text-decoration:none; transition:color .15s linear; }
+a:hover, a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:3px; background:#1c1a17; }
+.foot { margin-top:40px; font-size:10px; letter-spacing:.5em; color:#6b675e; }
+.foot a { color:#6b675e; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.22) 2px, rgba(0,0,0,.22) 3px);
+}
+@media (prefers-reduced-motion:reduce) {
+  #lines p, #bar i { transition:none !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<h1>Ｄｗｅｌｌ</h1>
+<p class="sub">R1 · sealed · 40</p>
+
+<div id="clock">00</div>
+<p id="of">ｏｆ　ｆｏｒｔｙ</p>
+<div id="bar"><i id="fill"></i></div>
+
+<div id="lines"></div>
+
+<div id="end" hidden>
+  <hr>
+  <p class="k">That is the dwell.</p>
+  <p>Forty of something, every cycle, for as long as the machine has been
+  running. The register does not say of what. I have always read it as minutes
+  and I have never had a reason to, beyond the fact that forty minutes is about
+  how long it takes to stop expecting anything.</p>
+  <p>You did forty seconds. I have taken the liberty of calling that enough,
+  because the point was never the duration.</p>
+  <p class="q" style="color:#6b675e">Nobody has to sit with it. That is what
+  makes sitting with it worth anything.</p>
+</div>
+
+<p class="note">ｌｅａｖｉｎｇ　ｔｈｅ　ｔａｂ　ｓｔｏｐｓ　ｔｈｅ　ｃｏｕｎｔ</p>
+
+<p class="foot">
+  <a href="../help.html">[ manual ]</a> &nbsp;
+  <a href="../dir.html">[ dir ]</a> &nbsp;
+  <a href="../index.html">[ back ]</a>
+</p>
+
+</div>
+
+<script src="../js/backdrop.js"></script>
+<script src="../js/sound.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  var TARGET = 40;
+
+  /* Lines arrive on the way, at the seconds given. They are what the wait is
+     for -- the page is otherwise a number going up, which is the joke. */
+  var LINES = [
+    [2,  "There is nothing on this page yet. That is not a fault.", false],
+    [6,  "R1 is the only sealed register I have ever wanted to open, and the only one with a number in it that does not correspond to anything on the front panel.", true],
+    [12, "The manual says DWELL, 40. It does not say forty what, and it does not say between what and what.", false],
+    [18, "Forty minutes is how long the card stays down. Forty a minute is how fast the lamp goes when it should be doing thirty. I do not think those are the same forty. I have written both in the same notebook for six years anyway.", true],
+    [25, "Most of the work here is this. Sitting in a hut with a meter that is not connected, waiting out an interval nobody set, for a machine that will do it again whether or not anyone is in the room.", false],
+    [32, "You are nearly there. Nothing happens when you get there.", true],
+    [37, "Almost.", true]
+  ];
+
+  var clock = document.getElementById("clock");
+  var fill = document.getElementById("fill");
+  var lines = document.getElementById("lines");
+  var end = document.getElementById("end");
+
+  var t = 0, shown = 0, done = false, timer = null;
+
+  function paint() {
+    clock.textContent = (t < 10 ? "0" : "") + t;
+    fill.style.width = Math.min(100, t / TARGET * 100) + "%";
+  }
+
+  function tick() {
+    if (done) return;
+    t++;
+    paint();
+
+    while (shown < LINES.length && LINES[shown][0] <= t) {
+      var l = LINES[shown];
+      var p = document.createElement("p");
+      if (l[2]) p.className = "q";
+      p.textContent = l[1];
+      lines.appendChild(p);
+      // let it land in the DOM before the opacity transition starts
+      requestAnimationFrame(function (el) {
+        return function () { el.classList.add("in"); };
+      }(p));
+      shown++;
+    }
+
+    if (t >= TARGET) {
+      done = true;
+      clearInterval(timer);
+      clock.className = "done";
+      fill.className = "done";
+      document.getElementById("of").textContent = "ｆｏｒｔｙ";
+      end.hidden = false;
+      if (window.DA && window.DA.on) window.DA.speak("dwell complete", { rate: 0.5 });
+    }
+  }
+
+  function start() {
+    if (done || timer) return;
+    timer = setInterval(tick, 1000);
+  }
+  function stop() {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  /* The count only runs while you are actually here. Hiding the tab and
+     coming back in a minute does not count as having waited. */
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) { stop(); } else { start(); }
+  });
+
+  paint();
+  if (!document.hidden) start();
+})();
+</script>
+</body>
+</html>
