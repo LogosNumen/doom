@@ -225,3 +225,59 @@ earned its place immediately:
    two hat hits. Now averaged across the whole window. Worth flagging as the one
    case where the correct response to a failing check was to fix the check: the
    measurement was not measuring what it claimed to.
+8. **Nocturne went silent, and took the whole mix with it.** The Karplus–Strong
+   feedback ran to Inf, which becomes NaN, and a single NaN travelling down a
+   shared bus silences everything downstream of it for the rest of the render —
+   every window after the first read −inf. The track that breaks need not be
+   the track you hear break.
+9. **Signal Decay's bit-crusher was wired to nothing.** Built, configured,
+   connected to the output, with no input connected to it. It had never been
+   audible. Found by reading the routing rather than the intent: the dry send
+   pointed at the gain node the crusher was supposed to be fed by.
+10. **The Q was in the wrong units, and this was the real fault.** For a
+    BiquadFilter *lowpass*, Web Audio's `Q` is a resonance in **decibels**, not
+    the analog quality factor. The pluck's damping filter sat at `Q = 0.5` under
+    a comment of mine asserting that was "below 0.707: no resonant peak at all".
+    It is the opposite: +0.5 dB of peak, a gain of 1.059, multiplying the
+    feedback loop every pass. One note, measured at cut 1500 / f 220:
+
+    | feedback | peak the string reaches |
+    |---------:|------------------------:|
+    |     0.85 |                     2.5 |
+    |     0.88 |                     857 |
+    |     0.90 |                  26 450 |
+
+    The limiter pinned that at 0.65 and turned it into a square wave. `Q = -3`
+    — a rolloff rather than a bump — is stable across 82–880 Hz and every
+    damping value the tracks use.
+11. **Two rounds of my own fixes made it worse.** First I raised the gain while
+    fixing stability, in one pass, so I could not tell which change did what.
+    Then I cut the gains and halved Nocturne's note density — which treated the
+    symptom and, once the actual cause was fixed, left both tracks nearly
+    inaudible and had to be reverted to the authored levels. Then I scaled the
+    excitation by (1−fb), reasoning that a delay loop settles at A/(1−g): true
+    for a sustained input, but a 6 ms burst never gets there, so it just divided
+    the string by eight. The cause was one wrong unit, three commits away from
+    where I kept looking.
+
+### What the tools learned from that
+
+- **Crest factor is now measured and can fail a window.** Peak-over-RMS is the
+  one number that separates a genuine tick from a wave squashed flat, and the
+  click count alone could not: 70 000 "clicks" at a 3.6 dB crest is not a
+  clicking track, it is a clipped one. I misread that count twice before
+  plotting the waveform and seeing a square.
+- **The analyser refuses to quietly measure stale previews.** A render that
+  fails writes nothing, and an hour-old analysis looks exactly like a fresh one
+  — same columns, same verdicts, describing code that no longer exists. I
+  diagnosed the "fixed" tracks off pre-fix files and only noticed because the
+  numbers matched the previous run to the digit. It now compares every WAV
+  against the newest file in `js/audio/` and says so, loudly, before the table.
+- **Script versions are derived, not typed.** `tools/stamp_versions.py` stamps
+  each `?v=` from a hash of the file's own bytes. The live tracklist had thrown
+  `window.DA.loadEngine is not a function` because a CDN served new HTML beside
+  a cached `js/sound.js`; a hand-written `v=2` fixes that exactly once and then
+  rots at the next edit.
+
+The pattern in all three: the check that would have caught the mistake was
+cheaper than the mistake, every time.

@@ -58,7 +58,7 @@
           eng.note("pad", {
             t: t + rng.range(0, 0.12),
             f: T.mtof(n + 12), a: 3.4, d: 2, s: 0.8, hold: 6, r: 5,
-            gain: 0.075, open: 1700, shut: 380, lfo: 0.045,
+            gain: 0.16, open: 1700, shut: 380, lfo: 0.045,
             pan: (i - 1.5) * 0.4,
             dry: 0.4, rev: 0, dly: 0, bus: { dry: bus.dry, reverb: bus.vast, delay: bus.delay }
           });
@@ -108,7 +108,7 @@
           ratio: rng.pick([1.414, 1.732, 2.414, 3.162]),
           index: rng.range(280, 760), bright: rng.range(0.9, 2.2),
           life: rng.range(3.5, 6.5),
-          gain: U.vel(rng, 0.085, 0.3),
+          gain: U.vel(rng, 0.145, 0.3),
           pan: rng.range(-0.75, 0.75),
           dry: 0.6, rev: 0.85, dly: 0.4,
           bus: { dry: bus.dry, reverb: bus.vast, delay: bus.delay }

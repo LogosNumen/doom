@@ -79,8 +79,8 @@
       if (U.has(sec, "perc") && st.riff[pos]) {
         eng.note("perc", {
           t: t + U.jitter(rng, 9),
-          f: 190, sweep: 80, q: 1.1, life: 0.13,
-          gain: U.vel(rng, 0.11, 0.15), pan: rng.gauss(0, 0.2),
+          f: 190, sweep: 80, q: 1.9, life: 0.13,
+          gain: U.vel(rng, 0.055, 0.15), pan: rng.gauss(0, 0.2),
           dry: 1, rev: 0.15, dly: 0.1, bus: st.crushBus
         });
         eng.dip(t, 0.72, 0.02, 0.18);
@@ -91,7 +91,7 @@
         eng.note("perc", {
           t: t + U.jitter(rng, 11),
           f: 1900 + rng.range(-500, 900), q: 3.2, life: 0.07,
-          gain: U.vel(rng, 0.26, 0.28),
+          gain: U.vel(rng, 0.34, 0.28),
           pan: rng.range(-0.8, 0.8),
           dry: 0.7, rev: 0.3, dly: 0.55, bus: st.crushBus
         });
@@ -102,7 +102,7 @@
         eng.note("perc", {
           t: t + U.jitter(rng, 7),
           f: 8600 + rng.range(-1100, 1100), q: 1.1, life: 0.04,
-          gain: U.vel(rng, 0.14, 0.35), pan: rng.range(-0.8, 0.8),
+          gain: U.vel(rng, 0.20, 0.35), pan: rng.range(-0.8, 0.8),
           dry: 0.8, rev: 0.2, dly: 0.3, bus: st.crushBus
         });
       }
@@ -113,7 +113,7 @@
         eng.note("sub", {
           t: t + U.jitter(rng, 7),
           f: T.mtof(chord[0] - 12 + T.MODES.dorian[deg % 7]),
-          gain: U.vel(rng, 0.13, 0.1),
+          gain: U.vel(rng, 0.10, 0.1),
           a: 0.005, d: 0.1, s: 0.55, hold: 0.1, r: 0.22,
           drive: 2.2, bus: bus
         });
@@ -125,7 +125,7 @@
           eng.note("pad", {
             t: t + rng.range(0, 0.08),
             f: T.mtof(n + 12), a: 2.4, d: 1.6, s: 0.75, hold: 5, r: 4,
-            gain: 0.038, open: 800 + open * 2200, shut: 280,
+            gain: 0.052, open: 800 + open * 2200, shut: 280,
             pan: (i - 1.5) * 0.42,
             dry: 0.45, rev: 0.85, dly: 0, bus: bus
           });

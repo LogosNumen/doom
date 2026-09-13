@@ -82,7 +82,7 @@
         eng.note("sub", {
           t: t + U.jitter(rng, 6),
           f: T.mtof(chord[0] - 12),
-          gain: U.vel(rng, 0.40, 0.1),
+          gain: U.vel(rng, 0.11, 0.1),
           a: 0.008, d: 0.14, s: 0.55, hold: 0.5, r: 0.4,
           drive: 1.7, bus: bus
         });
@@ -95,7 +95,7 @@
           eng.note("pad", {
             t: t + rng.range(0, 0.07),
             f: T.mtof(n), a: 1.8, d: 1.2, s: 0.78, hold: 2.2, r: 2.8,
-            gain: 0.042, open: 900 + open * 2400, shut: 320,
+            gain: 0.058, open: 900 + open * 2400, shut: 320,
             pan: (i - 1.5) * 0.38,
             dry: 0.5, rev: 0.8, dly: 0, bus: bus
           });
@@ -123,7 +123,7 @@
             t: t + U.jitter(rng, 14),
             f: T.mtof(n + 12), table: "soft",
             a: 0.05, d: 0.2, s: 0.5, hold: rng.range(0.1, 0.5), r: 1.1,
-            gain: U.vel(rng, 0.085, 0.2),
+            gain: U.vel(rng, 0.125, 0.2),
             tone: 2800, pan: rng.gauss(0, 0.25),
             dry: 0.75, rev: 0.6, dly: 0.45, bus: bus
           });
@@ -136,7 +136,7 @@
           t: t + rng.range(0, 0.1),
           f: T.mtof(chord[chord.length - 1] + 24),
           ratio: 2.414, index: rng.range(300, 700), bright: 1.6,
-          life: rng.range(4, 7), gain: 0.07,
+          life: rng.range(4, 7), gain: 0.095,
           pan: rng.range(-0.5, 0.5),
           dry: 0.5, rev: 0.9, dly: 0.5, bus: bus
         });
