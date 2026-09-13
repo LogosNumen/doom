@@ -27,7 +27,7 @@
     bpm: 66,
     root: 53,                      // F3
     mode: "lydian",
-    hiss: 0.017,                   // the most tape-like track gets the most hiss
+    hiss: 0.030,                   // the most tape-like track gets the most hiss
     delayTime: 60 / 66,
     feedback: 0.3,
     arrangement: ARRANGEMENT,
@@ -94,12 +94,12 @@
       }
 
       /* shimmer: a bell two octaves up, rare, so the card has a highlight */
-      if (U.has(sec, "shimmer") && rng.chance(0.035)) {
+      if (U.has(sec, "shimmer") && rng.chance(0.12)) {
         eng.note("bell", {
           t: t + U.jitter(rng, 25),
           f: T.mtof(chord[rng.int(0, chord.length)] + 24),
           ratio: 2.01, index: rng.range(120, 320), bright: 1.1,
-          life: rng.range(2.5, 4.5), gain: U.vel(rng, 0.05, 0.3),
+          life: rng.range(2.5, 4.5), gain: U.vel(rng, 0.075, 0.3),
           pan: rng.range(-0.8, 0.8),
           dry: 0.4, rev: 0.9, dly: 0.5, bus: bus
         });

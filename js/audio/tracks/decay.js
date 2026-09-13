@@ -12,13 +12,13 @@
   const T = DAA.theory, U = DAA.trackUtil;
 
   const ARRANGEMENT = [
-    { bar: 0,  name: "ticks",     layers: ["perc"] },
-    { bar: 6,  name: "bass",      layers: ["perc", "bass"] },
+    { bar: 0,  name: "ticks",     layers: ["perc", "counter"] },
+    { bar: 6,  name: "bass",      layers: ["perc", "counter", "bass"] },
     { bar: 16, name: "counter",   layers: ["perc", "bass", "counter"] },
     { bar: 28, name: "opening",   layers: ["perc", "bass", "counter", "pad"] },
     { bar: 44, name: "drop out",  layers: ["bass", "pad"] },
     { bar: 52, name: "all of it", layers: ["perc", "bass", "counter", "pad", "lead"] },
-    { bar: 72, name: "crushed",   layers: ["perc", "bass"] },
+    { bar: 72, name: "crushed",   layers: ["perc", "counter", "bass"] },
     { bar: 82, name: "gone",      layers: ["pad"] },
     { bar: 90, name: "again",     layers: ["perc", "bass", "counter"] }
   ];
@@ -80,7 +80,7 @@
         eng.note("perc", {
           t: t + U.jitter(rng, 9),
           f: 190, sweep: 80, q: 1.1, life: 0.13,
-          gain: U.vel(rng, 0.20, 0.15), pan: rng.gauss(0, 0.12),
+          gain: U.vel(rng, 0.11, 0.15), pan: rng.gauss(0, 0.2),
           dry: 1, rev: 0.15, dly: 0.1, bus: st.crushBus
         });
         eng.dip(t, 0.72, 0.02, 0.18);
@@ -91,7 +91,7 @@
         eng.note("perc", {
           t: t + U.jitter(rng, 11),
           f: 1900 + rng.range(-500, 900), q: 3.2, life: 0.07,
-          gain: U.vel(rng, 0.20, 0.28),
+          gain: U.vel(rng, 0.26, 0.28),
           pan: rng.range(-0.8, 0.8),
           dry: 0.7, rev: 0.3, dly: 0.55, bus: st.crushBus
         });
@@ -102,7 +102,7 @@
         eng.note("perc", {
           t: t + U.jitter(rng, 7),
           f: 8600 + rng.range(-1100, 1100), q: 1.1, life: 0.04,
-          gain: U.vel(rng, 0.095, 0.35), pan: rng.range(-0.75, 0.75),
+          gain: U.vel(rng, 0.14, 0.35), pan: rng.range(-0.8, 0.8),
           dry: 0.8, rev: 0.2, dly: 0.3, bus: st.crushBus
         });
       }
@@ -113,7 +113,7 @@
         eng.note("sub", {
           t: t + U.jitter(rng, 7),
           f: T.mtof(chord[0] - 12 + T.MODES.dorian[deg % 7]),
-          gain: U.vel(rng, 0.22, 0.1),
+          gain: U.vel(rng, 0.13, 0.1),
           a: 0.005, d: 0.1, s: 0.55, hold: 0.1, r: 0.22,
           drive: 2.2, bus: bus
         });
