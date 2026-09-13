@@ -69,15 +69,15 @@
       if (U.has(sec, "pluck")) {
         // four bars on, two off -- the breathing is the arrangement
         const inPhrase = (bar % 6) < 4;
-        const hit = pos % 2 === 0 && rng.chance(inPhrase ? 0.24 : 0.04);
+        const hit = pos % 2 === 0 && rng.chance(inPhrase ? 0.42 : 0.06);
         if (hit) {
           const n = chord[rng.int(0, chord.length)] + (rng.chance(0.3) ? 12 : 0);
           if (T.mtof(n) < 340) {                // Karplus-Strong's working range
             eng.note("pluck", {
               t: t + U.jitter(rng, 12),
               f: T.mtof(n),
-              gain: U.vel(rng, 0.13, 0.22),
-              decay: 0.88, damp: 1500 + rng.range(-300, 700),
+              gain: U.vel(rng, 0.50, 0.22),
+              decay: 0.88, damp: 2000 + rng.range(-400, 900),
               life: rng.range(2.4, 4.2),
               pan: rng.range(-0.6, 0.6),
               dry: 0.85, rev: 0.5, dly: 0.25,
@@ -92,7 +92,7 @@
         eng.note("pluck", {
           t: t + U.jitter(rng, 14),
           f: T.mtof(chord[0] - 12),
-          gain: 0.17, decay: 0.90, damp: 1100, life: 5.5,
+          gain: 0.5, decay: 0.90, damp: 1200, life: 5.5,
           pan: rng.range(-0.2, 0.2),
           dry: 0.9, rev: 0.35, dly: 0,
           bus: { dry: bus.dry, reverb: bus.vast, delay: bus.delay }

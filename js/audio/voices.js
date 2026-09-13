@@ -291,20 +291,27 @@ window.DAA = window.DAA || {};
     const delay = ctx.createDelay(0.2);
     delay.delayTime.value = dt;
 
-    /* Feedback has to account for the filter, not just for itself. A
-       BiquadFilter lowpass at the default Q has a resonant peak above unity
-       gain, so a loop at 0.95 can end up multiplying above 1 around the
-       cutoff, run away, and reach Inf -- which does not merely sound bad,
-       it puts NaN through the graph and silences the whole mix from that
-       point on. Overdamped Q, and a ceiling well under 1. */
+    /* Feedback has to account for the filter, not just for itself: whatever
+       the filter does at the loop frequency multiplies the feedback gain, and
+       if the product reaches 1 the string grows without bound.
+
+       The trap is the Q units. For a BiquadFilter *lowpass*, Web Audio's Q is
+       a resonance in DECIBELS -- not the analog quality factor. Q=0.5 is not
+       "overdamped, no peak", it is +0.5 dB of peak: a gain of 1.059, above
+       unity, multiplying the loop on every pass. Measured, at cut 1500 and
+       f 220: fb 0.85 rang up to 2.5, fb 0.88 to 857, fb 0.90 to 26450. The
+       limiter then squashed the result into a square wave, which is why two
+       tracks read as tens of thousands of "clicks" at a 3 dB crest factor.
+       A negative Q is a gentle rolloff at the cutoff instead of a bump, and
+       holds across 82-880 Hz and every damping setting we use. */
     const fb = ctx.createGain();
-    const fbAmount = Math.min(0.90, o.decay === undefined ? 0.88 : o.decay);
+    const fbAmount = Math.min(0.88, o.decay === undefined ? 0.86 : o.decay);
     fb.gain.value = fbAmount;
 
     const damp = ctx.createBiquadFilter();
     damp.type = "lowpass";
     damp.frequency.value = o.damp === undefined ? 2600 : o.damp;
-    damp.Q.value = 0.5;                 // below 0.707: no resonant peak at all
+    damp.Q.value = -3;                  // decibels: 3 dB DOWN at the cutoff
 
     // the excitation: a very short burst of noise
     const burst = ctx.createBufferSource();
@@ -334,6 +341,11 @@ window.DAA = window.DAA || {};
 
     // the string is its own envelope; this just opens the gate and closes it
     const life = o.life === undefined ? 3.2 : o.life;
+    /* With the damping above, a 6 ms burst settles the loop just under unity
+       (measured 0.79-0.95 across 82-880 Hz), so this really is close to the
+       peak amplitude of one string. It is worth saying because it was not
+       true before: while the filter had a resonant peak the loop multiplied
+       without bound and this number meant nothing. */
     const peak = o.gain === undefined ? 0.5 : o.gain;
     amp.gain.cancelScheduledValues(t);
     amp.gain.setValueAtTime(FLOOR, t);

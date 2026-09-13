@@ -49,6 +49,7 @@ LIMITS = {
     "silence_s": 2.0,
     "dc": 0.003,
     "click": 0.45,          # sample-to-sample delta
+    "crest_db": 6.0,        # peak-to-RMS below this is a clipped wave
     "corr": 0.995,          # above this the two channels are the same signal
     "growth_db": 7.0,
 }
@@ -143,6 +144,13 @@ def analyse(path):
     sil = longest_silence(mono, rate)
     clicks = int((np.abs(np.diff(mono)) > LIMITS["click"]).sum())
 
+    # Crest factor: peak over RMS, in dB. This is the one number that tells a
+    # tick apart from a wave that is simply squashed flat. A runaway string
+    # pinned against the limiter reads as tens of thousands of "clicks", but
+    # so would a genuinely percussive track; what actually gives it away is a
+    # crest of ~3 dB, where real playing sits nearer 12-20. Worth measuring
+    # directly rather than inferring it from a click count a second time.
+
     # stereo correlation
     if L.std() < 1e-9 or R.std() < 1e-9:
         corr = 1.0
@@ -160,6 +168,7 @@ def analyse(path):
     return {
         "file": name, "track": track, "start": start, "rate": rate,
         "peak": peak, "peak_db": db(peak), "rms": rms, "rms_db": db(rms),
+        "crest": (db(peak) - db(rms)) if rms > 0 else 0.0,
         "dc": dc, "silence": sil, "clicks": clicks, "corr": corr,
         "low": lo, "mid": mid, "high": hi, "growth": growth,
         "centroid": centroid(mono, rate),
@@ -181,6 +190,8 @@ def verdict(r):
         fails.append("dc")
     if r["clicks"] > 0:
         fails.append("clicks")
+    if r["crest"] < LIMITS["crest_db"]:
+        fails.append("squashed")
     if r["corr"] > LIMITS["corr"]:
         fails.append("stereo")
     if r["high"] < 0.001 or r["low"] > 0.80:
@@ -206,11 +217,34 @@ def main(argv=None):
         print("no wavs in %s" % a.dir, file=sys.stderr)
         return 1
 
+    # ---- are we even measuring the current code? ----------------------
+    # A render that fails writes nothing, and an analysis of last hour's
+    # files looks exactly like an analysis of this minute's -- same columns,
+    # same verdicts, quietly describing code that no longer exists. Once was
+    # enough: say so, loudly, rather than report a stale pass as a fix.
+    engine_dir = os.path.join(ROOT, "js", "audio")
+    newest_src, newest_name = 0.0, ""
+    for dirpath, _dirnames, srcs in os.walk(engine_dir):
+        for fn in srcs:
+            if fn.endswith(".js"):
+                m = os.path.getmtime(os.path.join(dirpath, fn))
+                if m > newest_src:
+                    newest_src, newest_name = m, fn
+    stale = [f for f in files
+             if os.path.getmtime(os.path.join(a.dir, f)) < newest_src]
+    if stale:
+        print("STALE: %d of %d preview(s) predate js/audio/%s."
+              % (len(stale), len(files), newest_name))
+        print("       re-render before trusting anything below:")
+        for f in sorted(set(x.split("_")[0] for x in stale)):
+            print("         " + f)
+        print()
+
     rows = [analyse(os.path.join(a.dir, f)) for f in files]
 
-    hdr = ("%-10s %5s  %8s %8s %7s %6s %6s %6s   %5s %5s %5s  %7s  %s"
-           % ("track", "at", "peak dB", "rms dB", "silence", "dc", "clicks",
-              "corr", "low", "mid", "high", "drift", "result"))
+    hdr = ("%-10s %5s  %8s %8s %6s %7s %6s %6s %6s   %5s %5s %5s  %7s  %s"
+           % ("track", "at", "peak dB", "rms dB", "crest", "silence", "dc",
+              "clicks", "corr", "low", "mid", "high", "drift", "result"))
     print(hdr)
     print("-" * len(hdr))
 
@@ -219,10 +253,10 @@ def main(argv=None):
         f = verdict(r)
         if f:
             bad += 1
-        print("%-10s %4ds  %8.1f %8.1f %6.1fs %6.4f %6d %6.3f   %.2f  %.2f  %.2f  %+6.1f  %s"
-              % (r["track"], r["start"], r["peak_db"], r["rms_db"], r["silence"],
-                 r["dc"], r["clicks"], r["corr"], r["low"], r["mid"], r["high"],
-                 r["growth"], ", ".join(f) if f else "pass"))
+        print("%-10s %4ds  %8.1f %8.1f %5.1f %6.1fs %6.4f %6d %6.3f   %.2f  %.2f  %.2f  %+6.1f  %s"
+              % (r["track"], r["start"], r["peak_db"], r["rms_db"], r["crest"],
+                 r["silence"], r["dc"], r["clicks"], r["corr"], r["low"],
+                 r["mid"], r["high"], r["growth"], ", ".join(f) if f else "pass"))
 
     # ---- does each track actually go anywhere? -----------------------
     print()

@@ -43,6 +43,10 @@
    * not. `async = false` on an injected script preserves execution order.
    */
 
+  /* Stamped by tools/stamp_versions.py from the contents of js/audio/.
+     Do not edit by hand -- run the tool. */
+  var AUDIO_VER = "ab046994";
+
   var FILES = [
     "theory.js", "fx.js", "voices.js", "engine.js",
     "tracks/common.js",
@@ -67,7 +71,7 @@
       return chain.then(function () {
         return new Promise(function (res, rej) {
           var el = document.createElement("script");
-          el.src = root + f + "?v=2";
+          el.src = root + f + (AUDIO_VER ? "?v=" + AUDIO_VER : "");
           el.async = false;
           el.onload = res;
           el.onerror = function () { rej(new Error("could not load " + f)); };
