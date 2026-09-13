@@ -33,3 +33,6 @@ Thumbs.db
 *.ogg
 *.opus
 *.wav
+
+# rendered audio previews, for listening to. not site payload.
+previews/

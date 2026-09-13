@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>render harness</title>
+<!-- Not part of the site. Loaded by tools/render_previews.py in headless
+     Chromium to render each track through an OfflineAudioContext, so the
+     tracks can be listened to and measured without clicking through the
+     site in real time. -->
+<style>
+  body { background:#111; color:#ccc; font:12px monospace; padding:20px; }
+</style>
+</head>
+<body>
+<p id="status">idle</p>
+
+<script>window.DAA = { offline: true };</script>
+<script src="../js/audio/theory.js"></script>
+<script src="../js/audio/fx.js"></script>
+<script src="../js/audio/voices.js"></script>
+<script src="../js/audio/engine.js"></script>
+<script src="../js/audio/tracks/common.js"></script>
+<script src="../js/audio/tracks/drone.js"></script>
+<script src="../js/audio/tracks/carrier.js"></script>
+<script src="../js/audio/tracks/nocturne.js"></script>
+<script src="../js/audio/tracks/testcard.js"></script>
+<script src="../js/audio/tracks/hymn.js"></script>
+<script src="../js/audio/tracks/decay.js"></script>
+<script src="../js/audio/tracks/forecast.js"></script>
+<script src="../js/audio/tracks/relay.js"></script>
+
+<script>
+(function () {
+  "use strict";
+  const RATE = 44100;
+  let rendered = null;
+
+  function status(s) { document.getElementById("status").textContent = s; }
+
+  window.trackList = function () {
+    return Object.keys(window.DAA.tracks).map(function (k) {
+      const t = window.DAA.tracks[k];
+      return { id: t.id, title: t.title, bpm: t.bpm, mode: t.mode,
+               root: t.root, sparse: !!t.sparse, blurb: t.blurb };
+    });
+  };
+
+  /**
+   * Render `seconds` of a track offline, in one pass. Every step in the
+   * whole span is scheduled up front -- there is no transport running,
+   * because offline there is no clock to run one against.
+   */
+  window.renderTrack = async function (id, seconds, seed, room) {
+    const def = window.DAA.tracks[id];
+    if (!def) throw new Error("no such track: " + id);
+    status("rendering " + id + " for " + seconds + "s");
+
+    const oc = new OfflineAudioContext(2, Math.ceil(RATE * seconds), RATE);
+    const attached = window.DAA.engine.attach(oc);
+    const bus = attached.bus;
+
+    if (room) def.__room = room;
+    const rng = window.DAA.theory.Rng(seed >>> 0);
+    const st = def.init(oc, bus, rng, window.DAA.engine, { room: room });
+
+    // play() raises the hiss bed at runtime; offline nothing calls play(),
+    // so it has to be set by hand or the render is not what anyone hears
+    const eng = window.DAA.engine;
+    if (eng.hiss) eng.hiss(def.hiss === undefined ? 0.006 : def.hiss);
+    if (def.delayTime) eng.delay().setTime(def.delayTime);
+    if (def.feedback !== undefined) eng.delay().setFeedback(def.feedback);
+
+    const stepSec = 60 / def.bpm / 4;
+    const steps = Math.floor(seconds / stepSec);
+    for (let i = 0; i < steps; i++) {
+      try {
+        def.onStep(oc, bus, st, i, i * stepSec, window.DAA.engine);
+      } catch (e) {
+        console.error("step " + i + " of " + id + " failed", e);
+        throw e;
+      }
+    }
+
+    rendered = await oc.startRendering();
+    status("rendered " + id);
+    return { length: rendered.length, rate: rendered.sampleRate,
+             channels: rendered.numberOfChannels, seconds: rendered.duration };
+  };
+
+  /** A 16-bit WAV of [from, to) out of the last render, as base64. */
+  window.windowWav = function (from, to) {
+    if (!rendered) throw new Error("nothing rendered");
+    const rate = rendered.sampleRate;
+    const a = Math.max(0, Math.floor(from * rate));
+    const b = Math.min(rendered.length, Math.floor(to * rate));
+    const n = Math.max(0, b - a);
+    const L = rendered.getChannelData(0);
+    const R = rendered.numberOfChannels > 1 ? rendered.getChannelData(1) : L;
+
+    const bytes = 44 + n * 4;
+    const buf = new ArrayBuffer(bytes);
+    const dv = new DataView(buf);
+    let p = 0;
+    function str(s) { for (let i = 0; i < s.length; i++) dv.setUint8(p++, s.charCodeAt(i)); }
+    function u32(v) { dv.setUint32(p, v, true); p += 4; }
+    function u16(v) { dv.setUint16(p, v, true); p += 2; }
+
+    str("RIFF"); u32(bytes - 8); str("WAVE");
+    str("fmt "); u32(16); u16(1); u16(2); u32(rate);
+    u32(rate * 4); u16(4); u16(16);
+    str("data"); u32(n * 4);
+
+    for (let i = 0; i < n; i++) {
+      let l = Math.max(-1, Math.min(1, L[a + i]));
+      let r = Math.max(-1, Math.min(1, R[a + i]));
+      dv.setInt16(p, l < 0 ? l * 0x8000 : l * 0x7fff, true); p += 2;
+      dv.setInt16(p, r < 0 ? r * 0x8000 : r * 0x7fff, true); p += 2;
+    }
+
+    // base64 without blowing the stack on a 5MB array
+    const u8 = new Uint8Array(buf);
+    let bin = "";
+    const CH = 0x8000;
+    for (let i = 0; i < u8.length; i += CH) {
+      bin += String.fromCharCode.apply(null, u8.subarray(i, i + CH));
+    }
+    return btoa(bin);
+  };
+
+  /** Raw float stats for a window, so Python does not have to decode WAV
+      just to measure the obvious things. */
+  window.windowStats = function (from, to) {
+    if (!rendered) throw new Error("nothing rendered");
+    const rate = rendered.sampleRate;
+    const a = Math.max(0, Math.floor(from * rate));
+    const b = Math.min(rendered.length, Math.floor(to * rate));
+    const L = rendered.getChannelData(0).subarray(a, b);
+    const R = rendered.numberOfChannels > 1
+      ? rendered.getChannelData(1).subarray(a, b) : L;
+    return { n: b - a, rate: rate };
+  };
+
+  window.__ready = true;
+  status("ready");
+})();
+</script>
+</body>
+</html>

@@ -1,3 +1,6 @@
 # tools/ only — the site itself has no dependencies at all.
 Pillow>=10.0
 numpy>=1.24
+
+# only needed for tools/render_previews.py (offline audio rendering)
+playwright>=1.40
