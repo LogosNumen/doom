@@ -113,7 +113,7 @@
         eng.note("sub", {
           t: t + U.jitter(rng, 7),
           f: T.mtof(chord[0] - 12 + T.MODES.dorian[deg % 7]),
-          gain: U.vel(rng, 0.10, 0.1),
+          gain: U.vel(rng, 0.05, 0.1),
           a: 0.005, d: 0.1, s: 0.55, hold: 0.1, r: 0.22,
           drive: 2.2, bus: bus
         });

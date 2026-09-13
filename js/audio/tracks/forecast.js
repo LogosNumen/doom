@@ -32,7 +32,7 @@
     bpm: 56,
     root: 41,                      // F2
     mode: "aeolian",
-    hiss: 0.011,                   // the hiss is doing a lot of the work here
+    hiss: 0.030,                   // the hiss is doing a lot of the work here
     sparse: true,                  // the analyser's silence check skips this one
     delayTime: 60 / 56 * 3,
     feedback: 0.52,

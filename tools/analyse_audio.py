@@ -52,6 +52,8 @@ LIMITS = {
     "crest_db": 6.0,        # peak-to-RMS below this is a clipped wave
     "corr": 0.995,          # above this the two channels are the same signal
     "growth_db": 7.0,
+    "climb": 0.80,          # fraction of 2s slices still rising: a runaway
+                            # climbs in nearly all of them, a swell does not
 }
 
 
@@ -165,12 +167,26 @@ def analyse(path):
     r2 = float(np.sqrt((mono[-third:] ** 2).mean()))
     growth = db(r2) - db(r0) if r0 > 0 and r2 > 0 else 0.0
 
+    # Growth alone cannot tell a crescendo from a runaway: several of these
+    # tracks are written to emerge out of near-silence, so "ends louder than
+    # it started" is the arrangement doing its job. What actually marks an
+    # escaping feedback loop is that it never stops climbing. Measured in
+    # 2-second slices, hymn at 60s holds -43 dB for fourteen seconds, steps
+    # to -26 and then sits there; at 240s it climbs and falls back to -40.
+    # A runaway does neither -- it rises in nearly every slice, without end.
+    # So flag sustained climb, not any climb.
+    seg = max(1, rate * 2)
+    slices = [float(np.sqrt((mono[i:i + seg] ** 2).mean()))
+              for i in range(0, max(1, len(mono) - seg), seg)]
+    steps = np.diff([db(v) for v in slices]) if len(slices) > 2 else np.array([0.0])
+    climb = float((steps > 0).mean())
+
     return {
         "file": name, "track": track, "start": start, "rate": rate,
         "peak": peak, "peak_db": db(peak), "rms": rms, "rms_db": db(rms),
         "crest": (db(peak) - db(rms)) if rms > 0 else 0.0,
         "dc": dc, "silence": sil, "clicks": clicks, "corr": corr,
-        "low": lo, "mid": mid, "high": hi, "growth": growth,
+        "low": lo, "mid": mid, "high": hi, "growth": growth, "climb": climb,
         "centroid": centroid(mono, rate),
     }
 
@@ -196,7 +212,7 @@ def verdict(r):
         fails.append("stereo")
     if r["high"] < 0.001 or r["low"] > 0.80:
         fails.append("spectrum")
-    if r["growth"] > LIMITS["growth_db"]:
+    if r["growth"] > LIMITS["growth_db"] and r["climb"] >= LIMITS["climb"]:
         fails.append("stable")
     return fails
 

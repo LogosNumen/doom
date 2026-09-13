@@ -323,10 +323,24 @@ window.DAA = window.DAA || {};
     }
     burst.buffer = bbuf;
 
+    /* The excitation reaches the output on its FIRST pass -- burst, delay,
+       amp -- before the loop's damping has touched it. An unfiltered noise
+       burst therefore arrives as broadband energy at nearly the note's full
+       amplitude: a tick, not a pluck, and adjacent samples swinging +/-0.4
+       at close to Nyquist. That is what the click detector kept finding once
+       the runaway stopped drowning it out. A real string is not excited
+       white to 24 kHz either. */
+    const excLp = ctx.createBiquadFilter();
+    excLp.type = "lowpass";
+    excLp.frequency.value = Math.min(9000,
+      (o.damp === undefined ? 2600 : o.damp) * 2.4);
+    excLp.Q.value = -3;
+
     const amp = ctx.createGain();
     amp.gain.value = FLOOR;
 
-    burst.connect(delay);
+    burst.connect(excLp);
+    excLp.connect(delay);
     delay.connect(damp);
     damp.connect(fb);
     fb.connect(delay);
@@ -337,7 +351,7 @@ window.DAA = window.DAA || {};
     route(p, bus, o);
 
     burst.start(t);
-    nodes.push(burst, delay, damp, fb, amp, p);
+    nodes.push(burst, excLp, delay, damp, fb, amp, p);
 
     // the string is its own envelope; this just opens the gate and closes it
     const life = o.life === undefined ? 3.2 : o.life;

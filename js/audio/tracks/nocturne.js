@@ -10,7 +10,7 @@
 
   const ARRANGEMENT = [
     { bar: 0,  name: "one voice",  layers: ["pluck"] },
-    { bar: 6,  name: "the room",   layers: ["pluck", "pad"] },
+    { bar: 2,  name: "the room",   layers: ["pluck", "pad"] },
     { bar: 14, name: "bells",      layers: ["pluck", "pad", "bell"] },
     { bar: 26, name: "low answer", layers: ["pluck", "pad", "bell", "low"] },
     { bar: 40, name: "thinning",   layers: ["pad", "bell"] },

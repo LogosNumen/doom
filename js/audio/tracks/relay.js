@@ -14,7 +14,7 @@
 
   const ARRANGEMENT = [
     { bar: 0,  name: "arp alone",  layers: ["arp"] },
-    { bar: 8,  name: "ground",     layers: ["arp", "bass"] },
+    { bar: 4,  name: "ground",     layers: ["arp", "bass"] },
     { bar: 16, name: "pad",        layers: ["arp", "bass", "pad"] },
     { bar: 28, name: "the tune",   layers: ["arp", "bass", "pad", "lead"] },
     { bar: 48, name: "arp only",   layers: ["arp", "bass"] },
@@ -82,7 +82,7 @@
         eng.note("sub", {
           t: t + U.jitter(rng, 6),
           f: T.mtof(chord[0] - 12),
-          gain: U.vel(rng, 0.11, 0.1),
+          gain: U.vel(rng, 0.05, 0.1),
           a: 0.008, d: 0.14, s: 0.55, hold: 0.5, r: 0.4,
           drive: 1.7, bus: bus
         });
