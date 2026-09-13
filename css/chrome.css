@@ -1,0 +1,57 @@
+@charset "UTF-8";
+
+/* ------------------------------------------------------------------ *
+ *  chrome.css -- the few things every page shares.
+ *
+ *  Subpages deliberately carry their own styles; this is only for the
+ *  parts that belong to the site rather than to a page. Currently: the
+ *  pointer.
+ * ------------------------------------------------------------------ */
+
+/* A tuning reticle rather than an arrow, with the hotspot dead centre.
+   The keyword after each URL is the fallback: if the image is blocked or
+   404s, you still get a sensible pointer rather than nothing. */
+
+html,
+body {
+  cursor: url("../img/cursor.png") 12 12, crosshair;
+}
+
+a,
+button,
+summary,
+label,
+[role="button"],
+[tabindex]:not([tabindex="-1"]),
+.shot,
+.enter {
+  cursor: url("../img/cursor-link.png") 12 12, pointer;
+}
+
+/* Typing wants a caret and nothing else -- a reticle over a text field
+   makes it read as decoration instead of as somewhere to write. */
+input,
+textarea,
+select,
+[contenteditable="true"] {
+  cursor: text;
+}
+input[type="button"],
+input[type="submit"],
+input[type="checkbox"],
+input[type="radio"],
+input[type="file"],
+select {
+  cursor: url("../img/cursor-link.png") 12 12, pointer;
+}
+
+button[disabled],
+[aria-disabled="true"] {
+  cursor: url("../img/cursor.png") 12 12, not-allowed;
+}
+
+/* Fine pointers only. On a touch screen there is no cursor to style, and
+   on a coarse pointer the reticle is just a 24px image nobody sees. */
+@media (pointer: coarse) {
+  html, body, a, button, .shot, .enter { cursor: auto; }
+}

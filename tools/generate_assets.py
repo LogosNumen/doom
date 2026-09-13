@@ -24,7 +24,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from dither import dither_image  # noqa: E402
+from dither import dither_image, FG, SIG  # noqa: E402
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IMG = os.path.join(ROOT, "img")
@@ -801,8 +801,157 @@ def a_seq_field():
     return frames, None, dict(width=None, palette="greys", colors=4, mode="bayer8", fps=8)
 
 
+# --------------------------------------------------------------------------
+# the figure
+#
+# Somebody is occasionally at the edge of the site. Deliberately abstract: a
+# head, a shoulder line, a body that tapers. At this size, dithered, the eye
+# supplies a person and nothing else is needed -- and nothing here is anyone.
+# --------------------------------------------------------------------------
+
+
+def _figure(d, cx, base, h, ss, fill):
+    """A standing silhouette. Proportions only, no features, no detail."""
+    head_r = h * 0.085
+    head_cy = base - h + head_r
+    # head
+    d.ellipse([cx - head_r, head_cy - head_r, cx + head_r, head_cy + head_r], fill=fill)
+    # neck
+    d.rectangle([cx - head_r * 0.34, head_cy + head_r * 0.6,
+                 cx + head_r * 0.34, head_cy + head_r * 1.5], fill=fill)
+    # body: shoulders down to the ground, tapering slightly
+    top = head_cy + head_r * 1.3
+    sh = h * 0.145
+    hip = h * 0.105
+    d.polygon([
+        (cx - sh, top + h * 0.04),
+        (cx + sh, top + h * 0.04),
+        (cx + hip, base),
+        (cx - hip, base),
+    ], fill=fill)
+    # the shoulders rounded off
+    d.ellipse([cx - sh, top, cx + sh, top + h * 0.09], fill=fill)
+
+
+def a_figure_far():
+    """Standing well back, barely there. 120x150."""
+    W, H, N = 120, 150, 8
+    frames = []
+    for f in range(N):
+        im, d = frame(W, H)
+        w, h = W * SS, H * SS
+        # a suggestion of ground
+        d.line([0, h * 0.93, w, h * 0.93], fill=DARK, width=SS)
+        sway = math.sin(f / N * math.tau) * 1.1 * SS
+        _figure(d, w / 2 + sway, h * 0.93, h * 0.62, SS, MID)
+        small = im.resize((W, H), Image.LANCZOS)
+        arr = np.asarray(small, dtype=np.float64) + noise_layer(W, H, 4100 + f, 0.22)
+        arr[::2] *= 0.7
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+    return frames, None, dict(width=None, palette="greys", colors=3, mode="bayer8", fps=6)
+
+
+def a_figure_door():
+    """In the doorway, between you and the light. 120x150."""
+    W, H, N = 120, 150, 8
+    frames = []
+    for f in range(N):
+        im, d = frame(W, H)
+        w, h = W * SS, H * SS
+        # the lit doorway behind
+        d.rectangle([w * 0.30, h * 0.10, w * 0.70, h * 0.95], fill=PALE)
+        d.rectangle([w * 0.26, h * 0.06, w * 0.74, h * 0.99], outline=MID, width=SS)
+        # and somebody in it, in silhouette, so they read as a hole in the light
+        sway = math.sin(f / N * math.tau + 1.0) * 1.4 * SS
+        _figure(d, w / 2 + sway, h * 0.95, h * 0.74, SS, BLACK)
+        small = im.resize((W, H), Image.LANCZOS)
+        arr = np.asarray(small, dtype=np.float64) + noise_layer(W, H, 4200 + f, 0.10)
+        arr[::2] *= 0.74
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+    return frames, None, dict(width=None, palette="greys", colors=4, mode="bayer8", fps=6)
+
+
+def a_figure_near():
+    """Closer than last time. 120x150."""
+    W, H, N = 120, 150, 8
+    frames = []
+    for f in range(N):
+        im, d = frame(W, H)
+        w, h = W * SS, H * SS
+        sway = math.sin(f / N * math.tau + 2.2) * 0.9 * SS
+        _figure(d, w / 2 + sway, h * 1.02, h * 1.05, SS, DARK)
+        small = im.resize((W, H), Image.LANCZOS)
+        arr = np.asarray(small, dtype=np.float64) + noise_layer(W, H, 4300 + f, 0.30)
+        arr[::2] *= 0.66
+        frames.append(to_rgb(Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8), "L")))
+    return frames, None, dict(width=None, palette="greys", colors=3, mode="bayer8", fps=6)
+
+
+# --------------------------------------------------------------------------
+# cursors
+#
+# A tuning reticle rather than an arrow. These are the one set of images that
+# do NOT go through the dither pipeline: a cursor needs an alpha channel, and
+# at 24px hard pixel edges are already the look -- there is nothing to dither.
+# --------------------------------------------------------------------------
+
+
+def _cursor(path, rgb, filled):
+    """A 24x24 reticle. Hotspot is the centre, (12, 12)."""
+    S = 24
+    im = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    px = im.load()
+    r, g, b = rgb
+    on = (r, g, b, 255)
+    shade = (r, g, b, 90)
+    c = 12
+
+    def dot(x, y, col=on):
+        if 0 <= x < S and 0 <= y < S:
+            px[x, y] = col
+
+    # arms, with a gap at the middle so the thing under the pointer stays visible
+    for i in range(3, 10):
+        dot(c + i, c); dot(c - i, c); dot(c, c + i); dot(c, c - i)
+    # end caps
+    for d in (-10, 10):
+        dot(c + d, c - 1); dot(c + d, c + 1)
+        dot(c - 1, c + d); dot(c + 1, c + d)
+    # a soft shadow so it reads on pale images too
+    for i in range(3, 10):
+        dot(c + i, c + 1, shade); dot(c - i, c + 1, shade)
+        dot(c + 1, c + i, shade); dot(c + 1, c - i, shade)
+
+    if filled:
+        # links get a centre
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                dot(c + dx, c + dy)
+    else:
+        dot(c, c, shade)
+
+    im.save(path, "PNG", optimize=True)
+    return path
+
+
+def a_cursors():
+    out = []
+    out.append(_cursor(os.path.join(IMG, "cursor.png"), FG, False))
+    out.append(_cursor(os.path.join(IMG, "cursor-link.png"), SIG, True))
+    for p in out:
+        _report_png(p)
+
+
+def _report_png(path):
+    size = os.path.getsize(path)
+    print("  %-40s %7.1f KB" % (os.path.relpath(path), size / 1024.0))
+
+
 ASSETS = {
     "icon": (a_icon, "icon.gif"),
+    "figure-far": (a_figure_far, "figure-far.gif"),
+    "figure-door": (a_figure_door, "figure-door.gif"),
+    "figure-near": (a_figure_near, "figure-near.gif"),
     "seq-door": (a_seq_door, "seq-door.gif"),
     "seq-rack": (a_seq_rack, "seq-rack.gif"),
     "seq-spool": (a_seq_spool, "seq-spool.gif"),
@@ -834,12 +983,15 @@ def build(name: str):
 def main(argv=None):
     argv = list(argv if argv is not None else sys.argv[1:])
     os.makedirs(IMG, exist_ok=True)
-    wanted = argv or (list(ASSETS) + ["favicon"])
+    wanted = argv or (list(ASSETS) + ["favicon", "cursors"])
     print("generating into %s" % os.path.relpath(IMG, ROOT))
     for name in wanted:
         if name == "favicon":
             a_favicon(16, os.path.join(IMG, "favicon.gif"))
             a_favicon(32, os.path.join(IMG, "favicon32.gif"))
+            continue
+        if name == "cursors":
+            a_cursors()
             continue
         if name not in ASSETS:
             print("  unknown asset: %s" % name, file=sys.stderr)

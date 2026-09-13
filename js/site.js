@@ -121,15 +121,25 @@
     lamp.querySelector(".shut").focus();
   }
 
+  /* An image either opens larger or it is a door. Which one it is lives in
+     the markup as data-to, so the post and its destination stay together and
+     nothing here has to know about the stream. Most images are not doors —
+     if they all were, being one would stop meaning anything. */
+
   document.querySelectorAll(".post .shot").forEach(function (p) {
     var im = p.querySelector("img");
     if (!im) return;
+    var to = p.getAttribute("data-to");
+
     p.setAttribute("tabindex", "0");
-    p.setAttribute("role", "button");
-    p.setAttribute("aria-label", "Open larger: " + (im.alt || "image"));
+    p.setAttribute("role", to ? "link" : "button");
+    p.setAttribute("aria-label",
+      to ? "Go to " + to : "Open larger: " + (im.alt || "image"));
+    if (to) p.classList.add("door");
 
     function go(e) {
       e.preventDefault();
+      if (to) { location.href = to; return; }
       lastFocus = p;
       open(im.currentSrc || im.src, im.alt, im.width);
     }

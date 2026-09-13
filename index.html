@@ -7,6 +7,7 @@
 <meta name="description" content="An unmanned relay station that kept transmitting after everyone left.">
 <link rel="icon" type="image/gif" sizes="32x32" href="img/favicon32.gif">
 <link rel="icon" type="image/gif" sizes="16x16" href="img/favicon.gif">
+<link rel="stylesheet" href="css/chrome.css">
 <link rel="stylesheet" href="css/site.css">
 </head>
 
@@ -21,7 +22,7 @@
      If you are reading this you were looking, which is most of it.
 -->
 
-<body>
+<body data-amb="station">
 
 <div class="frame frame-top"><span>⌈</span><span>⌉</span></div>
 
@@ -116,7 +117,7 @@
   <h5 class="by">-operator</h5>
   <h5 class="date">04.12.26</h5>
   <hr>
-  <picture class="shot">
+  <picture class="shot" data-to="etc/testcard.html">
     <source srcset="img/testcard_still.gif" media="(prefers-reduced-motion: reduce)">
     <img src="img/testcard.gif" width="192" height="144" alt="A test card with a crooked registration mark in the bottom left corner, rolling slowly.">
   </picture>
@@ -134,7 +135,7 @@
   <h5 class="by">-operator</h5>
   <h5 class="date">11.09.25</h5>
   <hr>
-  <picture class="shot">
+  <picture class="shot" data-to="etc/forecast.html">
     <source srcset="img/horizon_still.gif" media="(prefers-reduced-motion: reduce)">
     <img src="img/horizon.gif" width="224" height="88" alt="A flat sea under stars, and one light on the water that blinks when the stars do not.">
   </picture>
@@ -152,7 +153,7 @@
   <h5 class="by">-operator</h5>
   <h5 class="date">??.??.25</h5>
   <hr>
-  <picture class="shot">
+  <picture class="shot" data-to="etc/static.html">
     <source srcset="img/snow_still.gif" media="(prefers-reduced-motion: reduce)">
     <img src="img/snow.gif" width="192" height="144" alt="Grey snow drifting across a dead channel, with a band sliding through it.">
   </picture>
@@ -186,14 +187,14 @@
   <h5 class="by">-operator</h5>
   <h5 class="date">07.31.24</h5>
   <hr>
-  <picture class="shot">
+  <picture class="shot" data-to="etc/numbers.html">
     <source srcset="img/static_still.gif" media="(prefers-reduced-motion: reduce)">
     <img src="img/static.gif" width="176" height="132" alt="A hard burst of one-bit static, torn through by three shifted bands.">
   </picture>
   <p>Built a thing that reads five-digit groups over the drone, the way they used
   to be read: <a href="etc/numbers.html">numbers</a>. Voice is whatever your machine
   has. Mine sounds like a man being polite at gunpoint.</p>
-  <picture class="shot">
+  <picture class="shot" data-to="etc/marker.html">
     <source srcset="img/dial_still.gif" media="(prefers-reduced-motion: reduce)">
     <img src="img/dial.gif" width="208" height="56" alt="A tuning dial sweeping across three signal peaks marked 4625, 6840 and 9330.">
   </picture>
@@ -248,7 +249,7 @@
   <h5 class="by">-operator</h5>
   <h5 class="date">??.??.24</h5>
   <hr>
-  <picture class="shot">
+  <picture class="shot" data-to="etc/scope.html">
     <source srcset="img/wire_still.gif" media="(prefers-reduced-motion: reduce)">
     <img src="img/wire.gif" width="160" height="160" alt="A wireframe octahedron turning slowly against scanlines.">
   </picture>
@@ -265,7 +266,7 @@
   <h5 class="by">-operator</h5>
   <h5 class="date">05.22.22</h5>
   <hr>
-  <picture class="shot">
+  <picture class="shot" data-to="tracklist.html">
     <source srcset="img/wave_still.gif" media="(prefers-reduced-motion: reduce)">
     <img src="img/wave.gif" width="240" height="64" alt="A waveform scrolling past a centre line, carrying nothing anyone can use.">
   </picture>
@@ -330,6 +331,7 @@
 
 <script src="js/backdrop.js"></script>
 <script src="js/sound.js"></script>
+<script src="js/figure.js"></script>
 <script src="js/site.js"></script>
 </body>
 </html>

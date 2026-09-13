@@ -338,10 +338,25 @@ picture {
  * Every image in the stream opens at double size. Whole multiples only,
  * and it is a plain overlay with no blur and no card behind it.        */
 
-.post .shot { cursor: pointer; display: inline-block; }
+.post .shot { cursor: pointer; display: inline-block; position: relative; }
 .post .shot img { transition: filter .2s linear; }
 .post .shot:hover img,
 .post .shot:focus-visible img { filter: brightness(1.18); }
+
+/* Some of them are doors rather than pictures. A hairline in the accent
+   under the image on hover, and nothing at all until then — the point is
+   that you find out by trying it. */
+.post .shot.door::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -5px;
+  height: 1px;
+  background: var(--sig);
+  opacity: 0;
+  transition: opacity .18s linear;
+}
+.post .shot.door:hover::after,
+.post .shot.door:focus-visible::after { opacity: 1; }
 
 #lamp {
   position: fixed;

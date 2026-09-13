@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⌈Ｔｅｓｔ　Ｃａｒｄ⌋</title>
+<link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
+<link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
+<link rel="stylesheet" href="../css/chrome.css">
+
+<style>
+* { margin:0; padding:0; box-sizing:border-box; image-rendering:pixelated;
+    -webkit-font-smoothing:none; font-smooth:never; }
+html, body { height:100%; }
+body {
+  background:#000; color:#c8c3b4; overflow:hidden;
+  font:10px/1.9 "MS Gothic","Osaka-Mono","Courier New",monospace;
+  letter-spacing:.3em; text-align:center;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:16px; padding:22px 16px 56px;
+}
+
+#card { line-height:0; position:relative; }
+#card img {
+  /* whole multiples only: this was dithered at 192 across */
+  width:576px; max-width:88vw; height:auto;
+}
+#card.gone img { opacity:.06; transition:opacity 2s linear; }
+
+#clock { font-size:13px; letter-spacing:.5em; color:#c8c3b4;
+         font-variant-numeric:tabular-nums; }
+#clock.low { color:#b4503c; }
+#state { color:#6b675e; }
+
+#after { max-width:44ch; text-align:left; letter-spacing:.04em; font-size:11px;
+         line-height:1.95; color:#6b675e; }
+#after[hidden] { display:none; }
+#after b { color:#c8c3b4; font-weight:normal; }
+
+button { background:#000; color:#c8c3b4; border:1px solid #6b675e;
+         font:10px/1 "MS Gothic","Courier New",monospace; letter-spacing:.3em;
+         padding:8px 14px; cursor:pointer; }
+button:hover { color:#b4503c; border-color:#b4503c; }
+
+.foot { position:fixed; left:0; right:0; bottom:14px; font-size:9px;
+        letter-spacing:.5em; color:#3a3833; }
+.foot a { color:#6b675e; text-decoration:none; }
+.foot a:hover, .foot a:focus { color:#b4503c; }
+:focus-visible { outline:1px dotted #c8c3b4; outline-offset:4px; }
+
+body::after {
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:9000;
+  background:repeating-linear-gradient(to bottom,
+    rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,0,0,.26) 2px, rgba(0,0,0,.26) 3px);
+}
+@media (max-width:620px) { #card img { width:384px; max-width:92vw; } }
+@media (prefers-reduced-motion:reduce) { #card.gone img { transition:none; } }
+</style>
+</head>
+<body data-amb="station">
+
+<p id="state">ｃａｒｄ　ｕｐ</p>
+
+<div id="card">
+  <picture>
+    <source srcset="../img/testcard_still.gif" media="(prefers-reduced-motion: reduce)">
+    <img src="../img/testcard.gif" width="192" height="144" alt="The test card: circle, crosshair, grey ramp, and a registration mark in the bottom left that is not square with the others.">
+  </picture>
+</div>
+
+<p id="clock">09:00</p>
+
+<div id="after" hidden>
+  <p>That is the nine minutes.</p>
+  <p>It comes up at <b>0412</b> most nights, holds for nine, and goes. Nobody
+  puts it up. There is no source behind it — the card is coming off a tape in a
+  machine that was loaded before any of this was my problem, and the tape has
+  the same fault in the same place every time.</p>
+  <p>Bottom left. The registration mark is not square with the other three. It
+  has not been square with the other three for as long as I have been keeping
+  the log, which means it is the same tape, which means nothing up there has
+  been replaced in six years.</p>
+  <p>I find that more reassuring than I should.</p>
+  <p style="margin-top:14px"><button id="again" type="button">ＰＵＴ　ＩＴ　ＢＡＣＫ　ＵＰ</button></p>
+</div>
+
+<p class="foot">
+  <a href="../index.html">[ back ]</a> &nbsp;
+  <a href="../dir.html">[ dir ]</a> &nbsp;
+  <a href="marker.html">[ marker ]</a>
+</p>
+
+<script src="../js/backdrop.js"></script>
+<script src="../js/sound.js"></script>
+<script src="../js/figure.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* Nine minutes, which is how long the card actually holds. Nothing is
+     hidden behind the wait -- the writing underneath is the whole of it, and
+     it arrives whether you sat through the nine minutes or skipped them.
+     The clock is there because the card is a thing that ends. */
+
+  var TOTAL = 9 * 60;
+  var left = TOTAL;
+
+  var clock = document.getElementById("clock");
+  var state = document.getElementById("state");
+  var card = document.getElementById("card");
+  var after = document.getElementById("after");
+
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+
+  function paint() {
+    clock.textContent = pad(Math.floor(left / 60)) + ":" + pad(left % 60);
+    clock.className = left <= 60 ? "low" : "";
+  }
+
+  function end() {
+    state.textContent = "ｃａｒｄ　ｄｏｗｎ";
+    card.className = "gone";
+    after.hidden = false;
+    clock.textContent = "00:00";
+    if (window.DA && window.DA.on) window.DA.speak("card down", { rate: 0.45 });
+  }
+
+  paint();
+
+  var iv = setInterval(function () {
+    if (document.hidden) return;          // it holds for nine minutes of watching
+    left--;
+    if (left <= 0) { clearInterval(iv); end(); return; }
+    paint();
+  }, 1000);
+
+  /* Skipping is allowed. Nine minutes is a long time and the page is not
+     going to pretend otherwise -- click the clock and it goes down now. */
+  clock.tabIndex = 0;
+  clock.setAttribute("role", "button");
+  clock.setAttribute("aria-label", "Take the card down now");
+  clock.title = "take it down now";
+  function skip() { if (!after.hidden) return; clearInterval(iv); left = 0; end(); }
+  clock.addEventListener("click", skip);
+  clock.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); skip(); }
+  });
+
+  document.getElementById("again").addEventListener("click", function () {
+    location.reload();
+  });
+})();
+</script>
+</body>
+</html>
