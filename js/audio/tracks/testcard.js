@@ -27,7 +27,7 @@
     bpm: 66,
     root: 53,                      // F3
     mode: "lydian",
-    hiss: 0.012,                   // the most tape-like track gets the most hiss
+    hiss: 0.017,                   // the most tape-like track gets the most hiss
     delayTime: 60 / 66,
     feedback: 0.3,
     arrangement: ARRANGEMENT,
@@ -59,8 +59,8 @@
             f: T.mtof(n), table: rng.chance(0.5) ? "drawbar" : "soft",
             a: 1.6 + rng.range(0, 0.6),        // the swell IS the instrument
             d: 0.9, s: 0.85, hold: 2.4, r: 2.2,
-            gain: U.vel(rng, 0.075, 0.12),
-            tone: 1400 + open * 1800,
+            gain: U.vel(rng, 0.105, 0.12),
+            tone: 2200 + open * 2600,
             pan: (i - 1.5) * 0.36,
             detune: rng.gauss(0, 4),
             wow: st.wow,
@@ -74,7 +74,7 @@
         eng.note("sub", {
           t: t + 0.02,
           f: T.mtof(chord[0] - 12),
-          gain: 0.34, a: 0.08, d: 0.4, s: 0.7, hold: 2.6, r: 1.2,
+          gain: 0.15, a: 0.08, d: 0.4, s: 0.7, hold: 2.6, r: 1.2,
           slide: 0.9, glide: 0.25, drive: 1.3, bus: bus
         });
       }
@@ -86,7 +86,7 @@
           t: t + U.jitter(rng, 20),
           f: T.mtof(n), table: "hollow",
           a: 0.9, d: 0.5, s: 0.6, hold: 1.4, r: 1.8,
-          gain: U.vel(rng, 0.05, 0.2),
+          gain: U.vel(rng, 0.08, 0.2),
           tone: 3200, pan: rng.range(-0.7, 0.7),
           wow: st.wow,
           dry: 0.55, rev: 0.8, dly: 0.3, bus: bus

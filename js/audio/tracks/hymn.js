@@ -32,7 +32,7 @@
     bpm: 55,
     root: 48,                      // C3
     mode: "phrygian",
-    hiss: 0.009,
+    hiss: 0.014,
     delayTime: 60 / 55 * 2,
     feedback: 0.5,
     arrangement: ARRANGEMENT,
@@ -68,7 +68,7 @@
             from: from, to: to,
             glide: rng.range(9, 15),
             a: rng.range(3.5, 5.5), d: 2, s: 0.9, hold: 8, r: 6,
-            gain: U.vel(rng, 0.075, 0.12),
+            gain: U.vel(rng, 0.20, 0.12),
             pan: (i - 1.5) * 0.48 + rng.gauss(0, 0.08),
             dry: 0.25, rev: 1.0, dly: 0.2,
             bus: { dry: bus.dry, reverb: bus.vast, delay: bus.delay }
@@ -82,7 +82,7 @@
           t: t,
           f: T.mtof(chord[0] - 12),
           a: 6, d: 3, s: 0.9, hold: 14, r: 8,
-          gain: 0.06, open: 620, shut: 200, lfo: 0.023, lfoDepth: 120,
+          gain: 0.13, open: 700, shut: 200, lfo: 0.023, lfoDepth: 120,
           pan: 0, dry: 0.6, rev: 0.5, dly: 0,
           bus: { dry: bus.dry, reverb: bus.vast, delay: bus.delay }
         });
@@ -96,7 +96,7 @@
           from: "i", to: rng.pick(["e", "u"]),
           glide: rng.range(7, 12),
           a: 5, d: 2, s: 0.85, hold: 6, r: 7,
-          gain: U.vel(rng, 0.04, 0.2),
+          gain: U.vel(rng, 0.11, 0.2),
           pan: rng.range(-0.85, 0.85),
           dry: 0.15, rev: 1.0, dly: 0.35,
           bus: { dry: bus.dry, reverb: bus.vast, delay: bus.delay }
@@ -108,7 +108,7 @@
         eng.note("perc", {
           t: t + rng.range(0, 1.5),
           f: rng.range(1800, 5200), q: 0.7,
-          life: rng.range(1.8, 4), gain: U.vel(rng, 0.018, 0.3),
+          life: rng.range(1.8, 4), gain: U.vel(rng, 0.045, 0.3),
           pan: rng.range(-0.9, 0.9),
           dry: 0.3, rev: 0.9, dly: 0.2,
           bus: { dry: bus.dry, reverb: bus.vast, delay: bus.delay }

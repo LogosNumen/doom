@@ -28,7 +28,7 @@
     bpm: 58,
     root: 50,                       // D3
     mode: "aeolian",
-    hiss: 0.006,
+    hiss: 0.012,
     delayTime: 60 / 58 * 1.5,
     feedback: 0.36,
     arrangement: ARRANGEMENT,
@@ -58,7 +58,7 @@
           eng.note("pad", {
             t: t + rng.range(0, 0.12),
             f: T.mtof(n + 12), a: 3.4, d: 2, s: 0.8, hold: 6, r: 5,
-            gain: 0.045, open: 1500, shut: 380, lfo: 0.045,
+            gain: 0.075, open: 1700, shut: 380, lfo: 0.045,
             pan: (i - 1.5) * 0.4,
             dry: 0.4, rev: 0, dly: 0, bus: { dry: bus.dry, reverb: bus.vast, delay: bus.delay }
           });
@@ -76,8 +76,8 @@
             eng.note("pluck", {
               t: t + U.jitter(rng, 12),
               f: T.mtof(n),
-              gain: U.vel(rng, 0.40, 0.22),
-              decay: 0.945, damp: 2000 + rng.range(-400, 900),
+              gain: U.vel(rng, 0.50, 0.22),
+              decay: 0.88, damp: 2000 + rng.range(-400, 900),
               life: rng.range(2.4, 4.2),
               pan: rng.range(-0.6, 0.6),
               dry: 0.85, rev: 0.5, dly: 0.25,
@@ -92,7 +92,7 @@
         eng.note("pluck", {
           t: t + U.jitter(rng, 14),
           f: T.mtof(chord[0] - 12),
-          gain: 0.5, decay: 0.962, damp: 1200, life: 5.5,
+          gain: 0.5, decay: 0.90, damp: 1200, life: 5.5,
           pan: rng.range(-0.2, 0.2),
           dry: 0.9, rev: 0.35, dly: 0,
           bus: { dry: bus.dry, reverb: bus.vast, delay: bus.delay }

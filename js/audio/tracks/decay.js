@@ -31,7 +31,7 @@
     bpm: 84,
     root: 43,                        // G2
     mode: "dorian",
-    hiss: 0.008,
+    hiss: 0.013,
     delayTime: 60 / 84 * 0.75,       // dotted eighth, carrying the rhythm
     feedback: 0.56,
     arrangement: ARRANGEMENT,
@@ -47,7 +47,9 @@
       g.gain.value = 0.9;
       crush.connect(lp); lp.connect(g); g.connect(bus.dry);
 
-      const crushBus = { dry: g, reverb: bus.reverb, delay: bus.delay };
+      // notes go INTO the crusher, not past it. routing them at `g` put them
+      // after the quantiser and bypassed the only thing this track is about.
+      const crushBus = { dry: crush, reverb: bus.reverb, delay: bus.delay };
 
       return {
         rng: rng,
@@ -77,8 +79,8 @@
       if (U.has(sec, "perc") && st.riff[pos]) {
         eng.note("perc", {
           t: t + U.jitter(rng, 9),
-          f: 180, sweep: 60, q: 1.1, life: 0.16,
-          gain: U.vel(rng, 0.38, 0.15), pan: rng.gauss(0, 0.12),
+          f: 190, sweep: 80, q: 1.1, life: 0.13,
+          gain: U.vel(rng, 0.20, 0.15), pan: rng.gauss(0, 0.12),
           dry: 1, rev: 0.15, dly: 0.1, bus: st.crushBus
         });
         eng.dip(t, 0.72, 0.02, 0.18);
@@ -89,7 +91,7 @@
         eng.note("perc", {
           t: t + U.jitter(rng, 11),
           f: 1900 + rng.range(-500, 900), q: 3.2, life: 0.07,
-          gain: U.vel(rng, 0.13, 0.28),
+          gain: U.vel(rng, 0.20, 0.28),
           pan: rng.range(-0.8, 0.8),
           dry: 0.7, rev: 0.3, dly: 0.55, bus: st.crushBus
         });
@@ -99,8 +101,8 @@
       if (U.has(sec, "perc") && st.hats[pos] && rng.chance(0.8)) {
         eng.note("perc", {
           t: t + U.jitter(rng, 7),
-          f: 7400 + rng.range(-900, 900), q: 1.4, life: 0.028,
-          gain: U.vel(rng, 0.055, 0.35), pan: rng.range(-0.7, 0.7),
+          f: 8600 + rng.range(-1100, 1100), q: 1.1, life: 0.04,
+          gain: U.vel(rng, 0.095, 0.35), pan: rng.range(-0.75, 0.75),
           dry: 0.8, rev: 0.2, dly: 0.3, bus: st.crushBus
         });
       }
@@ -111,7 +113,7 @@
         eng.note("sub", {
           t: t + U.jitter(rng, 7),
           f: T.mtof(chord[0] - 12 + T.MODES.dorian[deg % 7]),
-          gain: U.vel(rng, 0.44, 0.1),
+          gain: U.vel(rng, 0.22, 0.1),
           a: 0.005, d: 0.1, s: 0.55, hold: 0.1, r: 0.22,
           drive: 2.2, bus: bus
         });

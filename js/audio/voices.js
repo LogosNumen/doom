@@ -291,13 +291,20 @@ window.DAA = window.DAA || {};
     const delay = ctx.createDelay(0.2);
     delay.delayTime.value = dt;
 
+    /* Feedback has to account for the filter, not just for itself. A
+       BiquadFilter lowpass at the default Q has a resonant peak above unity
+       gain, so a loop at 0.95 can end up multiplying above 1 around the
+       cutoff, run away, and reach Inf -- which does not merely sound bad,
+       it puts NaN through the graph and silences the whole mix from that
+       point on. Overdamped Q, and a ceiling well under 1. */
     const fb = ctx.createGain();
-    // longer decay for lower notes, so the bass does not die first
-    fb.gain.value = Math.min(0.97, o.decay === undefined ? 0.94 : o.decay);
+    const fbAmount = Math.min(0.90, o.decay === undefined ? 0.88 : o.decay);
+    fb.gain.value = fbAmount;
 
     const damp = ctx.createBiquadFilter();
     damp.type = "lowpass";
     damp.frequency.value = o.damp === undefined ? 2600 : o.damp;
+    damp.Q.value = 0.5;                 // below 0.707: no resonant peak at all
 
     // the excitation: a very short burst of noise
     const burst = ctx.createBufferSource();
@@ -333,6 +340,14 @@ window.DAA = window.DAA || {};
     amp.gain.exponentialRampToValueAtTime(peak, t + MIN_A);
     amp.gain.exponentialRampToValueAtTime(FLOOR, t + life);
     amp.gain.linearRampToValueAtTime(0, t + life + 0.02);
+
+    /* Close the loop on the audio clock as well as closing the gate. A
+       DelayNode cannot be stopped the way a source can, so without this the
+       feedback path keeps circulating after the note is silent -- and a
+       gate of zero times a value that has run away is still NaN. */
+    fb.gain.setValueAtTime(fbAmount, t);
+    fb.gain.setValueAtTime(fbAmount, t + life * 0.75);
+    fb.gain.linearRampToValueAtTime(0, t + life);
 
     const done = t + life + 0.05;
     cleanup(ctx, nodes, done);

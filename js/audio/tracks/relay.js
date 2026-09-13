@@ -70,7 +70,7 @@
           t: t + U.jitter(rng, 8),
           f: T.mtof(Math.min(64, tone + 12)),
           gain: U.vel(rng, 0.30, 0.2),
-          decay: 0.93, damp: 1600 + open * 2600,
+          decay: 0.87, damp: 1600 + open * 2600,
           life: rng.range(1.1, 2.0),
           pan: Math.sin(st.arpAt * 0.7) * 0.55,
           dry: 0.8, rev: 0.45, dly: 0.4, bus: bus
