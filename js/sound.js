@@ -67,7 +67,7 @@
       return chain.then(function () {
         return new Promise(function (res, rej) {
           var el = document.createElement("script");
-          el.src = root + f;
+          el.src = root + f + "?v=2";
           el.async = false;
           el.onload = res;
           el.onerror = function () { rej(new Error("could not load " + f)); };

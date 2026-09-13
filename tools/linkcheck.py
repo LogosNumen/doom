@@ -148,6 +148,12 @@ def main(argv=None):
             if "#" in v:
                 target, frag = v.split("#", 1)
 
+            # and any query. Scripts carry a ?v= cache-buster so a browser
+            # cannot pair new HTML with an old cached script; the file on
+            # disk is still just the part before the "?".
+            if "?" in target:
+                target = target.split("?", 1)[0]
+
             if not target:
                 # a bare #anchor, into this page
                 if frag and frag not in p.ids:
