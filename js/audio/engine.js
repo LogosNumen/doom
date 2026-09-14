@@ -395,7 +395,20 @@ window.DAA = window.DAA || {};
     voiceCount: function () { prune(ctx ? ctx.currentTime : 0); return voices.length; },
     MAX_VOICES: MAX_VOICES,
     /** Rebuild the mix inside a different context (offline rendering). */
-    attach: function (c) { ctx = c; build(c); return { bus: bus, master: master }; },
+    /* Attaching a new context starts a new timeline, so the voice registry
+       has to go with it. Records left from the previous context carry `until`
+       times measured on that context's clock -- against a fresh OfflineAudio-
+       Context those are all in the future, so prune() never drops them and
+       the track begins against a full voice table, stealing its own notes.
+       Offline that made each track's render depend on whichever track
+       rendered before it: hymn's level moved by 3 dB because forecast, the
+       track ahead of it alphabetically, had changed. */
+    attach: function (c) {
+      ctx = c;
+      voices = [];
+      build(c);
+      return { bus: bus, master: master };
+    },
     _internals: function () {
       return { get track() { return track; }, get step() { return step; } };
     }

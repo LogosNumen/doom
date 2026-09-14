@@ -45,7 +45,7 @@
 
   /* Stamped by tools/stamp_versions.py from the contents of js/audio/.
      Do not edit by hand -- run the tool. */
-  var AUDIO_VER = "f3866819";
+  var AUDIO_VER = "c19ae57e";
 
   var FILES = [
     "theory.js", "fx.js", "voices.js", "engine.js",
