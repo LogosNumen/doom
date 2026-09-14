@@ -281,3 +281,27 @@ earned its place immediately:
 
 The pattern in all three: the check that would have caught the mistake was
 cheaper than the mistake, every time.
+
+### The one that made every other number suspect
+
+12. **The engine carried voices across contexts.** `hymn`'s opening moved 3 dB
+    between two renders of code that never touched `hymn`. The seed is fixed,
+    so that should have been impossible, and chasing it found the real fault:
+    the voice registry is module-level and only cleared in `stop()`, while
+    `attach()` swapped in a new context and left it alone. Records from the
+    previous context carry `until` times measured on *that* context's clock —
+    against a fresh `OfflineAudioContext` starting at zero, every one of them
+    is in the future, so `prune()` never drops them. Each track began against
+    a full voice table and started stealing its own notes from the first bar.
+
+    Offline, that made every track's render depend on whichever track rendered
+    before it. `hymn` follows `forecast` alphabetically; `forecast`'s hiss had
+    just changed. Every measurement taken before this was read through it, so
+    the table was rebuilt from scratch afterwards — and only then did all
+    twenty-four windows pass. Live the path is safer, because `play()` stops
+    the previous track and `stop()` does clear the registry, but `attach()`
+    had no business leaving state behind either way.
+
+    The tell was not a failing check. It was a number that changed when
+    nothing had changed, which is worth more attention than a number that is
+    merely bad.
