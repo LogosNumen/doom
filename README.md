@@ -145,13 +145,44 @@ python -m venv .venv
 
 ## Checking it
 
+Three checks, cheapest first. Each exits non-zero if anything is wrong, and
+all three run on every push (`.github/workflows/checks.yml`).
+
 ```bash
 python tools/linkcheck.py
 ```
 
 Reports broken internal links, missing images, dead `#anchor` targets, absolute
 paths that would break in a subfolder, images over 150 KB, and the total
-deployable size against the 10 MB budget. Exits non-zero if anything is wrong.
+deployable size against the 10 MB budget.
+
+```bash
+python tools/audit.py
+```
+
+Reads the markup of every page and checks the floor the brief promised: alt
+text, labelled form controls, an accessible name on anything clickable, unique
+ids, sensible heading order, a `lang`, a viewport, a `:focus` style, a
+`prefers-reduced-motion` rule wherever something animates, and no autoplay.
+Needs nothing but Python.
+
+```bash
+python tools/pagecheck.py
+```
+
+Opens every page in headless Chromium at 360px — the width the brief names —
+and reports uncaught exceptions, console errors, requests that 404, pages that
+scroll sideways, and anything that starts making noise before it is asked. It
+is the only one of the three that runs a line of the site's own JavaScript, so
+it catches what the other two cannot: a page that parses perfectly and still
+throws on load. Needs `playwright`.
+
+Two deliberate behaviours are known to it rather than silenced blindly: the
+error pages find the site root by requesting a file they know exists at each
+candidate depth, so those 404s are the mechanism working, and a failed
+subresource's console line carries no URL, so it is dropped in favour of the
+response record that does. Both still catch a genuine missing file — verified
+by planting one.
 
 To serve it locally:
 

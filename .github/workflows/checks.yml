@@ -1,0 +1,60 @@
+# Runs the three checks on every push, so a regression is caught here rather
+# than found on the live site weeks later by somebody who cannot report it.
+#
+#   linkcheck  — every internal link and image resolves, payload within budget
+#   audit      — the accessibility floor the brief promised, across all pages
+#   pagecheck  — every page opened in a real browser: nothing throws, nothing
+#                404s, nothing scrolls sideways at 360px, nothing plays unasked
+#
+# The first two need nothing but Python and run in seconds. pagecheck drives
+# headless Chromium, so it installs one browser and takes a couple of minutes;
+# it is worth it, because it is the only one of the three that runs a single
+# line of the site's JavaScript.
+#
+# Nothing here deploys. Pages publishes from the branch on its own.
+
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    name: links and markup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Links, images and payload budget
+        run: python tools/linkcheck.py
+
+      - name: Accessibility floor
+        run: python tools/audit.py
+
+  browser:
+    name: pages actually run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Playwright
+        run: |
+          python -m pip install --upgrade pip
+          pip install playwright
+          python -m playwright install --with-deps chromium
+
+      # 360px is the width the brief names, so that is the width this runs at.
+      - name: Load every page at 360px
+        run: python tools/pagecheck.py --width 360
