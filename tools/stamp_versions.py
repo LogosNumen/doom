@@ -77,6 +77,19 @@ def main():
         if os.path.exists(p):
             vers[name] = digest(p)
 
+    # ---- and the stylesheets -------------------------------------------
+    # A stale stylesheet is the same bug as a stale script and is quieter
+    # about it: nothing throws, the page simply renders with last week's
+    # design and looks deliberate. This was not hypothetical -- the palette
+    # fix deployed green and the live site kept serving the old greys,
+    # because these two links were the only unversioned references left.
+    styles = {}
+    css_dir = os.path.join(ROOT, "css")
+    if os.path.isdir(css_dir):
+        for fn in sorted(os.listdir(css_dir)):
+            if fn.endswith(".css"):
+                styles[fn] = digest(os.path.join(css_dir, fn))
+
     for dirpath, dirnames, files in os.walk(ROOT):
         dirnames[:] = sorted(d for d in dirnames if d not in SKIP_DIRS)
         for fn in sorted(files):
@@ -88,6 +101,10 @@ def main():
             for name, v in vers.items():
                 out = re.sub(
                     r'(src="[^"]*js/%s)(?:\?[^"]*)?(")' % re.escape(name),
+                    r'\1?v=' + v + r'\2', out)
+            for name, v in styles.items():
+                out = re.sub(
+                    r'(href="[^"]*css/%s)(?:\?[^"]*)?(")' % re.escape(name),
                     r'\1?v=' + v + r'\2', out)
             if out != s:
                 if not check:
