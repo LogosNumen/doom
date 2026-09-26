@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
 <title>⌈Ｔｈｅ　Ｒｅａｄｉｎｇ　Ｒｏｏｍ⌋</title>
 <link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
 <link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
@@ -199,7 +200,9 @@ a:hover, a:focus { color:#b4503c; }
 <div id="main" class="hide">
   <div id="toc" class="hide">
     <div class="find">
-      <input id="find" type="search" placeholder="filter chapters…" autocomplete="off" spellcheck="false">
+      <input id="find" type="search" placeholder="filter chapters…"
+             aria-label="Filter chapters by title or number"
+             autocomplete="off" spellcheck="false">
     </div>
     <div id="list"></div>
   </div>

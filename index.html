@@ -23,10 +23,11 @@
 -->
 
 <body data-amb="station">
+<a class="skip" href="#stream">Skip to the transmissions</a>
 
 <div class="frame frame-top"><span>⌈</span><span>⌉</span></div>
 
-<div id="head" class="col">
+<header id="head" class="col">
 
   <h1 class="title">
     <span>Ｄｅａｄ　Ａｉｒ</span>
@@ -42,7 +43,7 @@
     <b class="outer">░</b><b class="outer">▒</b><b class="outer">║</b>
   </p>
 
-  <h6 id="phrase"><a href="etc/static.html"><span id="phrase-text">[nobody is listening]</span></a></h6>
+  <p id="phrase"><a href="etc/static.html"><span id="phrase-text">[nobody is listening]</span></a></p>
 
   <p class="copy">Copyright © 2019-2026</p>
   <p class="who">operator</p>
@@ -70,7 +71,7 @@
   <p class="status">The carrier is up. Nobody is modulating it.</p>
   <p class="action"><a class="scramble" href="carrier.html">[listen anyway]</a></p>
 
-</div>
+</header>
 
 <div class="frame frame-bot"><span>⌊</span><span>⌋</span></div>
 
@@ -85,7 +86,7 @@
   <span class="enter-cap">［ ｉｔ　ｉｓ　ｎｏｔ　ｌｏｃｋｅｄ ］</span>
 </a>
 
-<div class="stream">
+<main class="stream" id="stream">
 
 <!-- =================================================================
      POST TEMPLATE — copy this block, paste it directly below this
@@ -96,26 +97,26 @@
      ??.??.YY is a legitimate date. Title goes through:
          python tools/fullwidth.py "Your title here"
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｆｕｌｌｗｉｄｔｈ　ｔｉｔｌｅ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">??.??.26</h5>
+  <h2>Ｆｕｌｌｗｉｄｔｈ　ｔｉｔｌｅ</h2>
+  <p class="by">-operator</p>
+  <p class="date">??.??.26</p>
   <hr>
   <picture class="shot">
     <source srcset="img/thing_still.gif" media="(prefers-reduced-motion: reduce)">
     <img src="img/thing.gif" width="000" height="000" alt="Say what is actually in it. Cryptic is fine, empty is not.">
   </picture>
   <p>A few lines. Terse. Do not explain.</p>
-</div>
+</article>
 
      ================================================================= -->
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｔｅｓｔ　ｃａｒｄ，　０４１２ｚ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">04.12.26</h5>
+  <h2>Ｔｅｓｔ　ｃａｒｄ，　０４１２ｚ</h2>
+  <p class="by">-operator</p>
+  <p class="date">04.12.26</p>
   <hr>
   <picture class="shot" data-to="etc/testcard.html">
     <source srcset="img/testcard_still.gif" media="(prefers-reduced-motion: reduce)">
@@ -127,13 +128,13 @@
   down.</p>
   <p>I keep a log of when it appears. There is no pattern in the log. I have looked
   for one the way you look for a light switch in a room you grew up in.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｎｉｇｈｔｓｉｄｅ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">11.09.25</h5>
+  <h2>Ｎｉｇｈｔｓｉｄｅ</h2>
+  <p class="by">-operator</p>
+  <p class="date">11.09.25</p>
   <hr>
   <picture class="shot" data-to="etc/forecast.html">
     <source srcset="img/horizon_still.gif" media="(prefers-reduced-motion: reduce)">
@@ -145,26 +146,26 @@
   <p>Straight there: <a href="etc/forecast.html">nightside</a>.</p>
   <p>I wrote it because the real forecast stopped being read at the hour I am usually
   awake, and I wanted something to be said out loud at that hour.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｓｎｏｗ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">??.??.25</h5>
+  <h2>Ｓｎｏｗ</h2>
+  <p class="by">-operator</p>
+  <p class="date">??.??.25</p>
   <hr>
   <picture class="shot" data-to="etc/static.html">
     <source srcset="img/snow_still.gif" media="(prefers-reduced-motion: reduce)">
     <img src="img/snow.gif" width="192" height="144" alt="Grey snow drifting across a dead channel, with a band sliding through it.">
   </picture>
   <p>Channel four, all night, no complaints received.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｒｅｌａｙ　ｎｉｎｅ，　ｓｔｉｌｌ　ｗａｒｍ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">02.28.25</h5>
+  <h2>Ｒｅｌａｙ　ｎｉｎｅ，　ｓｔｉｌｌ　ｗａｒｍ</h2>
+  <p class="by">-operator</p>
+  <p class="date">02.28.25</p>
   <hr>
   <picture class="shot">
     <source srcset="img/mast_still.gif" media="(prefers-reduced-motion: reduce)">
@@ -179,13 +180,13 @@
   broken or nothing is being used, and the hut is still warm.</p>
   <p>The lamp on top blinks at about forty a minute. It is supposed to be thirty.
   Nobody is coming to fix that.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｎｕｍｂｅｒｓ，　４６２５</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">07.31.24</h5>
+  <h2>Ｎｕｍｂｅｒｓ，　４６２５</h2>
+  <p class="by">-operator</p>
+  <p class="date">07.31.24</p>
   <hr>
   <picture class="shot" data-to="etc/numbers.html">
     <source srcset="img/static_still.gif" media="(prefers-reduced-motion: reduce)">
@@ -203,13 +204,13 @@
   to be, under a heading that sounds like it is about something else.</p>
   <p>If you get the word out, it is the word the login wants. That is the whole
   arrangement. Nobody has told me they finished it.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｓｏｍｅｏｎｅ　ｒｅｔｕｎｅｄ　ｉｔ</h1>
-  <h5 class="by">-vhf</h5>
-  <h5 class="date">06.03.24</h5>
+  <h2>Ｓｏｍｅｏｎｅ　ｒｅｔｕｎｅｄ　ｉｔ</h2>
+  <p class="by">-vhf</p>
+  <p class="date">06.03.24</p>
   <hr>
   <picture class="shot">
     <source srcset="img/meter_still.gif" media="(prefers-reduced-motion: reduce)">
@@ -222,13 +223,13 @@
   <p>You cannot retune a transmitter that nobody is at. I have been telling myself
   that all week and it has not helped, so I am telling all of you instead.</p>
   <p>Thanks for the page. Give it back now.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｄｅａｄ　ｌｅｔｔｅｒ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">03.??.24</h5>
+  <h2>Ｄｅａｄ　ｌｅｔｔｅｒ</h2>
+  <p class="by">-operator</p>
+  <p class="date">03.??.24</p>
   <hr>
   <p>A postcard came to the site address, which is not an address, from a town I
   cannot find. Nothing on it but a frequency and the time, and on the back, in
@@ -241,13 +242,13 @@
   <p>I have read it enough times that I no longer know whether it was addressed to
   me or forwarded through me. I put it in the tin with the other things I have not
   thrown away.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｓｃｏｐｅ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">??.??.24</h5>
+  <h2>Ｓｃｏｐｅ</h2>
+  <p class="by">-operator</p>
+  <p class="date">??.??.24</p>
   <hr>
   <picture class="shot" data-to="etc/scope.html">
     <source srcset="img/wire_still.gif" media="(prefers-reduced-motion: reduce)">
@@ -258,13 +259,13 @@
   number the figure stands still, and where it is not, it drifts forever.</p>
   <p>Whole numbers are rarer than you would think. That is most of what a scope
   ever taught me.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｗａｖｅｆｏｒｍ　ｏｆ　ｎｏｔｈｉｎｇ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">05.22.22</h5>
+  <h2>Ｗａｖｅｆｏｒｍ　ｏｆ　ｎｏｔｈｉｎｇ</h2>
+  <p class="by">-operator</p>
+  <p class="date">05.22.22</p>
   <hr>
   <picture class="shot" data-to="tracklist.html">
     <source srcset="img/wave_still.gif" media="(prefers-reduced-motion: reduce)">
@@ -274,25 +275,25 @@
   flat line. Nothing is never a flat line. There is the mains in there, and the
   heating, and the sea, and something at about eleven hertz that I have decided
   not to identify.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｔｈｅ　ｓｈａｐｅ　ｉｔ　ｍａｋｅｓ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">10.07.23</h5>
+  <h2>Ｔｈｅ　ｓｈａｐｅ　ｉｔ　ｍａｋｅｓ</h2>
+  <p class="by">-operator</p>
+  <p class="date">10.07.23</p>
   <hr>
   <p>Someone wrote in to say the site is depressing. It is not. A room with the
   light left on is not depressing. It is only depressing if you decide the person
   who left it on is not coming back, and I have never once said that.</p>
   <p>Anyway I fixed the thing where the nav wrapped badly on a phone.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｆｏｒｅｃａｓｔ　ｆｏｒ　ｐｌａｃｅｓ　ｔｈａｔ　ａｒｅ　ｎｏｔ　ｔｈｅｒｅ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">??.??.21</h5>
+  <h2>Ｆｏｒｅｃａｓｔ　ｆｏｒ　ｐｌａｃｅｓ　ｔｈａｔ　ａｒｅ　ｎｏｔ　ｔｈｅｒｅ</h2>
+  <p class="by">-operator</p>
+  <p class="date">??.??.21</p>
   <hr>
   <p>Sea areas I have written down over the years without ever finding them on a
   chart: Corvid. Lint. Haar. Slattern Deep. Bight of Nine.</p>
@@ -301,24 +302,24 @@
   <p class="jp">Sturmwarnung. Alle Stationen. Nicht antworten.</p>
   <p>I do not think any of them are real. I have started using them anyway, because
   a forecast for nowhere still tells you what kind of night it is.</p>
-</div>
+</article>
 
-<div class="post">
+<article class="post">
   <div class="mark"></div>
-  <h1>Ｆｉｒｓｔ　ｌｉｇｈｔ</h1>
-  <h5 class="by">-operator</h5>
-  <h5 class="date">12.03.19</h5>
+  <h2>Ｆｉｒｓｔ　ｌｉｇｈｔ</h2>
+  <p class="by">-operator</p>
+  <p class="date">12.03.19</p>
   <hr>
   <p>Put this up so I would have somewhere to keep the recordings. It is four pages
   and a directory and none of it is finished.</p>
   <p>I am not going to explain the name. If you found the site by looking for the
   kind of thing this is, you already know what dead air is, and you already know
   it is not silence.</p>
-</div>
+</article>
 
-</div><!-- /stream -->
+</main><!-- /stream -->
 
-<div id="footer">
+<footer id="footer">
   <a class="btn" href="index.html">
     <picture>
       <source srcset="img/btn_still.gif" media="(prefers-reduced-motion: reduce)">
@@ -327,7 +328,7 @@
   </a>
   <br>
   <span>operator　©　2019-2026</span>
-</div>
+</footer>
 
 <script src="js/backdrop.js?v=bc628881"></script>
 <script src="js/sound.js?v=8104fbf3"></script>

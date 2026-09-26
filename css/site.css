@@ -288,6 +288,27 @@ picture {
   margin: 0 auto;
 }
 
+/* Keyboard users arrive at the top of a page with a masthead, a nav run
+   and a sound toggle before the first transmission. This lets them past it.
+   It is off-screen rather than display:none, because display:none takes it
+   out of the tab order and then it helps nobody. */
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--bg);
+  color: var(--fg);
+  border: 1px solid var(--dim);
+  padding: 8px 14px;
+  font: 11px/1 var(--serif);
+  letter-spacing: 0.2em;
+  z-index: 10000;
+}
+.skip:focus {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .post {
   margin-top: 74px;
 }
@@ -297,24 +318,34 @@ picture {
   margin: 0 auto 14px;
   background: url("../img/favicon.gif") no-repeat center;
 }
-.post h1 {
+/* h2, not h1: the masthead is the page's one h1, and each transmission is
+   a section under it. Thirteen h1s flattened the document outline into
+   thirteen unrelated pages. */
+.post h2 {
   font: 22px/1.5 var(--serif);
   font-weight: normal;
   letter-spacing: 0.30em;
   margin-bottom: 10px;
 }
+/* The byline and date are paragraphs now, not headings -- somebody moving
+   through the page by heading should hear the transmissions, not "operator"
+   and a date thirteen times each. Being <p> puts them in reach of the
+   .post p rule below, so its rhythm and measure are cancelled here. */
 .post .by {
   font: 9px/2.6 var(--serif);
   font-weight: normal;
   letter-spacing: 0.5em;
   color: var(--fg);
+  margin: 0;
+  max-width: none;
 }
 .post .date {
   font: 9px/1 var(--serif);
   font-weight: normal;
   letter-spacing: 0.5em;
   color: var(--dim);
-  margin-bottom: 26px;
+  margin: 0 0 26px;
+  max-width: none;
 }
 .post hr { margin-bottom: 34px; }
 .post p {
@@ -428,7 +459,7 @@ body::after {
 @media (max-width: 480px) {
   body { font-size: 13px; padding-left: 10px; padding-right: 10px; }
   .title { font-size: 19px; letter-spacing: 0.18em; }
-  .post h1 { font-size: 18px; letter-spacing: 0.18em; }
+  .post h2 { font-size: 18px; letter-spacing: 0.18em; }
   #navline { letter-spacing: 0.3em; line-height: 2.6; }
   #note { font-size: 13px; }
   #note .outer { display: none; }   /* shorten the run rather than overflow */

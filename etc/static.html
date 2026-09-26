@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Snow. Untuned video, generated a frame at a time, the way a dead channel looks.">
 <title>⌈Ｓｎｏｗ⌋</title>
 <link rel="icon" type="image/gif" sizes="32x32" href="../img/favicon32.gif">
 <link rel="icon" type="image/gif" sizes="16x16" href="../img/favicon.gif">
@@ -26,9 +27,22 @@ canvas { position:fixed; inset:0; width:100%; height:100%; display:block; }
        letter-spacing:.4em; color:#4a4740; z-index:10;
        text-shadow:0 0 5px #000, 0 0 5px #000, 0 0 5px #000; }
 :focus-visible { outline:1px dotted #c8c3b4; outline-offset:4px; }
+
+/* Announced to a screen reader, invisible to everyone else. These pages are
+   a single instrument with no visible title, so without this they open with
+   nothing to orient by at all. Not display:none -- that hides it from
+   assistive technology too, which would defeat the point. */
+.vh {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}
 </style>
 </head>
 <body data-amb="station">
+
+<h1 class="vh">Snow</h1>
 
 <canvas id="c" aria-label="A full-window field of television snow. Hold still and something surfaces in it."></canvas>
 

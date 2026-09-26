@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Carrier only: the tone a station puts out when there is nothing modulated onto it and nobody left to modulate anything.">
 <title>⌈Ｃａｒｒｉｅｒ　Ｏｎｌｙ⌋</title>
 <link rel="icon" type="image/gif" sizes="32x32" href="img/favicon32.gif">
 <link rel="icon" type="image/gif" sizes="16x16" href="img/favicon.gif">
@@ -78,9 +79,22 @@ body::after {
   #centre { gap:14px; }
 }
 @media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+
+/* Announced to a screen reader, invisible to everyone else. These pages are
+   a single instrument with no visible title, so without this they open with
+   nothing to orient by at all. Not display:none -- that hides it from
+   assistive technology too, which would defeat the point. */
+.vh {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}
 </style>
 </head>
 <body data-amb="carrier">
+
+<h1 class="vh">Carrier only</h1>
 
 <div id="field" aria-hidden="true">
 <i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i><i>nobody is modulating this carrier · </i>

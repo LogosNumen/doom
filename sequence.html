@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Walk it back. One picture from the station leads to the next, and the next, for as long as you keep going.">
 <title>⌈Ｗａｌｋ　Ｉｔ　Ｂａｃｋ⌋</title>
 <link rel="icon" type="image/gif" sizes="32x32" href="img/favicon32.gif">
 <link rel="icon" type="image/gif" sizes="16x16" href="img/favicon.gif">
@@ -64,14 +65,27 @@ body::after {
 @media (prefers-reduced-motion:reduce) {
   #shot img, #cap, #dots span { transition:none !important; }
 }
+
+/* Announced to a screen reader, invisible to everyone else. These pages are
+   a single instrument with no visible title, so without this they open with
+   nothing to orient by at all. Not display:none -- that hides it from
+   assistive technology too, which would defeat the point. */
+.vh {
+  position: absolute; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}
 </style>
 </head>
 <body data-amb="walk">
 
+<h1 class="vh">Walk it back</h1>
+
 <div id="shot">
   <picture>
     <source id="src-still" media="(prefers-reduced-motion: reduce)">
-    <img id="img" src="img/seq-door.gif" width="192" height="160" alt="">
+    <img id="img" src="img/seq-door.gif" width="192" height="160" alt="" role="presentation">
   </picture>
 </div>
 
