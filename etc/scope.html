@@ -52,11 +52,31 @@ body::after {
   clip: rect(0 0 0 0); clip-path: inset(50%);
   white-space: nowrap; border: 0;
 }
+
+/* Shown only when scripts are off. These pages are instruments rather than
+   documents, so without JavaScript they are not degraded, they are empty --
+   and an empty page that says nothing reads as broken. This says what is
+   missing and why, in the station's own voice, rather than demanding the
+   reader turn something on. */
+.nojs {
+  display: block;
+  max-width: 46ch;
+  margin: 46px auto;
+  padding: 0 14px;
+  color: #6b675e;
+  font: 11px/1.95 "MS Gothic", "Osaka-Mono", "Courier New", monospace;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
 </style>
 </head>
 <body data-amb="empty">
 
 <h1 class="vh">Scope</h1>
+
+<noscript>
+  <p class="nojs">The trace is drawn a frame at a time, so with scripts off the screen stays dark. That is also what an oscilloscope with nothing wired into it looks like, so very little is actually missing.</p>
+</noscript>
 
 <canvas id="c" width="256" height="256"
         aria-label="An oscilloscope tracing a Lissajous figure. Moving the pointer changes the ratio between the two axes."></canvas>

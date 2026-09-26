@@ -38,11 +38,31 @@ canvas { position:fixed; inset:0; width:100%; height:100%; display:block; }
   clip: rect(0 0 0 0); clip-path: inset(50%);
   white-space: nowrap; border: 0;
 }
+
+/* Shown only when scripts are off. These pages are instruments rather than
+   documents, so without JavaScript they are not degraded, they are empty --
+   and an empty page that says nothing reads as broken. This says what is
+   missing and why, in the station's own voice, rather than demanding the
+   reader turn something on. */
+.nojs {
+  display: block;
+  max-width: 46ch;
+  margin: 46px auto;
+  padding: 0 14px;
+  color: #6b675e;
+  font: 11px/1.95 "MS Gothic", "Osaka-Mono", "Courier New", monospace;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
 </style>
 </head>
 <body data-amb="station">
 
 <h1 class="vh">Snow</h1>
+
+<noscript>
+  <p class="nojs">The snow is generated frame by frame rather than stored. With scripts off the channel is simply dead, which is nearer the truth anyway.</p>
+</noscript>
 
 <canvas id="c" aria-label="A full-window field of television snow. Hold still and something surfaces in it."></canvas>
 

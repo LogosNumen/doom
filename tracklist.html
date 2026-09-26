@@ -101,9 +101,29 @@ body::after {
   button { min-width:48px; padding:6px 6px; letter-spacing:.1em; }
 }
 @media (prefers-reduced-motion:reduce) { * { animation:none !important; } }
+
+/* Shown only when scripts are off. These pages are instruments rather than
+   documents, so without JavaScript they are not degraded, they are empty --
+   and an empty page that says nothing reads as broken. This says what is
+   missing and why, in the station's own voice, rather than demanding the
+   reader turn something on. */
+.nojs {
+  display: block;
+  max-width: 46ch;
+  margin: 46px auto;
+  padding: 0 14px;
+  color: #6b675e;
+  font: 11px/1.95 "MS Gothic", "Osaka-Mono", "Courier New", monospace;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
 </style>
 </head>
 <body data-amb="empty">
+
+<noscript>
+  <p class="nojs">Every piece on this page is written when you press play, so with scripts off there is nothing to list and nothing to press. There are no audio files to fall back on. There never were any.</p>
+</noscript>
 
 <div class="page">
 
