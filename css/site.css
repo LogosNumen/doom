@@ -9,8 +9,8 @@
 :root {
   --bg:  #000000;  /* pure black, not near-black                        */
   --fg:  #c8c3b4;  /* pale warm grey: prose, titles, links at rest      */
-  --dim: #6b675e;  /* mid grey: meta, rules, chrome. never body text.   */
-  --sig: #b4503c;  /* the one accent. sound-on, hover, action links.    */
+  --dim: #78746a;  /* mid grey: meta, rules, chrome. never body text.   */
+  --sig: #bd543f;  /* the one accent. sound-on, hover, action links.    */
   --ink: #1c1a17;  /* near-black: focus fill, image ramp                */
 
   --serif: Times, "Times New Roman", "Liberation Serif", serif;

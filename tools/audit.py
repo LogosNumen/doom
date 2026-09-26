@@ -125,6 +125,62 @@ class Page(HTMLParser):
                 coll[-1][2] = s[:60]
 
 
+# ---- contrast ---------------------------------------------------------
+# The palette is pale grey on pure black, which is easy to get slightly
+# wrong and impossible to notice once your eyes have adjusted to it. These
+# are the WCAG numbers, so the judgement is arithmetic rather than taste.
+#
+# --dim and --sig were both under 4.5:1 and both are used for navigation,
+# dates and footers at 9-11px -- normal-size text by the standard, however
+# small it looks. They were nudged up by the least that cleared it. --ink
+# is a focus fill and an image ramp and is never text, so it is exempt.
+
+TEXT_TOKENS = ("--fg", "--dim", "--sig")
+AA_NORMAL = 4.5
+
+
+def _lin(c):
+    c = c / 255.0
+    return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def luminance(hexv):
+    h = hexv.lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    r, g, b = (int(h[i:i + 2], 16) for i in (0, 2, 4))
+    return 0.2126 * _lin(r) + 0.7152 * _lin(g) + 0.0722 * _lin(b)
+
+
+def contrast(a, b):
+    la, lb = luminance(a), luminance(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def check_palette(css_text):
+    """Every token used for text must clear AA against the background."""
+    out = []
+    tokens = dict(re.findall(r"(--[a-z]+):\s*(#[0-9a-fA-F]{3,6})\s*;",
+                             css_text))
+    bg = tokens.get("--bg")
+    if not bg:
+        # Silence here would read exactly like a pass, and a check that
+        # cannot find what it measures should say so rather than agree.
+        out.append("css/site.css  no --bg token found; contrast unchecked")
+        return out
+    for name in TEXT_TOKENS:
+        val = tokens.get(name)
+        if not val:
+            continue
+        r = contrast(val, bg)
+        if r < AA_NORMAL:
+            out.append("css/site.css  %s %s on %s is %.2f:1 -- under %.1f:1, "
+                       "and it is used for text at 9-11px"
+                       % (name, val, bg, r, AA_NORMAL))
+    return out
+
+
 def read(p):
     return io.open(p, encoding="utf-8", errors="replace").read()
 
@@ -270,6 +326,7 @@ def main(argv=None):
                 css_text += read(os.path.join(css_dir, fn))
 
     all_bad, all_warn = [], []
+    all_bad += check_palette(css_text)
     titles = {}
     page_list = pages()
     for path in page_list:
